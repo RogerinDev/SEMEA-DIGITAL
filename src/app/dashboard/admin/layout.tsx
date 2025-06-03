@@ -1,3 +1,5 @@
+"use client";
+
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
 import { LayoutDashboard, FileText, AlertTriangle, Users, BarChart3, Settings } from 'lucide-react';
 
