@@ -1,3 +1,4 @@
+
 import PublicLayout from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,13 +21,6 @@ export default function HomePage() {
       description: 'Denuncie descarte irregular, maus-tratos a animais e outras infrações ambientais.',
       link: '/dashboard/citizen/incidents/new',
       dataAiHint: 'environmental problem'
-    },
-    {
-      icon: Recycle,
-      title: 'Hub de Informações',
-      description: 'Acesse materiais educativos, eventos e guias sobre gestão de resíduos e arborização.',
-      link: '/info/education',
-      dataAiHint: 'learning environment'
     },
     {
       icon: PawPrint,
@@ -55,7 +49,7 @@ export default function HomePage() {
               <Link href="/dashboard/citizen">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/info/education">Saber Mais</Link>
+              <Link href="/info/urban-afforestation">Saber Mais</Link>
             </Button>
           </div>
         </div>
@@ -64,7 +58,7 @@ export default function HomePage() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Nossos Principais Serviços</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> {/* Adjusted to lg:grid-cols-3 */}
             {features.map((feature) => (
               <Card key={feature.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="items-center">
@@ -125,3 +119,5 @@ export default function HomePage() {
     </PublicLayout>
   );
 }
+
+    

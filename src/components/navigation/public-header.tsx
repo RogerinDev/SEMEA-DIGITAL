@@ -1,13 +1,16 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, PawPrint, UserPlus } from 'lucide-react';
+import { Briefcase, Info, LogIn, PawPrint, UserPlus, TreePine, Droplets, CalendarDays } from 'lucide-react';
 
 export function PublicHeader() {
   const navItems = [
-    { href: '/info/education', label: 'Educação', icon: Info },
+    { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
+    { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
+    { href: '/info/events', label: 'Eventos', icon: CalendarDays },
     { href: '/animal-welfare/adoption', label: 'Adoção', icon: PawPrint },
-    { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase }, // Link to citizen dashboard as "Services"
+    { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase }, 
   ];
 
   return (
@@ -42,3 +45,5 @@ export function PublicHeader() {
     </header>
   );
 }
+
+    

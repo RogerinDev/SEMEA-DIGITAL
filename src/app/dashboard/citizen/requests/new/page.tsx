@@ -1,9 +1,12 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -36,29 +39,50 @@ const formSchema = z.object({
   }),
   address: z.string().optional(),
   contactPhone: z.string().optional(),
-  // attachments: z.instanceof(FileList).optional(), // For file uploads, more complex handling needed
 });
 
 export default function NewServiceRequestPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedType = searchParams.get('type') as ServiceRequestType | null;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      requestType: undefined, // Initialize as undefined
       description: "",
+      address: "",
+      contactPhone: "",
     },
   });
 
+  useEffect(() => {
+    // Set the value if preselectedType is valid and available in SERVICE_REQUEST_TYPES
+    if (preselectedType && SERVICE_REQUEST_TYPES.some(rt => rt.value === preselectedType)) {
+      form.setValue('requestType', preselectedType);
+    }
+  }, [preselectedType, form, form.setValue]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    // Here you would typically send the data to your backend
     toast({
       title: "Solicitação Enviada!",
       description: `Sua solicitação de ${SERVICE_REQUEST_TYPES.find(s => s.value === values.requestType)?.label} foi registrada com sucesso. Protocolo: ${Date.now().toString().slice(-6)}`,
       variant: "default",
     });
-    form.reset();
-    // Potentially redirect or update UI
-    // router.push('/dashboard/citizen/requests');
+    
+    // Reset form, re-applying preselectedType if it exists for a new form submission
+    const resetValues = {
+        requestType: undefined,
+        description: "",
+        address: "",
+        contactPhone: "",
+    };
+    if (preselectedType && SERVICE_REQUEST_TYPES.some(rt => rt.value === preselectedType)) {
+        resetValues.requestType = preselectedType;
+    }
+    form.reset(resetValues);
   }
 
   return (
@@ -87,7 +111,10 @@ export default function NewServiceRequestPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo de Solicitação</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value || ""} // Ensure value is controlled and not undefined
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o tipo de serviço" />
@@ -160,24 +187,6 @@ export default function NewServiceRequestPage() {
                   </FormItem>
                 )}
               />
-              {/* Placeholder for file uploads - actual implementation is more complex
-              <FormField
-                control={form.control}
-                name="attachments"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Anexos (fotos, documentos)</FormLabel>
-                    <FormControl>
-                      <Input type="file" multiple onChange={(e) => field.onChange(e.target.files)} />
-                    </FormControl>
-                    <FormDescription>
-                      Envie arquivos relevantes para sua solicitação (limite 5MB por arquivo).
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              */}
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" asChild>
                   <Link href="/dashboard/citizen/requests">Cancelar</Link>
@@ -191,3 +200,5 @@ export default function NewServiceRequestPage() {
     </>
   );
 }
+
+    

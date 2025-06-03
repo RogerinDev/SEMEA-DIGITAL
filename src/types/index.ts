@@ -1,3 +1,4 @@
+
 export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin_secretaria';
 
 export interface User {
@@ -16,7 +17,7 @@ export type ServiceRequestType =
   | "coleta_especial_residuos"
   | "recolhimento_animal_errante_doente_ferido"
   | "agendamento_uso_area_parque"
-  | "inscricao_evento_educacional"
+  // | "inscricao_evento_educacional" // Removed as it was tied to education
   | "solicitacao_adocao_animal"
   | "licenca_ambiental_simplificada"
   | "outros_servicos_gerais";
@@ -41,7 +42,7 @@ export const SERVICE_REQUEST_TYPES: { value: ServiceRequestType, label: string }
   { value: "coleta_especial_residuos", label: "Coleta Especial de Resíduos" },
   { value: "recolhimento_animal_errante_doente_ferido", label: "Recolhimento de Animal Errante/Doente/Ferido" },
   { value: "agendamento_uso_area_parque", label: "Agendamento de Uso de Área em Parque" },
-  { value: "inscricao_evento_educacional", label: "Inscrição em Evento Educacional" },
+  // { value: "inscricao_evento_educacional", label: "Inscrição em Evento Educacional" }, // Removed
   { value: "solicitacao_adocao_animal", label: "Solicitação de Adoção de Animal" },
   { value: "licenca_ambiental_simplificada", label: "Licença Ambiental Simplificada" },
   { value: "outros_servicos_gerais", label: "Outros Serviços Gerais" },
@@ -99,15 +100,16 @@ export interface Animal {
   statusAdocao: "disponivel" | "processo_adocao_em_andamento" | "adotado";
 }
 
-export interface EducationalMaterial {
-    id: string;
-    title: string;
-    type: "artigo_blog" | "pdf_cartilha" | "video_aula" | "podcast" | "link_externo" | "quiz_interativo";
-    description: string;
-    url: string;
-    imageUrl?: string;
-    dataAiHint?: string;
-}
+// EducationalMaterial type removed as the education page is being removed.
+// export interface EducationalMaterial {
+//     id: string;
+//     title: string;
+//     type: "artigo_blog" | "pdf_cartilha" | "video_aula" | "podcast" | "link_externo" | "quiz_interativo";
+//     description: string;
+//     url: string;
+//     imageUrl?: string;
+//     dataAiHint?: string;
+// }
 
 export interface EnvironmentalEvent {
     id:string;
@@ -126,3 +128,5 @@ export type ResolvedTicket = {
   description: string;
   resolution: string;
 };
+
+    
