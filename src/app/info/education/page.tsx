@@ -1,6 +1,6 @@
 
 import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GraduationCap, Lightbulb, BookOpen, CalendarCheck2, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
