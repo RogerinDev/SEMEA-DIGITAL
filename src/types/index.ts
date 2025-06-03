@@ -17,9 +17,9 @@ export type ServiceRequestType =
   | "coleta_especial_residuos"
   | "recolhimento_animal_errante_doente_ferido"
   | "agendamento_uso_area_parque"
-  // | "inscricao_evento_educacional" // Removed as it was tied to education
   | "solicitacao_adocao_animal"
   | "licenca_ambiental_simplificada"
+  | "solicitacao_projeto_educacao_ambiental" // Added for the new form
   | "outros_servicos_gerais";
 
 export interface ServiceRequest {
@@ -42,9 +42,9 @@ export const SERVICE_REQUEST_TYPES: { value: ServiceRequestType, label: string }
   { value: "coleta_especial_residuos", label: "Coleta Especial de Resíduos" },
   { value: "recolhimento_animal_errante_doente_ferido", label: "Recolhimento de Animal Errante/Doente/Ferido" },
   { value: "agendamento_uso_area_parque", label: "Agendamento de Uso de Área em Parque" },
-  // { value: "inscricao_evento_educacional", label: "Inscrição em Evento Educacional" }, // Removed
   { value: "solicitacao_adocao_animal", label: "Solicitação de Adoção de Animal" },
   { value: "licenca_ambiental_simplificada", label: "Licença Ambiental Simplificada" },
+  { value: "solicitacao_projeto_educacao_ambiental", label: "Solicitação de Projeto/Palestra de Educação Ambiental" },
   { value: "outros_servicos_gerais", label: "Outros Serviços Gerais" },
 ];
 
@@ -70,7 +70,7 @@ export interface IncidentReport {
   status: IncidentStatus;
   dateCreated: string; // Store as ISO string
   description: string;
-  location: string; 
+  location: string;
   reportedBy?: string; // Optional, can be anonymous
 }
 
@@ -100,17 +100,6 @@ export interface Animal {
   statusAdocao: "disponivel" | "processo_adocao_em_andamento" | "adotado";
 }
 
-// EducationalMaterial type removed as the education page is being removed.
-// export interface EducationalMaterial {
-//     id: string;
-//     title: string;
-//     type: "artigo_blog" | "pdf_cartilha" | "video_aula" | "podcast" | "link_externo" | "quiz_interativo";
-//     description: string;
-//     url: string;
-//     imageUrl?: string;
-//     dataAiHint?: string;
-// }
-
 export interface EnvironmentalEvent {
     id:string;
     name: string;
@@ -129,4 +118,28 @@ export type ResolvedTicket = {
   resolution: string;
 };
 
-    
+// Types for Environmental Education Section
+export interface EducationalProject {
+  id: string;
+  slug: string;
+  title: string;
+  imageUrl: string;
+  dataAiHint: string;
+  introduction: string; // Short description for listing page
+  objectives: string[];
+  targetAudience: string;
+  associatedLectures?: string[];
+  methodology?: string[];
+  duration?: string;
+  observations?: string[];
+  generalNote?: boolean; // To indicate if the general SEMEA focus note should be displayed
+}
+
+export interface ThematicLecture {
+  id: string;
+  title: string;
+  category?: string; // e.g., ODS
+  description?: string; // Optional brief description
+}
+
+export const GENERAL_SEMEA_FOCUS_NOTE = "Além dos projetos específicos, a SEMEA foca em fomentar a destinação adequada de resíduos sólidos, prevenção a queimadas, preparo para emergência climática (proteção de APPs, áreas verdes, arborização urbana) e bem-estar animal.";

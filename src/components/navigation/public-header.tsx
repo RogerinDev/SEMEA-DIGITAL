@@ -2,15 +2,15 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, PawPrint, UserPlus, TreePine, Droplets, CalendarDays } from 'lucide-react';
+import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint } from 'lucide-react';
 
 export function PublicHeader() {
   const navItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
-    { href: '/info/events', label: 'Eventos', icon: CalendarDays },
+    { href: '/info/education', label: 'Educação Ambiental', icon: GraduationCap },
     { href: '/animal-welfare/adoption', label: 'Adoção', icon: PawPrint },
-    { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase }, 
+    { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase },
   ];
 
   return (
@@ -45,5 +45,3 @@ export function PublicHeader() {
     </header>
   );
 }
-
-    

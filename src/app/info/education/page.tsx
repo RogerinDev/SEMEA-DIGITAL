@@ -1,72 +1,69 @@
-import PublicLayout from '@/components/layouts/public-layout';
+
 import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, Download, BookOpen, ExternalLink, Youtube, Mic } from 'lucide-react';
-import Image from 'next/image';
+import { GraduationCap, Lightbulb, BookOpen, CalendarCheck2, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import type { EducationalMaterial } from '@/types';
+import Image from 'next/image';
 
-const mockMaterials: EducationalMaterial[] = [
-  { id: '1', title: 'Guia Completo de Reciclagem Doméstica', type: 'pdf_cartilha', description: 'Aprenda como separar corretamente seu lixo e contribuir para um ambiente mais limpo.', url: '#', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'recycling guide' },
-  { id: '2', title: 'A Importância das Árvores Urbanas', type: 'artigo_blog', description: 'Descubra os benefícios das árvores para a cidade e como ajudar na arborização.', url: '#', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'city trees' },
-  { id: '3', title: 'Vídeo Aula: Compostagem Caseira Fácil', type: 'video_aula', description: 'Tutorial passo a passo para transformar resíduos orgânicos em adubo.', url: 'https://www.youtube.com', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'composting tutorial' },
-  { id: '4', title: 'Podcast: Fauna Local de Varginha', type: 'podcast', description: 'Conheça os animais silvestres da nossa região e como protegê-los.', url: '#', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'local wildlife' },
+const subSections = [
+  { title: 'Projetos de Educação Ambiental', description: 'Conheça os projetos desenvolvidos pela SEMEA para escolas e comunidades.', href: '/info/education/projects', icon: Lightbulb, dataAiHint: 'environmental project' },
+  { title: 'Palestras Temáticas', description: 'Solicite palestras sobre sustentabilidade, ODS e outros temas ambientais relevantes.', href: '/info/education/lectures', icon: BookOpen, dataAiHint: 'lecture presentation' },
+  { title: 'Eventos Ambientais', description: 'Fique por dentro do nosso calendário de eventos, workshops e atividades especiais.', href: '/info/education/events', icon: CalendarCheck2, dataAiHint: 'community event' },
+  { title: 'Como Participar', description: 'Saiba como sua instituição pode solicitar projetos e palestras da SEMEA.', href: '/info/education/how-to-participate', icon: Users, dataAiHint: 'community participation' },
 ];
-
-const getIconForMaterialType = (type: EducationalMaterial['type']) => {
-  switch (type) {
-    case 'pdf_cartilha': return Download;
-    case 'artigo_blog': return BookOpen;
-    case 'video_aula': return Youtube;
-    case 'podcast': return Mic;
-    default: return ExternalLink;
-  }
-};
 
 export default function EnvironmentalEducationPage() {
   return (
-    <PublicLayout>
-      <div className="container mx-auto py-12 px-4">
-        <PageTitle title="Educação Ambiental" icon={GraduationCap} description="Materiais educativos, cartilhas, vídeos e informações para você aprender mais sobre o meio ambiente e como preservá-lo." />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mockMaterials.map((material) => {
-            const Icon = getIconForMaterialType(material.type);
-            return (
-              <Card key={material.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                {material.imageUrl && (
-                  <div className="aspect-video overflow-hidden">
-                    <Image src={material.imageUrl} alt={material.title} width={600} height={400} className="object-cover w-full h-full transition-transform duration-300 hover:scale-105" data-ai-hint={material.dataAiHint}/>
-                  </div>
-                )}
-                <CardHeader>
-                  <CardTitle className="text-lg">{material.title}</CardTitle>
-                  <CardDescription className="text-xs uppercase tracking-wider text-primary">{material.type.replace(/_/g, ' ')}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className="text-sm text-muted-foreground line-clamp-3">{material.description}</p>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild className="w-full">
-                    <Link href={material.url} target={material.type === 'link_externo' || material.type === 'video_aula' ? '_blank' : '_self'}>
-                      <Icon className="mr-2 h-4 w-4" />
-                      Acessar Material
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            );
-          })}
+    <>
+      <PageTitle
+        title="Programa Varginha Sustentável de Educação Ambiental"
+        icon={GraduationCap}
+        description="Construir ações de Educação Ambiental de maneira contínua e integrada, fomentando a Sustentabilidade no Município de Varginha."
+      />
+      <div className="grid md:grid-cols-2 gap-8 mb-12 items-center">
+        <div>
+            <Image 
+                src="https://placehold.co/600x400.png" 
+                alt="Educação Ambiental em Varginha" 
+                width={600} 
+                height={400} 
+                className="rounded-lg shadow-xl"
+                data-ai-hint="environmental education" 
+            />
         </div>
-        {mockMaterials.length === 0 && (
-            <div className="text-center py-12 col-span-full">
-                <GraduationCap className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Nenhum material disponível no momento</h3>
-                <p className="text-muted-foreground">Volte em breve para conferir nossos conteúdos educativos.</p>
-            </div>
-        )}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-primary">Nossa Missão</h2>
+          <p className="text-lg text-muted-foreground">
+            O Programa Varginha Sustentável de Educação Ambiental visa engajar cidadãos, escolas e instituições na construção de um futuro mais verde e consciente. Através de projetos inovadores, palestras informativas e eventos participativos, buscamos semear o conhecimento e as práticas sustentáveis em toda a comunidade.
+          </p>
+          <p className="text-muted-foreground">
+            Explore nossas iniciativas e descubra como você e sua organização podem fazer parte desta transformação!
+          </p>
+        </div>
       </div>
-    </PublicLayout>
+
+      <h3 className="text-2xl font-semibold mb-6 text-center">Explore Nossas Seções</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        {subSections.map((section) => (
+          <Card key={section.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+            <CardHeader className="items-center text-center">
+              <section.icon className="h-10 w-10 text-primary mb-3" />
+              <CardTitle>{section.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground text-center">{section.description}</p>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full">
+                <Link href={section.href}>
+                  Saber Mais <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </>
   );
 }
