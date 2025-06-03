@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function PublicHeader() {
   const navItems = [
@@ -30,16 +31,35 @@ export function PublicHeader() {
           ))}
         </nav>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/login">
-              <LogIn className="mr-2 h-4 w-4" /> Entrar
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/register">
-              <UserPlus className="mr-2 h-4 w-4" /> Registrar
-            </Link>
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" asChild aria-label="Entrar">
+                  <Link href="/login">
+                    <LogIn className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Entrar</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" asChild aria-label="Registrar">
+                  <Link href="/register">
+                    <UserPlus className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Registrar</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
     </header>
