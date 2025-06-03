@@ -1,0 +1,71 @@
+import { PageTitle } from '@/components/page-title';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { FileText, AlertTriangle, Users, CheckSquare, Clock, ArrowRight, LayoutDashboard } from 'lucide-react';
+import Link from 'next/link';
+
+export default function AdminDashboardPage() {
+  const overviewCards = [
+    { title: 'Solicitações Pendentes', value: '12', icon: Clock, color: 'text-yellow-500', link: '/dashboard/admin/requests?status=pendente' },
+    { title: 'Incidentes Novos', value: '5', icon: AlertTriangle, color: 'text-red-500', link: '/dashboard/admin/incidents?status=novo' },
+    { title: 'Serviços Concluídos (Mês)', value: '47', icon: CheckSquare, color: 'text-green-500', link: '/dashboard/admin/requests?status=concluido' },
+    // { title: 'Usuários Ativos', value: '125', icon: Users, color: 'text-blue-500', link: '#' },
+  ];
+
+  return (
+    <>
+      <PageTitle title="Painel Administrativo" icon={LayoutDashboard} description="Visão geral e gerenciamento do sistema SEMEA Digital." />
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        {overviewCards.map(card => (
+          <Card key={card.title} className="shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+              <card.icon className={`h-5 w-5 ${card.color || 'text-muted-foreground'}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{card.value}</div>
+               <Button variant="link" asChild className="px-0 text-sm text-muted-foreground">
+                <Link href={card.link}>
+                  Ver Detalhes <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Acesso Rápido às Seções</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link href="/dashboard/admin/requests"><FileText className="mr-2 h-4 w-4 text-primary"/> Gerenciar Solicitações de Serviço</Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link href="/dashboard/admin/incidents"><AlertTriangle className="mr-2 h-4 w-4 text-primary"/> Gerenciar Incidentes Ambientais</Link>
+            </Button>
+            {/* More links can be added here as modules are developed */}
+          </CardContent>
+        </Card>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Atividade Recente</CardTitle>
+            <CardDescription>Um feed de atividades recentes apareceria aqui.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Nenhuma atividade recente para exibir (placeholder).</p>
+            {/* Example items:
+            <ul className="space-y-2 text-sm">
+              <li>Nova solicitação de poda de árvore recebida (Protocolo: 2024005).</li>
+              <li>Incidente de descarte irregular atualizado para "Em Verificação" (Protocolo: DEN2024003).</li>
+            </ul>
+            */}
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  );
+}
