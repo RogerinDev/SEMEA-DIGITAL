@@ -129,7 +129,7 @@ export default function NewServiceRequestPage() {
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      Escolha o serviço que você precisa.
+                      Selecione o tipo de serviço desejado.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -149,7 +149,7 @@ export default function NewServiceRequestPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Forneça informações claras para nos ajudar a entender sua necessidade.
+                      Detalhe sua solicitação. Informações claras agilizam o atendimento.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -165,7 +165,7 @@ export default function NewServiceRequestPage() {
                       <Input placeholder="Rua Exemplo, 123, Bairro" {...field} />
                     </FormControl>
                      <FormDescription>
-                      Informe o endereço relacionado à solicitação, se houver.
+                       Informe o endereço onde o serviço será realizado, se aplicável.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -181,7 +181,7 @@ export default function NewServiceRequestPage() {
                       <Input type="tel" placeholder="(XX) XXXXX-XXXX" {...field} />
                     </FormControl>
                      <FormDescription>
-                      Caso precisemos entrar em contato sobre esta solicitação.
+                       Informe um telefone para contato, caso necessário para esta solicitação.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
