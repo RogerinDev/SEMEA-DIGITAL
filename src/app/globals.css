@@ -5,25 +5,25 @@
 @layer base {
   :root {
     --background: 0 0% 100%; /* Branco */
-    --foreground: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) - Default text */
+    --foreground: 120 58% 22%; /* Verde Contorno/Detalhe mais claro (#245A24) - Default text */
 
     --card: 0 0% 100%; /* Branco */
-    --card-foreground: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) */
+    --card-foreground: 120 58% 22%; /* Verde Contorno/Detalhe mais claro (#245A24) */
 
     --popover: 0 0% 100%; /* Branco */
-    --popover-foreground: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) */
+    --popover-foreground: 120 58% 22%; /* Verde Contorno/Detalhe mais claro (#245A24) */
 
-    --primary: 120 57% 23%; /* Verde Principal (#1A5D1A) */
+    --primary: 120 55% 30%; /* Verde Principal mais claro (#2A7C2A) */
     --primary-foreground: 0 0% 100%; /* Branco - Texto sobre Verde Principal */
 
     --secondary: 208 100% 37%; /* Azul Principal (#005BBB) */
     --secondary-foreground: 0 0% 100%; /* Branco - Texto sobre Azul Principal */
 
     --muted: 91 52% 95%; /* Verde Secundário (#80C739) muito claro - para fundos suaves */
-    --muted-foreground: 120 50% 25%; /* Verde Contorno/Detalhe um pouco mais claro */
+    --muted-foreground: 120 50% 32%; /* Verde Contorno/Detalhe um pouco mais claro e suave (#336B33) */
 
     --accent: 49 100% 62%; /* Amarelo Principal (#FFD93D) */
-    --accent-foreground: 120 60% 15%; /* Verde Contorno/Detalhe - Texto sobre Amarelo */
+    --accent-foreground: 120 58% 20%; /* Verde Contorno/Detalhe (mais escuro para contraste em amarelo) (#1F4C1F) */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -35,76 +35,71 @@
     --radius: 0.5rem;
 
     /* Sidebar specific colors */
-    --sidebar-background: 120 57% 23%; /* Verde Principal (#1A5D1A) */
+    --sidebar-background: 120 55% 30%; /* Verde Principal mais claro (#2A7C2A) */
     --sidebar-foreground: 0 0% 90%; /* Branco suave / Cinza muito claro */
     
     --sidebar-primary: 49 100% 62%; /* Amarelo Principal (#FFD93D) - para itens ativos */
-    --sidebar-primary-foreground: 120 60% 15%; /* Verde Contorno/Detalhe - texto sobre amarelo ativo */
+    --sidebar-primary-foreground: 120 58% 20%; /* Verde Contorno/Detalhe (mais escuro para contraste em amarelo) (#1F4C1F) */
     
-    --sidebar-accent: 91 52% 50%; /* Verde Secundário (#80C739) - para hover */
-    --sidebar-accent-foreground: 120 60% 15%; /* Verde Contorno/Detalhe - texto sobre verde secundário hover */
+    --sidebar-accent: 91 50% 58%; /* Verde Secundário mais claro (#99D45A) - para hover */
+    --sidebar-accent-foreground: 120 58% 20%; /* Verde Contorno/Detalhe (mais escuro para contraste em verde claro) (#1F4C1F) */
     
-    --sidebar-border: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) */
+    --sidebar-border: 120 58% 22%; /* Verde Contorno/Detalhe mais claro (#245A24) */
     --sidebar-ring: 49 100% 62%; /* Amarelo Principal (#FFD93D) */
 
-    --chart-1: 120 57% 23%; /* Verde Principal */
+    --chart-1: 120 55% 30%; /* Verde Principal mais claro */
     --chart-2: 208 100% 37%;  /* Azul Principal */
     --chart-3: 49 100% 62%; /* Amarelo Principal */
-    --chart-4: 91 52% 50%;  /* Verde Secundário */
-    --chart-5: 120 60% 15%; /* Verde Contorno/Detalhe */
+    --chart-4: 91 50% 58%;  /* Verde Secundário mais claro */
+    --chart-5: 120 58% 22%; /* Verde Contorno/Detalhe mais claro */
   }
 
   .dark {
-    /* Mantendo o tema dark com cores invertidas ou adaptadas se necessário, 
-       mas o foco principal da solicitação é o tema claro.
-       Pode-se ajustar essas cores escuras posteriormente para alinhar com a nova paleta,
-       por exemplo, usando tons mais escuros dos verdes/azuis.
-    */
-    --background: 120 30% 10%; /* Verde muito escuro */
-    --foreground: 90 30% 85%; /* Verde claro / Cinza */
+    --background: 120 25% 12%; 
+    --foreground: 90 30% 90%; 
 
-    --card: 120 30% 15%; 
-    --card-foreground: 90 30% 85%;
+    --card: 120 25% 18%; 
+    --card-foreground: 90 30% 90%;
 
-    --popover: 120 30% 15%;
-    --popover-foreground: 90 30% 85%;
+    --popover: 120 25% 18%;
+    --popover-foreground: 90 30% 90%;
 
-    --primary: 120 57% 43%; /* Verde Principal mais claro */
+    --primary: 120 50% 45%; /* Verde Principal (dark) mais claro */
     --primary-foreground: 0 0% 100%; 
 
-    --secondary: 208 100% 57%; /* Azul Principal mais claro */
+    --secondary: 208 90% 55%; /* Azul Principal (dark) mais claro */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 91 40% 25%; /* Verde Secundário escuro */
-    --muted-foreground: 90 30% 70%; 
+    --muted: 91 35% 30%; 
+    --muted-foreground: 90 30% 75%; 
 
-    --accent: 49 100% 72%; /* Amarelo Principal mais claro */
-    --accent-foreground: 120 60% 10%; 
+    --accent: 49 90% 70%; 
+    --accent-foreground: 120 50% 15%; 
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 120 30% 30%;
-    --input: 120 30% 20%;
-    --ring: 208 100% 57%; 
+    --border: 120 25% 35%;
+    --input: 120 25% 22%;
+    --ring: 208 90% 55%; 
     
-    --sidebar-background: 120 57% 18%; 
-    --sidebar-foreground: 0 0% 90%;
+    --sidebar-background: 120 50% 25%; 
+    --sidebar-foreground: 0 0% 92%;
     
-    --sidebar-primary: 49 100% 72%; 
-    --sidebar-primary-foreground: 120 60% 10%;
+    --sidebar-primary: 49 90% 70%; 
+    --sidebar-primary-foreground: 120 50% 15%;
     
-    --sidebar-accent: 91 52% 60%; 
-    --sidebar-accent-foreground: 120 60% 10%; 
+    --sidebar-accent: 91 45% 60%; 
+    --sidebar-accent-foreground: 120 50% 15%; 
     
-    --sidebar-border: 120 60% 10%;
-    --sidebar-ring: 49 100% 72%;
+    --sidebar-border: 120 50% 15%;
+    --sidebar-ring: 49 90% 70%;
 
-    --chart-1: 120 57% 43%;
-    --chart-2: 208 100% 57%;
-    --chart-3: 49 100% 72%;
-    --chart-4: 91 52% 60%;
-    --chart-5: 120 60% 35%;
+    --chart-1: 120 50% 45%;
+    --chart-2: 208 90% 55%;
+    --chart-3: 49 90% 70%;
+    --chart-4: 91 45% 60%;
+    --chart-5: 120 50% 38%;
   }
 }
 
