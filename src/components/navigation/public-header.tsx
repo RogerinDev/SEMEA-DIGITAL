@@ -23,7 +23,7 @@ export function PublicHeader() {
             <Link
               key={item.label}
               href={item.href}
-              className="flex items-center gap-1 text-foreground/80 transition-colors hover:text-foreground"
+              className="flex items-center gap-1 text-primary/90 transition-colors hover:text-primary"
             >
               <item.icon className="h-4 w-4" />
               {item.label}
@@ -31,35 +31,31 @@ export function PublicHeader() {
           ))}
         </nav>
         <div className="flex items-center space-x-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" asChild aria-label="Entrar">
-                  <Link href="/login">
-                    <LogIn className="h-4 w-4" />
-                  </Link>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href="/login" passHref legacyBehavior>
+                <Button as="a" variant="secondary" size="icon" aria-label="Entrar">
+                  <LogIn className="h-4 w-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Entrar</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Entrar</p>
+            </TooltipContent>
+          </Tooltip>
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" asChild aria-label="Registrar">
-                  <Link href="/register">
-                    <UserPlus className="h-4 w-4" />
-                  </Link>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href="/register" passHref legacyBehavior>
+                <Button as="a" variant="default" size="icon" aria-label="Registrar">
+                  <UserPlus className="h-4 w-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Registrar</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Registrar</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </header>

@@ -4,102 +4,107 @@
 
 @layer base {
   :root {
-    --background: 180 25% 97%; /* Very Light Cyan/Off-white */
-    --foreground: 210 50% 20%; /* Dark Blue */
+    --background: 0 0% 100%; /* Branco */
+    --foreground: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) - Default text */
 
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 210 50% 20%; /* Dark Blue */
+    --card: 0 0% 100%; /* Branco */
+    --card-foreground: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) */
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 210 50% 20%; /* Dark Blue */
+    --popover: 0 0% 100%; /* Branco */
+    --popover-foreground: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) */
 
-    --primary: 210 70% 50%; /* Medium Blue */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 120 57% 23%; /* Verde Principal (#1A5D1A) */
+    --primary-foreground: 0 0% 100%; /* Branco - Texto sobre Verde Principal */
 
-    --secondary: 50 95% 55%; /* Bright Yellow */
-    --secondary-foreground: 210 50% 15%; /* Dark Blue for text on yellow */
+    --secondary: 208 100% 37%; /* Azul Principal (#005BBB) */
+    --secondary-foreground: 0 0% 100%; /* Branco - Texto sobre Azul Principal */
 
-    --muted: 180 20% 90%; /* Light Cyan-Gray */
-    --muted-foreground: 210 30% 40%; /* Medium-dark Desaturated Blue */
+    --muted: 91 52% 95%; /* Verde Secundário (#80C739) muito claro - para fundos suaves */
+    --muted-foreground: 120 50% 25%; /* Verde Contorno/Detalhe um pouco mais claro */
 
-    --accent: 130 60% 55%; /* Fresh Light Green */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 49 100% 62%; /* Amarelo Principal (#FFD93D) */
+    --accent-foreground: 120 60% 15%; /* Verde Contorno/Detalhe - Texto sobre Amarelo */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 180 20% 85%; /* Light Cyan-Gray Border */
-    --input: 180 20% 94%; /* Very Light Cyan for Input Background */
-    --ring: 210 70% 55%; /* Brighter Primary Blue for Ring */
+    --border: 120 30% 85%; /* Verde Contorno/Detalhe bem claro para bordas */
+    --input: 120 30% 95%; /* Verde Contorno/Detalhe muito claro para inputs */
+    --ring: 208 100% 37%; /* Azul Principal (#005BBB) para anéis de foco */
 
     --radius: 0.5rem;
 
     /* Sidebar specific colors */
-    --sidebar-background: 210 40% 20%; /* Darker Blue */
-    --sidebar-foreground: 180 20% 90%; /* Light Cyan-Gray Text */
+    --sidebar-background: 120 57% 23%; /* Verde Principal (#1A5D1A) */
+    --sidebar-foreground: 0 0% 90%; /* Branco suave / Cinza muito claro */
     
-    --sidebar-primary: 50 95% 55%; /* Yellow for active items */
-    --sidebar-primary-foreground: 210 50% 15%; /* Dark Blue text on active yellow */
+    --sidebar-primary: 49 100% 62%; /* Amarelo Principal (#FFD93D) - para itens ativos */
+    --sidebar-primary-foreground: 120 60% 15%; /* Verde Contorno/Detalhe - texto sobre amarelo ativo */
     
-    --sidebar-accent: 130 60% 45%; /* Slightly darker Light Green for hover */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 91 52% 50%; /* Verde Secundário (#80C739) - para hover */
+    --sidebar-accent-foreground: 120 60% 15%; /* Verde Contorno/Detalhe - texto sobre verde secundário hover */
     
-    --sidebar-border: 210 40% 15%; /* Darker version of sidebar background */
-    --sidebar-ring: 50 95% 55%; /* Yellow for focus */
+    --sidebar-border: 120 60% 15%; /* Verde Contorno/Detalhe (#0F3D0F) */
+    --sidebar-ring: 49 100% 62%; /* Amarelo Principal (#FFD93D) */
 
-    --chart-1: 210 70% 50%; /* Primary Blue */
-    --chart-2: 50 95% 55%;  /* Secondary Yellow */
-    --chart-3: 130 60% 55%; /* Accent Light Green */
-    --chart-4: 170 60% 45%;  /* Teal */
-    --chart-5: 30 90% 55%; /* Orange for contrast */
+    --chart-1: 120 57% 23%; /* Verde Principal */
+    --chart-2: 208 100% 37%;  /* Azul Principal */
+    --chart-3: 49 100% 62%; /* Amarelo Principal */
+    --chart-4: 91 52% 50%;  /* Verde Secundário */
+    --chart-5: 120 60% 15%; /* Verde Contorno/Detalhe */
   }
 
   .dark {
-    --background: 210 30% 10%; /* Very Dark Blue */
-    --foreground: 180 15% 80%; /* Light Cyan-Gray Text */
+    /* Mantendo o tema dark com cores invertidas ou adaptadas se necessário, 
+       mas o foco principal da solicitação é o tema claro.
+       Pode-se ajustar essas cores escuras posteriormente para alinhar com a nova paleta,
+       por exemplo, usando tons mais escuros dos verdes/azuis.
+    */
+    --background: 120 30% 10%; /* Verde muito escuro */
+    --foreground: 90 30% 85%; /* Verde claro / Cinza */
 
-    --card: 210 30% 15%; /* Dark Blue Card */
-    --card-foreground: 180 15% 80%;
+    --card: 120 30% 15%; 
+    --card-foreground: 90 30% 85%;
 
-    --popover: 210 30% 15%;
-    --popover-foreground: 180 15% 80%;
+    --popover: 120 30% 15%;
+    --popover-foreground: 90 30% 85%;
 
-    --primary: 210 70% 60%; /* Lighter Blue for Dark Mode */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 120 57% 43%; /* Verde Principal mais claro */
+    --primary-foreground: 0 0% 100%; 
 
-    --secondary: 50 90% 60%; /* Slightly less intense Yellow */
-    --secondary-foreground: 210 50% 10%; /* Very Dark Blue */
+    --secondary: 208 100% 57%; /* Azul Principal mais claro */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 25% 25%; /* Dark Desaturated Blue */
-    --muted-foreground: 180 15% 65%; /* Medium Light Cyan-Gray */
+    --muted: 91 40% 25%; /* Verde Secundário escuro */
+    --muted-foreground: 90 30% 70%; 
 
-    --accent: 130 55% 60%; /* Lighter Green for Dark Mode */
-    --accent-foreground: 130 100% 8%; /* Very Dark Green for text on accent */
+    --accent: 49 100% 72%; /* Amarelo Principal mais claro */
+    --accent-foreground: 120 60% 10%; 
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 210 25% 30%;
-    --input: 210 25% 20%;
-    --ring: 210 70% 65%;
+    --border: 120 30% 30%;
+    --input: 120 30% 20%;
+    --ring: 208 100% 57%; 
     
-    --sidebar-background: 210 35% 12%; /* Even Darker Blue */
-    --sidebar-foreground: 180 15% 85%;
+    --sidebar-background: 120 57% 18%; 
+    --sidebar-foreground: 0 0% 90%;
     
-    --sidebar-primary: 50 90% 65%; /* Yellow */
-    --sidebar-primary-foreground: 210 50% 8%; /* Very Dark Blue */
+    --sidebar-primary: 49 100% 72%; 
+    --sidebar-primary-foreground: 120 60% 10%;
     
-    --sidebar-accent: 130 50% 50%; /* Green */
-    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-accent: 91 52% 60%; 
+    --sidebar-accent-foreground: 120 60% 10%; 
     
-    --sidebar-border: 210 35% 8%;
-    --sidebar-ring: 50 90% 65%;
+    --sidebar-border: 120 60% 10%;
+    --sidebar-ring: 49 100% 72%;
 
-    --chart-1: 210 70% 60%;
-    --chart-2: 50 90% 60%;
-    --chart-3: 130 55% 60%;
-    --chart-4: 170 55% 55%;
-    --chart-5: 30 85% 60%;
+    --chart-1: 120 57% 43%;
+    --chart-2: 208 100% 57%;
+    --chart-3: 49 100% 72%;
+    --chart-4: 91 52% 60%;
+    --chart-5: 120 60% 35%;
   }
 }
 
