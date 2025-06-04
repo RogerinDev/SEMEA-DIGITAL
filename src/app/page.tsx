@@ -49,7 +49,7 @@ export default function HomePage() {
               <Link href="/dashboard/citizen">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/info/urban-afforestation">Saber Mais</Link>
+              <Link href="/info/sobre">Saber Mais</Link>
             </Button>
           </div>
         </div>
