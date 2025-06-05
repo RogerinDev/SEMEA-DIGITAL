@@ -42,7 +42,7 @@ export default function HomePage() {
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
             <Image
-              src="/semea-hero-logo.jpeg"
+              src="/semea-hero-logo.png"
               alt="SEMEA Varginha Logo Principal"
               width={128}
               height={128}
@@ -90,7 +90,9 @@ export default function HomePage() {
                     <p className="text-muted-foreground text-sm mb-4 flex-grow">{feature.description}</p>
                     <Button variant="outline" className="w-full mt-auto border-primary text-primary hover:bg-primary/10 hover:text-primary" asChild>
                       <Link href={feature.link}>
-                        <span className="flex items-center justify-center">Acessar <ArrowRight className="ml-2 h-4 w-4" /></span>
+                        <span className="flex items-center justify-center">
+                        Acessar <ArrowRight className="ml-2 h-4 w-4" />
+                        </span>
                       </Link>
                     </Button>
                   </CardContent>
