@@ -1,9 +1,10 @@
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button'; // Imported buttonVariants
 import { Logo } from '@/components/logo';
 import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils'; // Ensured cn is imported
 
 export function PublicHeader() {
   const navItems = [
@@ -18,7 +19,7 @@ export function PublicHeader() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <TooltipProvider>
         <div className="container flex h-16 items-center justify-between">
-          <Logo iconSize={28} className="ml-2" /> {/* Adicionada classe ml-2 aqui */}
+          <Logo iconSize={28} className="ml-2" />
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             {navItems.map((item) => (
               <Link
@@ -32,31 +33,35 @@ export function PublicHeader() {
             ))}
           </nav>
           <div className="flex items-center space-x-2">
-            <Link href="/login" passHref legacyBehavior>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="secondary" size="icon" aria-label="Entrar" as="a">
-                    <LogIn className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Entrar</p>
-                </TooltipContent>
-              </Tooltip>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/login"
+                  aria-label="Entrar"
+                  className={cn(buttonVariants({ variant: "secondary", size: "icon" }))}
+                >
+                  <LogIn className="h-4 w-4" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Entrar</p>
+              </TooltipContent>
+            </Tooltip>
 
-            <Link href="/register" passHref legacyBehavior>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="default" size="icon" aria-label="Registrar" as="a">
-                    <UserPlus className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Registrar</p>
-                </TooltipContent>
-              </Tooltip>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/register"
+                  aria-label="Registrar"
+                  className={cn(buttonVariants({ variant: "default", size: "icon" }))}
+                >
+                  <UserPlus className="h-4 w-4" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Registrar</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </TooltipProvider>
