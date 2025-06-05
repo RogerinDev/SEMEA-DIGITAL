@@ -49,7 +49,9 @@ export default function CitizenRequestsPage() {
         <PageTitle title="Minhas Solicitações de Serviço" icon={FileText} className="mb-0" />
         <Button asChild>
           <Link href="/dashboard/citizen/requests/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Nova Solicitação
+            <span className="flex items-center">
+              <PlusCircle className="mr-2 h-4 w-4" /> Nova Solicitação
+            </span>
           </Link>
         </Button>
       </div>
@@ -66,7 +68,9 @@ export default function CitizenRequestsPage() {
           <CardFooter className="justify-center">
             <Button asChild>
               <Link href="/dashboard/citizen/requests/new">
-                <PlusCircle className="mr-2 h-4 w-4" /> Fazer Nova Solicitação
+                <span className="flex items-center">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Fazer Nova Solicitação
+                </span>
               </Link>
             </Button>
           </CardFooter>
@@ -101,7 +105,9 @@ export default function CitizenRequestsPage() {
                       <Button variant="outline" size="sm" asChild>
                         {/* This link would go to a detailed view page e.g. /dashboard/citizen/requests/${request.id} */}
                         <Link href="#"> 
-                          Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
+                          <span className="flex items-center">
+                            Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
+                          </span>
                         </Link>
                       </Button>
                     </TableCell>

@@ -27,7 +27,9 @@ export default function AdminDashboardPage() {
               <div className="text-3xl font-bold">{card.value}</div>
                <Button variant="link" asChild className="px-0 text-sm text-muted-foreground">
                 <Link href={card.link}>
-                  Ver Detalhes <ArrowRight className="ml-1 h-4 w-4" />
+                  <span className="flex items-center">
+                    Ver Detalhes <ArrowRight className="ml-1 h-4 w-4" />
+                  </span>
                 </Link>
               </Button>
             </CardContent>
@@ -42,10 +44,18 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/dashboard/admin/requests"><FileText className="mr-2 h-4 w-4 text-primary"/> Gerenciar Solicitações de Serviço</Link>
+              <Link href="/dashboard/admin/requests">
+                <span className="flex items-center">
+                  <FileText className="mr-2 h-4 w-4 text-primary"/> Gerenciar Solicitações de Serviço
+                </span>
+              </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/dashboard/admin/incidents"><AlertTriangle className="mr-2 h-4 w-4 text-primary"/> Gerenciar Incidentes Ambientais</Link>
+              <Link href="/dashboard/admin/incidents">
+                <span className="flex items-center">
+                  <AlertTriangle className="mr-2 h-4 w-4 text-primary"/> Gerenciar Incidentes Ambientais
+                </span>
+              </Link>
             </Button>
             {/* More links can be added here as modules are developed */}
           </CardContent>

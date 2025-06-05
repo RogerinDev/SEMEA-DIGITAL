@@ -49,7 +49,9 @@ export default function CitizenIncidentsPage() {
         <PageTitle title="Meus Incidentes Reportados" icon={AlertTriangle} className="mb-0" />
         <Button asChild>
           <Link href="/dashboard/citizen/incidents/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Novo Relato
+            <span className="flex items-center">
+              <PlusCircle className="mr-2 h-4 w-4" /> Novo Relato
+            </span>
           </Link>
         </Button>
       </div>
@@ -66,7 +68,9 @@ export default function CitizenIncidentsPage() {
           <CardFooter className="justify-center">
             <Button asChild>
               <Link href="/dashboard/citizen/incidents/new">
-                <PlusCircle className="mr-2 h-4 w-4" /> Reportar Incidente
+                <span className="flex items-center">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Reportar Incidente
+                </span>
               </Link>
             </Button>
           </CardFooter>
@@ -101,7 +105,9 @@ export default function CitizenIncidentsPage() {
                        <Button variant="outline" size="sm" asChild>
                         {/* This link would go to a detailed view page e.g. /dashboard/citizen/incidents/${incident.id} */}
                         <Link href="#">
-                          Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
+                          <span className="flex items-center">
+                            Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
+                          </span>
                         </Link>
                       </Button>
                     </TableCell>

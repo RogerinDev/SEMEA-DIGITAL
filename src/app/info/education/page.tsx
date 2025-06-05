@@ -57,7 +57,9 @@ export default function EnvironmentalEducationPage() {
             <CardFooter>
               <Button asChild className="w-full">
                 <Link href={section.href}>
-                  Saber Mais <ArrowRight className="ml-2 h-4 w-4" />
+                  <span className="flex items-center justify-center">
+                    Saber Mais <ArrowRight className="ml-2 h-4 w-4" />
+                  </span>
                 </Link>
               </Button>
             </CardFooter>

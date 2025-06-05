@@ -39,7 +39,9 @@ export default function EducationProjectsPage() {
             <CardFooter>
               <Button asChild className="w-full">
                 <Link href={`/info/education/projects/${project.slug}`}>
-                  Ver Detalhes do Projeto <ArrowRight className="ml-2 h-4 w-4" />
+                  <span className="flex items-center justify-center">
+                    Ver Detalhes do Projeto <ArrowRight className="ml-2 h-4 w-4" />
+                  </span>
                 </Link>
               </Button>
             </CardFooter>

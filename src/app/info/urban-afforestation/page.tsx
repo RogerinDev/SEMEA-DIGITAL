@@ -54,7 +54,11 @@ export default function UrbanAfforestationPage() {
                 </CardContent>
                 <CardFooter>
                     <Button className="w-full" asChild>
-                        <Link href="/dashboard/citizen/requests/new?type=plantio_arvore_area_publica">Fazer Solicitação <ArrowRight className="ml-2 h-4 w-4"/></Link>
+                        <Link href="/dashboard/citizen/requests/new?type=plantio_arvore_area_publica">
+                          <span className="flex items-center justify-center">
+                            Fazer Solicitação <ArrowRight className="ml-2 h-4 w-4"/>
+                          </span>
+                        </Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -68,7 +72,11 @@ export default function UrbanAfforestationPage() {
                 </CardContent>
                 <CardFooter>
                      <Button className="w-full" asChild>
-                        <Link href="/dashboard/citizen/requests/new?type=poda_arvore">Solicitar Poda/Remoção <ArrowRight className="ml-2 h-4 w-4"/></Link>
+                        <Link href="/dashboard/citizen/requests/new?type=poda_arvore">
+                          <span className="flex items-center justify-center">
+                            Solicitar Poda/Remoção <ArrowRight className="ml-2 h-4 w-4"/>
+                          </span>
+                        </Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -82,7 +90,11 @@ export default function UrbanAfforestationPage() {
                 </CardContent>
                 <CardFooter>
                     <Button variant="outline" className="w-full" asChild>
-                        <Link href="#">Ler Diretrizes <ArrowRight className="ml-2 h-4 w-4"/></Link>
+                        <Link href="#">
+                          <span className="flex items-center justify-center">
+                            Ler Diretrizes <ArrowRight className="ml-2 h-4 w-4"/>
+                          </span>
+                        </Link>
                     </Button>
                 </CardFooter>
             </Card>

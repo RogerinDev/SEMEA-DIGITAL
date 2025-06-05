@@ -25,7 +25,9 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
             <p className="mb-4">O projeto que você está procurando não foi encontrado.</p>
             <Button asChild>
                 <Link href="/info/education/projects">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Projetos
+                  <span className="flex items-center">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Projetos
+                  </span>
                 </Link>
             </Button>
         </div>

@@ -29,7 +29,9 @@ export default function WasteManagementPage() {
                     <Image src="https://placehold.co/600x300.png" data-ai-hint="garbage truck" alt="Caminhão de coleta" width={600} height={300} className="rounded-md mb-4 w-full" />
                     <Button variant="outline" asChild>
                         <Link href="#"> {/* Link to calendar or PDF */}
+                          <span className="flex items-center">
                             <Info className="mr-2 h-4 w-4"/> Consultar Cronograma de Coleta
+                          </span>
                         </Link>
                     </Button>
                 </CardContent>
@@ -43,7 +45,9 @@ export default function WasteManagementPage() {
                     <Image src="https://placehold.co/600x300.png" data-ai-hint="recycling bins" alt="Coleta Seletiva" width={600} height={300} className="rounded-md mb-4 w-full" />
                      <Button asChild>
                         <Link href="/dashboard/citizen/requests/new?type=coleta_especial_residuos">
+                          <span className="flex items-center">
                            <Trash2 className="mr-2 h-4 w-4"/> Solicitar Coleta Especial (Grandes Volumes)
+                          </span>
                         </Link>
                     </Button>
                 </CardContent>

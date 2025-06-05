@@ -69,8 +69,10 @@ export default function EnvironmentalEducationEventsPage() {
                   <Button asChild className="w-full">
                     {/* Link to specific event page or registration form */}
                     <Link href="#"> 
-                      <Info className="mr-2 h-4 w-4" />
-                      Mais Informações
+                      <span className="flex items-center">
+                        <Info className="mr-2 h-4 w-4" />
+                        Mais Informações
+                      </span>
                     </Link>
                   </Button>
                 </CardFooter>

@@ -29,7 +29,11 @@ export default function CitizenDashboardPage() {
             <CardContent>
               <div className="text-2xl font-bold">{card.value}</div>
               <Button variant="link" asChild className="px-0 text-sm">
-                <Link href={card.link}>Ver Detalhes <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                <Link href={card.link}>
+                  <span className="flex items-center">
+                    Ver Detalhes <ArrowRight className="ml-1 h-4 w-4" />
+                  </span>
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -45,11 +49,13 @@ export default function CitizenDashboardPage() {
           {quickActions.map(action => (
             <Button key={action.label} variant="outline" className="justify-start text-left h-auto py-3" asChild>
               <Link href={action.href}>
-                <action.icon className="mr-3 h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-medium">{action.label}</p>
-                  <p className="text-xs text-muted-foreground">Clique para iniciar</p>
-                </div>
+                <span className="flex items-center w-full">
+                  <action.icon className="mr-3 h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">{action.label}</p>
+                    <p className="text-xs text-muted-foreground">Clique para iniciar</p>
+                  </div>
+                </span>
               </Link>
             </Button>
           ))}

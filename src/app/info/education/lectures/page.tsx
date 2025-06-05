@@ -35,7 +35,9 @@ export default function ThematicLecturesPage() {
             </p>
             <Button asChild>
                 <Link href="/info/education/how-to-participate">
+                  <span className="flex items-center">
                     <Users className="mr-2 h-4 w-4" /> Solicitar Palestra
+                  </span>
                 </Link>
             </Button>
         </CardContent>
