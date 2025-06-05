@@ -48,7 +48,7 @@ export default function EducationProjectsPage() {
           </Card>
         ))}
       </div>
-      
+
       {educationalProjects.length === 0 && (
         <div className="text-center py-12">
             <Lightbulb className="mx-auto h-16 w-16 text-muted-foreground mb-4" />

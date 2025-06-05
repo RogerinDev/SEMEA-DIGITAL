@@ -1,3 +1,4 @@
+
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,7 @@ export default function CitizenDashboardPage() {
   return (
     <>
       <PageTitle title="Painel do Cidadão" icon={LayoutDashboard} description="Bem-vindo(a) à sua área na SEMEA Digital." />
-      
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
         {summaryCards.map(card => (
           <Card key={card.title} className="shadow-lg">

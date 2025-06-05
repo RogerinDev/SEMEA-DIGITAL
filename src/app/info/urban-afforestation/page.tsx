@@ -1,3 +1,4 @@
+
 import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -42,7 +43,7 @@ export default function UrbanAfforestationPage() {
              <Image src="https://placehold.co/600x400.png" data-ai-hint="city park" alt="Parque urbano com árvores" layout="fill" objectFit="cover" />
           </div>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-6 mb-12">
             <Card className="shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>

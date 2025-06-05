@@ -10,21 +10,21 @@ import { Logo } from '@/components/logo';
 export default function HomePage() {
   const features = [
     {
-      icon: Leaf, 
+      icon: Leaf,
       title: 'Solicitações de Serviços',
       description: 'Peça poda de árvores, castração de animais, coletas especiais e mais.',
       link: '/dashboard/citizen/requests/new',
       dataAiHint: 'tree service'
     },
     {
-      icon: AlertTriangle, 
+      icon: AlertTriangle,
       title: 'Registro de Ocorrências',
       description: 'Denuncie descarte irregular, maus-tratos a animais e outras infrações ambientais.',
       link: '/dashboard/citizen/incidents/new',
       dataAiHint: 'environmental problem'
     },
     {
-      icon: PawPrint, 
+      icon: PawPrint,
       title: 'Bem-Estar Animal',
       description: 'Encontre animais para adoção ou reporte animais perdidos e encontrados na comunidade.',
       link: '/animal-welfare/adoption',
@@ -34,18 +34,18 @@ export default function HomePage() {
 
   return (
     <PublicLayout>
-      <section 
+      <section
         className="relative py-16 md:py-24 bg-cover bg-center"
         style={{ backgroundImage: 'url(/hero-background.jpg)' }} // Assumindo que a imagem está em public/hero-background.jpg
       >
         <div className="absolute inset-0 bg-black/60 z-0"></div> {/* Sobreposição escura */}
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
-            <Image 
-              src="/semea-hero-logo.png" 
-              alt="SEMEA Varginha Logo Principal" 
-              width={128} 
-              height={128} 
+            <Image
+              src="/semea-hero-logo.png"
+              alt="SEMEA Varginha Logo Principal"
+              width={128}
+              height={128}
               data-ai-hint="brand logo"
               priority
             />
@@ -58,9 +58,11 @@ export default function HomePage() {
           </p>
           <div className="space-x-4">
             <Button size="lg" variant="secondary" asChild>
-              <Link href="/dashboard/citizen">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></Link>
+              <Link href="/dashboard/citizen">
+                <span>Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 text-gray-100 hover:bg-white/10 hover:text-white" asChild> {/* Estilo do botão outline ajustado para fundo escuro */}
+            <Button size="lg" variant="outline" className="border-gray-300 text-gray-100 hover:bg-white/10 hover:text-white" asChild>
               <Link href="/info/sobre">Saber Mais</Link>
             </Button>
           </div>
@@ -72,9 +74,9 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-center mb-12 text-primary">Nossos Principais Serviços</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature) => {
-              let iconColorClass = 'text-primary'; 
+              let iconColorClass = 'text-primary';
               if (feature.title === 'Registro de Ocorrências') {
-                iconColorClass = 'text-accent'; 
+                iconColorClass = 'text-accent';
               } else if (feature.title === 'Bem-Estar Animal') {
                 iconColorClass = 'text-secondary';
               }
@@ -88,7 +90,7 @@ export default function HomePage() {
                     <p className="text-muted-foreground text-sm mb-4 flex-grow">{feature.description}</p>
                     <Button variant="outline" className="w-full mt-auto border-primary text-primary hover:bg-primary/10 hover:text-primary" asChild>
                       <Link href={feature.link}>
-                        Acessar <ArrowRight className="ml-2 h-4 w-4" />
+                        <span>Acessar <ArrowRight className="ml-2 h-4 w-4" /></span>
                       </Link>
                     </Button>
                   </CardContent>
@@ -98,7 +100,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      
+
       <section className="py-16 md:py-24 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">

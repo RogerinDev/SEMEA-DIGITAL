@@ -1,3 +1,4 @@
+
 import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,11 +31,11 @@ export default function AnimalAdoptionPage() {
         <div className="mb-8 text-center">
             <Button size="lg" asChild>
                 <Link href="/dashboard/citizen/requests/new?type=solicitacao_adocao_animal">
-                    <Heart className="mr-2 h-5 w-5"/> Quero Adotar! (Formulário de Interesse)
+                    <span className="flex items-center"><Heart className="mr-2 h-5 w-5"/> Quero Adotar! (Formulário de Interesse)</span>
                 </Link>
             </Button>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {mockAnimals.map((animal) => {
             const AnimalIcon = getAnimalIcon(animal.species);
@@ -61,9 +62,10 @@ export default function AnimalAdoptionPage() {
                 <CardFooter>
                 <Button asChild className="w-full" disabled={animal.statusAdocao !== 'disponivel'}>
                     {/* Link to specific animal detail page or pre-fill adoption form */}
-                    <Link href={animal.statusAdocao === 'disponivel' ? `/animal-welfare/adoption/${animal.id}` : '#'}> 
-                    <Info className="mr-2 h-4 w-4" />
-                    {animal.statusAdocao === 'disponivel' ? 'Saber Mais / Adotar' : (animal.statusAdocao === 'adotado' ? 'Já Adotado' : 'Em Processo')}
+                    <Link href={animal.statusAdocao === 'disponivel' ? `/animal-welfare/adoption/${animal.id}` : '#'}>
+                     <span className="flex items-center"> <Info className="mr-2 h-4 w-4" />
+                      {animal.statusAdocao === 'disponivel' ? 'Saber Mais / Adotar' : (animal.statusAdocao === 'adotado' ? 'Já Adotado' : 'Em Processo')}
+                     </span>
                     </Link>
                 </Button>
                 </CardFooter>

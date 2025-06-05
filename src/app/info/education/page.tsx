@@ -23,13 +23,13 @@ export default function EnvironmentalEducationPage() {
       />
       <div className="grid md:grid-cols-2 gap-8 mb-12 items-center">
         <div>
-            <Image 
-                src="https://placehold.co/600x400.png" 
-                alt="Educação Ambiental em Varginha" 
-                width={600} 
-                height={400} 
+            <Image
+                src="https://placehold.co/600x400.png"
+                alt="Educação Ambiental em Varginha"
+                width={600}
+                height={400}
                 className="rounded-lg shadow-xl"
-                data-ai-hint="environmental education" 
+                data-ai-hint="environmental education"
             />
         </div>
         <div className="space-y-4">

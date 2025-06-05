@@ -27,7 +27,7 @@ export default function EnvironmentalEducationEventsPage() {
         icon={CalendarDays}
         description="A SEMEA realiza eventos temáticos ao longo do ano, baseados em um calendário anual de eventos e datas ambientais. Participe!"
       />
-      
+
       {/* Placeholder for a more interactive calendar component if developed later */}
       {/* <Card className="mb-8">
         <CardHeader><CardTitle>Calendário Interativo (Em Desenvolvimento)</CardTitle></CardHeader>
@@ -68,7 +68,7 @@ export default function EnvironmentalEducationEventsPage() {
                 <CardFooter>
                   <Button asChild className="w-full">
                     {/* Link to specific event page or registration form */}
-                    <Link href="#"> 
+                    <Link href="#">
                       <span className="flex items-center">
                         <Info className="mr-2 h-4 w-4" />
                         Mais Informações

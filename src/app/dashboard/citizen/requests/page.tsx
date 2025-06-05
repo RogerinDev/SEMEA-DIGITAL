@@ -1,3 +1,4 @@
+
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -102,12 +103,10 @@ export default function CitizenRequestsPage() {
                       <Badge variant={getStatusVariant(request.status)}>{statusTranslations[request.status]}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" asChild>
+                       <Button variant="outline" size="sm" asChild>
                         {/* This link would go to a detailed view page e.g. /dashboard/citizen/requests/${request.id} */}
-                        <Link href="#"> 
-                          <span className="flex items-center">
-                            Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
-                          </span>
+                        <Link href="#">
+                          <span>Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" /></span>
                         </Link>
                       </Button>
                     </TableCell>
