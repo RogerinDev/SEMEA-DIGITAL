@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, CheckCircle, Leaf, PawPrint, Recycle, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Logo } from '@/components/logo'; // Added import for Logo
+import { Logo } from '@/components/logo';
 
 export default function HomePage() {
   const features = [
@@ -37,7 +37,14 @@ export default function HomePage() {
       <section className="py-16 md:py-24 bg-muted">
         <div className="container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
-            <Logo iconSize={64} className="[&_span]:text-primary" />
+            <Image 
+              src="/semea-hero-logo.png" 
+              alt="SEMEA Varginha Logo Principal" 
+              width={128} 
+              height={128} 
+              data-ai-hint="brand logo"
+              priority // Added priority as this is likely an LCP element
+            />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-primary">
             Bem-vindo ao SEMEA Digital
