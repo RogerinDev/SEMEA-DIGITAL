@@ -2,15 +2,17 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// useRouter removed as it was unused
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+// usePathname might be needed if active link styling is implemented based on path
+// import { usePathname } from 'next/navigation'; 
 
 export function PublicHeader() {
-  const router = useRouter();
+  // const router = useRouter(); // Removed, was unused
 
   const navItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
@@ -38,14 +40,13 @@ export function PublicHeader() {
           </nav>
           <div className="flex items-center space-x-2">
             <Tooltip>
-              <TooltipTrigger>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  aria-label="Entrar"
-                  onClick={() => router.push('/login')}
-                >
-                  <LogIn className="h-4 w-4" />
+              <TooltipTrigger asChild>
+                <Button variant="secondary" size="icon" asChild>
+                  <Link href="/login" passHref legacyBehavior>
+                    <a aria-label="Entrar">
+                      <LogIn className="h-4 w-4" />
+                    </a>
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -54,14 +55,13 @@ export function PublicHeader() {
             </Tooltip>
 
             <Tooltip>
-              <TooltipTrigger>
-                <Button
-                  variant="default"
-                  size="icon"
-                  aria-label="Registrar"
-                  onClick={() => router.push('/register')}
-                >
-                  <UserPlus className="h-4 w-4" />
+              <TooltipTrigger asChild>
+                <Button variant="default" size="icon" asChild>
+                  <Link href="/register" passHref legacyBehavior>
+                    <a aria-label="Registrar">
+                      <UserPlus className="h-4 w-4" />
+                    </a>
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -73,5 +73,3 @@ export function PublicHeader() {
     </header>
   );
 }
-
-    
