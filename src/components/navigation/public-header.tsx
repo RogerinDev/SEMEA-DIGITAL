@@ -31,31 +31,31 @@ export function PublicHeader() {
           ))}
         </nav>
         <div className="flex items-center space-x-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link href="/login" passHref legacyBehavior>
+          <Link href="/login" passHref legacyBehavior>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button variant="secondary" size="icon" aria-label="Entrar" as="a">
                   <LogIn className="h-4 w-4" />
                 </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Entrar</p>
-            </TooltipContent>
-          </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Entrar</p>
+              </TooltipContent>
+            </Tooltip>
+          </Link>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link href="/register" passHref legacyBehavior>
+          <Link href="/register" passHref legacyBehavior>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button variant="default" size="icon" aria-label="Registrar" as="a">
                   <UserPlus className="h-4 w-4" />
                 </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Registrar</p>
-            </TooltipContent>
-          </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Registrar</p>
+              </TooltipContent>
+            </Tooltip>
+          </Link>
         </div>
       </div>
     </header>
