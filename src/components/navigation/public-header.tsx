@@ -1,12 +1,17 @@
 
+"use client";
+
 import Link from 'next/link';
-import { Button, buttonVariants } from '@/components/ui/button'; // Imported buttonVariants
+import { useRouter } from 'next/navigation';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils'; // Ensured cn is imported
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 export function PublicHeader() {
+  const router = useRouter();
+
   const navItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
@@ -17,7 +22,6 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <TooltipProvider>
         <div className="container flex h-16 items-center justify-between">
           <Logo iconSize={28} className="ml-2" />
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
@@ -34,14 +38,15 @@ export function PublicHeader() {
           </nav>
           <div className="flex items-center space-x-2">
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/login"
+              <TooltipTrigger>
+                <Button
+                  variant="secondary"
+                  size="icon"
                   aria-label="Entrar"
-                  className={cn(buttonVariants({ variant: "secondary", size: "icon" }))}
+                  onClick={() => router.push('/login')}
                 >
                   <LogIn className="h-4 w-4" />
-                </Link>
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Entrar</p>
@@ -49,14 +54,15 @@ export function PublicHeader() {
             </Tooltip>
 
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/register"
+              <TooltipTrigger>
+                <Button
+                  variant="default"
+                  size="icon"
                   aria-label="Registrar"
-                  className={cn(buttonVariants({ variant: "default", size: "icon" }))}
+                  onClick={() => router.push('/register')}
                 >
                   <UserPlus className="h-4 w-4" />
-                </Link>
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Registrar</p>
@@ -64,7 +70,8 @@ export function PublicHeader() {
             </Tooltip>
           </div>
         </div>
-      </TooltipProvider>
     </header>
   );
 }
+
+    
