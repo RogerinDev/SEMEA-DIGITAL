@@ -78,7 +78,7 @@ function RequestTable({ requests }: { requests: ServiceRequest[] }) {
             <TableCell className="text-right space-x-2">
               <Button variant="outline" size="icon" asChild title="Ver Detalhes">
                 <Link href={`/dashboard/admin/requests/${request.id}`}> 
-                  <Eye className="h-4 w-4" />
+                  <span><Eye className="h-4 w-4" /></span>
                 </Link>
               </Button>
               {/* <Button variant="outline" size="icon" asChild title="Editar/Processar">

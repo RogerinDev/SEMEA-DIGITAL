@@ -64,8 +64,10 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
       <div className="flex items-center gap-4 mb-6">
         <Button variant="outline" size="icon" asChild>
           <Link href="/dashboard/admin/requests">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Voltar para lista</span>
+            <span>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Voltar para lista</span>
+            </span>
           </Link>
         </Button>
         <PageTitle title={`Solicitação #${request.protocol}`} icon={FileText} className="mb-0 flex-grow" />

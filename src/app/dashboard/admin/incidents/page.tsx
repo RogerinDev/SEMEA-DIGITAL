@@ -70,7 +70,7 @@ function IncidentTable({ incidents }: { incidents: IncidentReport[] }) {
             <TableCell className="text-right">
               <Button variant="outline" size="icon" asChild title="Ver Detalhes">
                 <Link href={`/dashboard/admin/incidents/${incident.id}`}>
-                  <Eye className="h-4 w-4" />
+                  <span><Eye className="h-4 w-4" /></span>
                 </Link>
               </Button>
             </TableCell>

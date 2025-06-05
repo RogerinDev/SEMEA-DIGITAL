@@ -2,7 +2,7 @@ import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
 import Link from 'next/link';
 import type { IncidentReport } from '@/types';
 import { Separator } from '@/components/ui/separator';
@@ -55,7 +55,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
       <div className="flex items-center gap-4 mb-6">
         <Button variant="outline" size="icon" asChild>
           <Link href="/dashboard/admin/incidents">
-            <ArrowLeft className="h-4 w-4" />
+            <span><ArrowLeft className="h-4 w-4" /></span>
           </Link>
         </Button>
         <PageTitle title={`Incidente #${incident.protocol}`} icon={AlertTriangle} className="mb-0 flex-grow" />
