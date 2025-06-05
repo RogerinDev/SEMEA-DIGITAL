@@ -36,7 +36,7 @@ export default function HomePage() {
     <PublicLayout>
       <section
         className="relative py-16 md:py-24 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/hero-background.png)' }} // Updated background image
+        style={{ backgroundImage: 'url(/hero-background.png)' }}
       >
         <div className="absolute inset-0 bg-black/60 z-0"></div> {/* Sobreposição escura */}
         <div className="relative z-10 container mx-auto px-4 text-center">
@@ -62,7 +62,7 @@ export default function HomePage() {
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 text-gray-100 hover:bg-white/10 hover:text-white" asChild>
+            <Button size="lg" variant="outline" className="border-gray-300 text-black hover:bg-white/10 hover:text-black" asChild>
               <Link href="/info/sobre">Saber Mais</Link>
             </Button>
           </div>
