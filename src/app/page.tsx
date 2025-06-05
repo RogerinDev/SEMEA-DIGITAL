@@ -36,7 +36,7 @@ export default function HomePage() {
     <PublicLayout>
       <section
         className="relative py-16 md:py-24 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/background.png)' }} // Updated background image
+        style={{ backgroundImage: 'url(/hero-background.png)' }} // Updated background image
       >
         <div className="absolute inset-0 bg-black/60 z-0"></div> {/* Sobreposição escura */}
         <div className="relative z-10 container mx-auto px-4 text-center">
@@ -117,7 +117,7 @@ export default function HomePage() {
                 ].map(item => (
                   <li key={item} className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-primary mr-2" />
-                    {item}
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
