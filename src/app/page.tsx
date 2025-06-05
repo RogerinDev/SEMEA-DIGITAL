@@ -42,7 +42,7 @@ export default function HomePage() {
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
             <Image
-              src="/semea-hero-logo.png"
+              src="/semea-hero-logo.jpeg"
               alt="SEMEA Varginha Logo Principal"
               width={128}
               height={128}
@@ -63,7 +63,7 @@ export default function HomePage() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-gray-300 text-black hover:bg-white/10 hover:text-black" asChild>
-              <Link href="/info/sobre">Saber Mais</Link>
+              <Link href="/info/sobre"><span className="text-black">Saber Mais</span></Link>
             </Button>
           </div>
         </div>
