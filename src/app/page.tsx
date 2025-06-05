@@ -36,7 +36,7 @@ export default function HomePage() {
     <PublicLayout>
       <section
         className="relative py-16 md:py-24 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/hero-background.jpg)' }} // Assumindo que a imagem está em public/hero-background.jpg
+        style={{ backgroundImage: 'url(/background.png)' }} // Updated background image
       >
         <div className="absolute inset-0 bg-black/60 z-0"></div> {/* Sobreposição escura */}
         <div className="relative z-10 container mx-auto px-4 text-center">
@@ -59,7 +59,7 @@ export default function HomePage() {
           <div className="space-x-4">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/dashboard/citizen">
-                <span>Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
+                <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-gray-300 text-gray-100 hover:bg-white/10 hover:text-white" asChild>
@@ -90,7 +90,7 @@ export default function HomePage() {
                     <p className="text-muted-foreground text-sm mb-4 flex-grow">{feature.description}</p>
                     <Button variant="outline" className="w-full mt-auto border-primary text-primary hover:bg-primary/10 hover:text-primary" asChild>
                       <Link href={feature.link}>
-                        <span>Acessar <ArrowRight className="ml-2 h-4 w-4" /></span>
+                        <span className="flex items-center justify-center">Acessar <ArrowRight className="ml-2 h-4 w-4" /></span>
                       </Link>
                     </Button>
                   </CardContent>
@@ -122,7 +122,9 @@ export default function HomePage() {
                 ))}
               </ul>
               <Button size="lg" variant="secondary" asChild>
-                <Link href="/register">Crie sua Conta Agora</Link>
+                <Link href="/register">
+                  <span className="flex items-center justify-center">Crie sua Conta Agora</span>
+                </Link>
               </Button>
             </div>
             <div>
