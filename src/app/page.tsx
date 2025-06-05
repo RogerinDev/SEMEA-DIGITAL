@@ -34,8 +34,12 @@ export default function HomePage() {
 
   return (
     <PublicLayout>
-      <section className="py-16 md:py-24 bg-muted">
-        <div className="container mx-auto px-4 text-center">
+      <section 
+        className="relative py-16 md:py-24 bg-cover bg-center"
+        style={{ backgroundImage: 'url(/hero-background.jpg)' }} // Assumindo que a imagem está em public/hero-background.jpg
+      >
+        <div className="absolute inset-0 bg-black/60 z-0"></div> {/* Sobreposição escura */}
+        <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
             <Image 
               src="/semea-hero-logo.png" 
@@ -43,20 +47,20 @@ export default function HomePage() {
               width={128} 
               height={128} 
               data-ai-hint="brand logo"
-              priority // Added priority as this is likely an LCP element
+              priority
             />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-primary">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white"> {/* Cor do texto alterada */}
             Bem-vindo ao SEMEA Digital
           </h1>
-          <p className="text-lg md:text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto"> {/* Cor do texto alterada */}
             Sua plataforma online para serviços e informações da Secretaria Municipal de Meio Ambiente de Varginha - MG.
           </p>
           <div className="space-x-4">
             <Button size="lg" variant="secondary" asChild>
               <Link href="/dashboard/citizen">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary" asChild>
+            <Button size="lg" variant="outline" className="border-gray-300 text-gray-100 hover:bg-white/10 hover:text-white" asChild> {/* Estilo do botão outline ajustado para fundo escuro */}
               <Link href="/info/sobre">Saber Mais</Link>
             </Button>
           </div>
