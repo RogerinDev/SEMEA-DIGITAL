@@ -16,7 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"; // Added Form components
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Badge } from '@/components/ui/badge'; // Added missing import
 
 interface LostFoundAnimal {
   id: string;
