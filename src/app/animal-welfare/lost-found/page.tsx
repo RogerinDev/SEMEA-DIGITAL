@@ -1,6 +1,6 @@
+
 "use client";
 
-import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"; // Added Form components
 
 interface LostFoundAnimal {
   id: string;
@@ -60,7 +61,7 @@ function LostFoundForm() {
     console.log(values);
     toast({
       title: "Registro Enviado!",
-      description: `Seu registro de animal ${values.reportType} foi criado com sucesso.`,
+      description: `Seu registro de animal ${values.reportType === 'perdido' ? 'perdido' : 'encontrado'} foi criado com sucesso.`,
     });
     form.reset();
   }
@@ -72,55 +73,69 @@ function LostFoundForm() {
             <CardDescription>Ajude um pet a voltar para casa ou encontrar um novo lar temporário.</CardDescription>
         </CardHeader>
         <CardContent>
+          <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                     <FormField name="reportType" control={form.control} render={({ field }) => (
                         <FormItem>
                             <Label>Tipo de Registro</Label>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
                                 <SelectTrigger><SelectValue placeholder="Perdido ou Encontrado?" /></SelectTrigger>
+                              </FormControl>
                                 <SelectContent>
                                     <SelectItem value="perdido">Animal Perdido</SelectItem>
                                     <SelectItem value="encontrado">Animal Encontrado</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <FormMessage>{form.formState.errors.reportType?.message}</FormMessage>
+                            <FormMessage/>
                         </FormItem>
                     )} />
                      <FormField name="species" control={form.control} render={({ field }) => (
                         <FormItem>
                             <Label>Espécie</Label>
-                            <Input placeholder="Cachorro, Gato, Pássaro..." {...field} />
-                            <FormMessage>{form.formState.errors.species?.message}</FormMessage>
+                            <FormControl>
+                              <Input placeholder="Cachorro, Gato, Pássaro..." {...field} />
+                            </FormControl>
+                            <FormMessage/>
                         </FormItem>
                     )} />
                 </div>
                  <FormField name="breed" control={form.control} render={({ field }) => (
                     <FormItem>
                         <Label>Raça (opcional)</Label>
-                        <Input placeholder="SRD, Poodle, Siamês..." {...field} />
+                         <FormControl>
+                          <Input placeholder="SRD, Poodle, Siamês..." {...field} />
+                        </FormControl>
+                        <FormMessage/>
                     </FormItem>
                 )} />
                  <FormField name="description" control={form.control} render={({ field }) => (
                     <FormItem>
                         <Label>Descrição do Animal</Label>
-                        <Textarea placeholder="Cores, marcas, tamanho, comportamento, coleira..." {...field} />
-                        <FormMessage>{form.formState.errors.description?.message}</FormMessage>
+                        <FormControl>
+                          <Textarea placeholder="Cores, marcas, tamanho, comportamento, coleira..." {...field} />
+                        </FormControl>
+                        <FormMessage/>
                     </FormItem>
                 )} />
                 <div className="grid md:grid-cols-2 gap-6">
                     <FormField name="lastSeenLocation" control={form.control} render={({ field }) => (
                         <FormItem>
                             <Label>Última Localização Visto/Encontrado</Label>
-                            <Input placeholder="Rua, Bairro, Ponto de Referência" {...field} />
-                            <FormMessage>{form.formState.errors.lastSeenLocation?.message}</FormMessage>
+                            <FormControl>
+                              <Input placeholder="Rua, Bairro, Ponto de Referência" {...field} />
+                            </FormControl>
+                            <FormMessage/>
                         </FormItem>
                     )} />
                     <FormField name="date" control={form.control} render={({ field }) => (
                         <FormItem>
                             <Label>Data da Ocorrência</Label>
-                            <Input type="date" {...field} />
-                             <FormMessage>{form.formState.errors.date?.message}</FormMessage>
+                            <FormControl>
+                             <Input type="date" {...field} />
+                            </FormControl>
+                             <FormMessage/>
                         </FormItem>
                     )} />
                 </div>
@@ -128,15 +143,19 @@ function LostFoundForm() {
                     <FormField name="contactName" control={form.control} render={({ field }) => (
                         <FormItem>
                             <Label>Seu Nome para Contato</Label>
-                            <Input {...field} />
-                            <FormMessage>{form.formState.errors.contactName?.message}</FormMessage>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage/>
                         </FormItem>
                     )} />
                     <FormField name="contactPhone" control={form.control} render={({ field }) => (
                         <FormItem>
                             <Label>Seu Telefone para Contato</Label>
-                            <Input type="tel" placeholder="(XX) XXXXX-XXXX" {...field} />
-                            <FormMessage>{form.formState.errors.contactPhone?.message}</FormMessage>
+                             <FormControl>
+                              <Input type="tel" placeholder="(XX) XXXXX-XXXX" {...field} />
+                            </FormControl>
+                            <FormMessage/>
                         </FormItem>
                     )} />
                 </div>
@@ -146,6 +165,7 @@ function LostFoundForm() {
                 </FormItem> */}
                 <Button type="submit" className="w-full md:w-auto">Enviar Registro</Button>
             </form>
+            </Form>
         </CardContent>
     </Card>
   );
@@ -153,7 +173,7 @@ function LostFoundForm() {
 
 
 function AnimalCard({ animal }: { animal: LostFoundAnimal }) {
-  const AnimalIcon = animal.species.toLowerCase() === 'cachorro' ? PawPrint : (animal.species.toLowerCase() === 'gato' ? PawPrint : PawPrint); // Using PawPrint for all for now.
+  const AnimalIcon = animal.species.toLowerCase() === 'cachorro' ? PawPrint : (animal.species.toLowerCase() === 'gato' ? PawPrint : PawPrint);
   return (
     <Card className="flex flex-col overflow-hidden shadow-md hover:shadow-lg transition-shadow">
       <div className="relative aspect-[4/3] overflow-hidden">
@@ -195,30 +215,27 @@ export default function LostFoundPage() {
   const animaisEncontrados = mockLostFoundAnimals.filter(a => a.type === 'encontrado');
 
   return (
-    <PublicLayout>
-      <div className="container mx-auto py-12 px-4">
-        <PageTitle title="Animais Perdidos e Encontrados" icon={Search} description="Ajude a reunir pets com seus donos. Registre um animal perdido ou encontrado, ou procure por um pet desaparecido." />
-        
-        <Tabs defaultValue="perdidos" className="w-full mb-12">
-          <TabsList className="grid w-full grid-cols-2 md:w-1/2 mx-auto">
-            <TabsTrigger value="perdidos">Animais Perdidos</TabsTrigger>
-            <TabsTrigger value="encontrados">Animais Encontrados</TabsTrigger>
-          </TabsList>
-          <TabsContent value="perdidos">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-              {animaisPerdidos.length > 0 ? animaisPerdidos.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal perdido registrado no momento.</p>}
-            </div>
-          </TabsContent>
-          <TabsContent value="encontrados">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-               {animaisEncontrados.length > 0 ? animaisEncontrados.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal encontrado registrado no momento.</p>}
-            </div>
-          </TabsContent>
-        </Tabs>
+    <>
+      <PageTitle title="Animais Perdidos e Encontrados" icon={Search} description="Ajude a reunir pets com seus donos. Registre um animal perdido ou encontrado, ou procure por um pet desaparecido." />
+      
+      <Tabs defaultValue="perdidos" className="w-full mb-12">
+        <TabsList className="grid w-full grid-cols-2 md:w-1/2 mx-auto">
+          <TabsTrigger value="perdidos">Animais Perdidos</TabsTrigger>
+          <TabsTrigger value="encontrados">Animais Encontrados</TabsTrigger>
+        </TabsList>
+        <TabsContent value="perdidos">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            {animaisPerdidos.length > 0 ? animaisPerdidos.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal perdido registrado no momento.</p>}
+          </div>
+        </TabsContent>
+        <TabsContent value="encontrados">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+             {animaisEncontrados.length > 0 ? animaisEncontrados.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal encontrado registrado no momento.</p>}
+          </div>
+        </TabsContent>
+      </Tabs>
 
-        <LostFoundForm />
-
-      </div>
-    </PublicLayout>
+      <LostFoundForm />
+    </>
   );
 }

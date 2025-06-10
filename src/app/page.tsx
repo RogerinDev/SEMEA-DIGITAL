@@ -27,7 +27,7 @@ export default function HomePage() {
       icon: PawPrint,
       title: 'Bem-Estar Animal',
       description: 'Encontre animais para adoção ou reporte animais perdidos e encontrados na comunidade.',
-      link: '/animal-welfare/adoption',
+      link: '/animal-welfare',
       dataAiHint: 'happy pet'
     },
   ];
@@ -38,7 +38,7 @@ export default function HomePage() {
         className="relative py-16 md:py-24 bg-cover bg-center"
         style={{ backgroundImage: 'url(/hero-background.png)' }}
       >
-        <div className="absolute inset-0 bg-black/60 z-0"></div> {/* Sobreposição escura */}
+        <div className="absolute inset-0 bg-black/60 z-0"></div>
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
             <Image
@@ -50,10 +50,10 @@ export default function HomePage() {
               priority
             />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white"> {/* Cor do texto alterada */}
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
             Bem-vindo ao SEMEA Digital
           </h1>
-          <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto"> {/* Cor do texto alterada */}
+          <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
             Sua plataforma online para serviços e informações da Secretaria Municipal de Meio Ambiente de Varginha - MG.
           </p>
           <div className="space-x-4">
@@ -62,8 +62,8 @@ export default function HomePage() {
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 hover:bg-white/10" asChild>
-              <Link href="/info/sobre"><span className="text-black">Saber Mais</span></Link>
+            <Button size="lg" variant="outline" className="border-gray-300 text-black hover:bg-white/10" asChild>
+              <Link href="/info/sobre"><span>Saber Mais</span></Link>
             </Button>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature) => {
               let iconColorClass = 'text-primary';
-              if (feature.title === 'Denúncias Ambientais') { // Updated title check
+              if (feature.title === 'Denúncias Ambientais') {
                 iconColorClass = 'text-accent';
               } else if (feature.title === 'Bem-Estar Animal') {
                 iconColorClass = 'text-secondary';
@@ -91,7 +91,7 @@ export default function HomePage() {
                     <Button variant="outline" className="w-full mt-auto border-primary text-primary hover:bg-primary/10 hover:text-primary" asChild>
                       <Link href={feature.link}>
                         <span className="flex items-center justify-center">
-                        Acessar <ArrowRight className="ml-2 h-4 w-4" />
+                          Acessar <ArrowRight className="ml-2 h-4 w-4" />
                         </span>
                       </Link>
                     </Button>
@@ -118,8 +118,10 @@ export default function HomePage() {
                   'Contribuição direta para um meio ambiente mais saudável.'
                 ].map(item => (
                   <li key={item} className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-primary mr-2" />
-                    <span>{item}</span>
+                    <span className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>

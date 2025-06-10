@@ -1,5 +1,4 @@
 
-import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,63 +23,61 @@ const getAnimalIcon = (species: Animal['species']) => {
 
 export default function AnimalAdoptionPage() {
   return (
-    <PublicLayout>
-      <div className="container mx-auto py-12 px-4">
-        <PageTitle title="Adoção Responsável" icon={PawPrint} description="Encontre um novo amigo! Conheça os cães e gatos que esperam por um lar amoroso em Varginha." />
+    <>
+      <PageTitle title="Adoção Responsável" icon={PawPrint} description="Encontre um novo amigo! Conheça os cães e gatos que esperam por um lar amoroso em Varginha." />
 
-        <div className="mb-8 text-center">
-            <Button size="lg" asChild>
-                <Link href="/dashboard/citizen/requests/new?type=solicitacao_adocao_animal">
-                    <span className="flex items-center"><Heart className="mr-2 h-5 w-5"/> Quero Adotar! (Formulário de Interesse)</span>
-                </Link>
-            </Button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {mockAnimals.map((animal) => {
-            const AnimalIcon = getAnimalIcon(animal.species);
-            return (
-            <Card key={animal.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="relative aspect-[4/3] overflow-hidden">
-                <Image src={animal.photoUrl} alt={animal.name} layout="fill" objectFit="cover" className="transition-transform duration-300 hover:scale-105" data-ai-hint={`${animal.species} ${animal.breed}`}/>
-                {animal.statusAdocao !== 'disponivel' && (
-                    <Badge variant={animal.statusAdocao === 'adotado' ? 'default' : 'secondary'} className="absolute top-2 right-2">
-                    {animal.statusAdocao === 'adotado' ? 'Adotado!' : 'Em Adoção'}
-                    </Badge>
-                )}
-                </div>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle className="text-xl">{animal.name}</CardTitle>
-                        <AnimalIcon className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardDescription>{animal.breed} - {animal.age}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                <p className="text-sm text-muted-foreground line-clamp-3">{animal.description}</p>
-                </CardContent>
-                <CardFooter>
-                <Button asChild className="w-full" disabled={animal.statusAdocao !== 'disponivel'}>
-                    {/* Link to specific animal detail page or pre-fill adoption form */}
-                    <Link href={animal.statusAdocao === 'disponivel' ? `/animal-welfare/adoption/${animal.id}` : '#'}>
-                     <span className="flex items-center"> <Info className="mr-2 h-4 w-4" />
-                      {animal.statusAdocao === 'disponivel' ? 'Saber Mais / Adotar' : (animal.statusAdocao === 'adotado' ? 'Já Adotado' : 'Em Processo')}
-                     </span>
-                    </Link>
-                </Button>
-                </CardFooter>
-            </Card>
-            );
-        })}
-        </div>
-        {mockAnimals.length === 0 && (
-            <div className="text-center py-12 col-span-full">
-                <PawPrint className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Nenhum animal disponível para adoção no momento</h3>
-                <p className="text-muted-foreground">Por favor, verifique novamente mais tarde. Muitos anjinhos esperam por um lar!</p>
-            </div>
-        )}
+      <div className="mb-8 text-center">
+          <Button size="lg" asChild>
+              <Link href="/dashboard/citizen/requests/new?type=solicitacao_adocao_animal">
+                  <span className="flex items-center"><Heart className="mr-2 h-5 w-5"/> Quero Adotar! (Formulário de Interesse)</span>
+              </Link>
+          </Button>
       </div>
-    </PublicLayout>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {mockAnimals.map((animal) => {
+          const AnimalIcon = getAnimalIcon(animal.species);
+          return (
+          <Card key={animal.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div className="relative aspect-[4/3] overflow-hidden">
+              <Image src={animal.photoUrl} alt={animal.name} layout="fill" objectFit="cover" className="transition-transform duration-300 hover:scale-105" data-ai-hint={`${animal.species} ${animal.breed}`}/>
+              {animal.statusAdocao !== 'disponivel' && (
+                  <Badge variant={animal.statusAdocao === 'adotado' ? 'default' : 'secondary'} className="absolute top-2 right-2">
+                  {animal.statusAdocao === 'adotado' ? 'Adotado!' : 'Em Adoção'}
+                  </Badge>
+              )}
+              </div>
+              <CardHeader>
+                  <div className="flex items-center justify-between">
+                      <CardTitle className="text-xl">{animal.name}</CardTitle>
+                      <AnimalIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardDescription>{animal.breed} - {animal.age}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground line-clamp-3">{animal.description}</p>
+              </CardContent>
+              <CardFooter>
+              <Button asChild className="w-full" disabled={animal.statusAdocao !== 'disponivel'}>
+                  {/* Link to specific animal detail page or pre-fill adoption form */}
+                  <Link href={animal.statusAdocao === 'disponivel' ? `/animal-welfare/adoption/${animal.id}` : '#'}>
+                   <span className="flex items-center"> <Info className="mr-2 h-4 w-4" />
+                    {animal.statusAdocao === 'disponivel' ? 'Saber Mais / Adotar' : (animal.statusAdocao === 'adotado' ? 'Já Adotado' : 'Em Processo')}
+                   </span>
+                  </Link>
+              </Button>
+              </CardFooter>
+          </Card>
+          );
+      })}
+      </div>
+      {mockAnimals.length === 0 && (
+          <div className="text-center py-12 col-span-full">
+              <PawPrint className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Nenhum animal disponível para adoção no momento</h3>
+              <p className="text-muted-foreground">Por favor, verifique novamente mais tarde. Muitos anjinhos esperam por um lar!</p>
+          </div>
+      )}
+    </>
   );
 }

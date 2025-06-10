@@ -13,26 +13,25 @@ export function PublicHeader() {
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
     { href: '/info/education', label: 'Educação Ambiental', icon: GraduationCap },
-    { href: '/animal-welfare/adoption', label: 'Adoção', icon: PawPrint },
+    { href: '/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
     { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase },
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
-          <Logo iconSize={28} className="ml-2 md:ml-0" /> {/* Ajuste de margem para mobile se necessário */}
+          <Logo iconSize={28} className="ml-2 md:ml-0" />
           
-          {/* Navegação principal ajustada */}
           <nav className="flex flex-grow items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 text-sm font-medium">
             {navItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
                 className="flex items-center p-2 rounded-md text-primary/90 transition-colors hover:text-primary hover:bg-primary/10 md:px-2 md:py-1"
-                aria-label={item.label} // Para acessibilidade quando só o ícone é visível
+                aria-label={item.label}
               >
-                <item.icon className="h-5 w-5 shrink-0" />
-                <span className="hidden md:inline ml-1.5">{item.label}</span>
+                <item.icon className="h-5 w-5 shrink-0 md:mr-1.5" />
+                <span className="hidden md:inline">{item.label}</span>
               </Link>
             ))}
           </nav>
