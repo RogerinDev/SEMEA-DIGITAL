@@ -2,18 +2,13 @@
 "use client";
 
 import Link from 'next/link';
-// useRouter removed as it was unused
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-// usePathname might be needed if active link styling is implemented based on path
-// import { usePathname } from 'next/navigation'; 
 
 export function PublicHeader() {
-  // const router = useRouter(); // Removed, was unused
-
   const navItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
@@ -25,29 +20,36 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
-          <Logo iconSize={28} className="ml-2" />
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+          <Logo iconSize={28} className="ml-2 md:ml-0" /> {/* Ajuste de margem para mobile se necessário */}
+          
+          {/* Navegação principal ajustada */}
+          <nav className="flex flex-grow items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 text-sm font-medium">
             {navItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex items-center gap-1 text-primary/90 transition-colors hover:text-primary"
+                className="flex items-center p-2 rounded-md text-primary/90 transition-colors hover:text-primary hover:bg-primary/10 md:px-2 md:py-1"
+                aria-label={item.label} // Para acessibilidade quando só o ícone é visível
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="h-5 w-5 shrink-0" />
+                <span className="hidden md:inline ml-1.5">{item.label}</span>
               </Link>
             ))}
           </nav>
+
           <div className="flex items-center space-x-2">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="secondary" size="icon" asChild>
-                  <Link href="/login" passHref legacyBehavior>
-                    <a aria-label="Entrar">
-                      <LogIn className="h-4 w-4" />
-                    </a>
-                  </Link>
-                </Button>
+                <Link
+                  href="/login"
+                  passHref
+                  legacyBehavior
+                  className={cn(buttonVariants({ variant: "secondary", size: "icon" }))}
+                >
+                  <a aria-label="Entrar">
+                    <LogIn className="h-4 w-4" />
+                  </a>
+                </Link>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Entrar</p>
@@ -56,13 +58,16 @@ export function PublicHeader() {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="default" size="icon" asChild>
-                  <Link href="/register" passHref legacyBehavior>
-                    <a aria-label="Registrar">
-                      <UserPlus className="h-4 w-4" />
-                    </a>
-                  </Link>
-                </Button>
+                 <Link
+                  href="/register"
+                  passHref
+                  legacyBehavior
+                  className={cn(buttonVariants({ variant: "default", size: "icon" }))}
+                >
+                  <a aria-label="Registrar">
+                     <UserPlus className="h-4 w-4" />
+                  </a>
+                </Link>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Registrar</p>
