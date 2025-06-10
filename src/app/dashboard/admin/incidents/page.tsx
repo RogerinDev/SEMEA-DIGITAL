@@ -17,12 +17,12 @@ const mockAdminIncidents: IncidentReport[] = [
 ];
 
 const incidentStatusTabs: { value: IncidentReport['status'] | 'todos', label: string }[] = [
-    { value: 'todos', label: 'Todos' },
-    { value: 'recebida', label: 'Recebidos' },
+    { value: 'todos', label: 'Todas' },
+    { value: 'recebida', label: 'Recebidas' },
     { value: 'em_verificacao', label: 'Em Verificação' },
     { value: 'fiscalizacao_agendada', label: 'Ag. Fiscalização' },
-    { value: 'resolvida', label: 'Resolvidos' },
-    { value: 'arquivada_improcedente', label: 'Arquivados' },
+    { value: 'resolvida', label: 'Resolvidas' },
+    { value: 'arquivada_improcedente', label: 'Arquivadas' },
 ];
 
 function getStatusVariant(status: IncidentReport['status']): "default" | "secondary" | "destructive" | "outline" {
@@ -43,7 +43,7 @@ const statusTranslations: Record<IncidentReport['status'], string> = {
 
 function IncidentTable({ incidents }: { incidents: IncidentReport[] }) {
   if (incidents.length === 0) {
-    return <p className="text-muted-foreground text-center py-8">Nenhum incidente encontrado para este filtro.</p>;
+    return <p className="text-muted-foreground text-center py-8">Nenhuma denúncia encontrada para este filtro.</p>;
   }
   return (
     <Table>
@@ -86,15 +86,15 @@ export default function AdminIncidentsPage() {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <PageTitle title="Gerenciar Incidentes" icon={AlertTriangle} className="mb-0" />
+        <PageTitle title="Gerenciar Denúncias" icon={AlertTriangle} className="mb-0" />
          <Button variant="outline">
           <Filter className="mr-2 h-4 w-4" /> Filtrar
         </Button>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Incidentes Reportados</CardTitle>
-          <CardDescription>Acompanhe e gerencie os incidentes ambientais.</CardDescription>
+          <CardTitle>Lista de Denúncias Reportadas</CardTitle>
+          <CardDescription>Acompanhe e gerencie as denúncias ambientais.</CardDescription>
         </CardHeader>
         <CardContent>
            <Tabs defaultValue="todos" className="w-full">

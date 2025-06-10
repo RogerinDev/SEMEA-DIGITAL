@@ -8,12 +8,12 @@ import Link from 'next/link';
 export default function CitizenDashboardPage() {
   const summaryCards = [
     { title: 'Solicitações Abertas', value: '3', icon: FileText, link: '/dashboard/citizen/requests' },
-    { title: 'Incidentes Reportados', value: '1', icon: AlertTriangle, link: '/dashboard/citizen/incidents' },
+    { title: 'Denúncias Registradas', value: '1', icon: AlertTriangle, link: '/dashboard/citizen/incidents' },
   ];
 
   const quickActions = [
     { label: 'Nova Solicitação de Serviço', href: '/dashboard/citizen/requests/new', icon: PlusCircle },
-    { label: 'Reportar um Incidente', href: '/dashboard/citizen/incidents/new', icon: AlertTriangle },
+    { label: 'Registrar uma Denúncia', href: '/dashboard/citizen/incidents/new', icon: AlertTriangle },
   ];
 
   return (

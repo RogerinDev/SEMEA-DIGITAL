@@ -27,7 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   incidentType: z.custom<IncidentType>(val => INCIDENT_TYPES.map(it => it.value).includes(val as IncidentType), {
-    message: "Tipo de incidente inválido",
+    message: "Tipo de denúncia inválido",
   }),
   description: z.string().min(20, {
     message: "A descrição deve ter pelo menos 20 caracteres.",
@@ -57,8 +57,8 @@ export default function NewIncidentReportPage() {
     console.log(values);
     // Backend submission logic
     toast({
-      title: "Incidente Reportado!",
-      description: `Seu relato de ${INCIDENT_TYPES.find(s => s.value === values.incidentType)?.label} foi registrado. Protocolo: DEN${Date.now().toString().slice(-6)}`,
+      title: "Denúncia Registrada!",
+      description: `Sua denúncia de ${INCIDENT_TYPES.find(s => s.value === values.incidentType)?.label} foi registrada. Protocolo: DEN${Date.now().toString().slice(-6)}`,
       variant: "default",
     });
     form.reset();
@@ -74,13 +74,13 @@ export default function NewIncidentReportPage() {
             <span className="sr-only">Voltar</span>
           </Link>
         </Button>
-        <PageTitle title="Reportar Novo Incidente" icon={AlertTriangle} className="mb-0 flex-grow" />
+        <PageTitle title="Registrar Nova Denúncia" icon={AlertTriangle} className="mb-0 flex-grow" />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Detalhes do Incidente</CardTitle>
-          <CardDescription>Descreva o incidente ambiental que você presenciou. Sua colaboração é importante.</CardDescription>
+          <CardTitle>Detalhes da Denúncia</CardTitle>
+          <CardDescription>Descreva a situação que você gostaria de denunciar. Sua colaboração é importante.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -90,11 +90,11 @@ export default function NewIncidentReportPage() {
                 name="incidentType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de Incidente</FormLabel>
+                    <FormLabel>Tipo de Denúncia</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo de incidente" />
+                          <SelectValue placeholder="Selecione o tipo de denúncia" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -148,7 +148,7 @@ export default function NewIncidentReportPage() {
                     <FormControl>
                       <Input placeholder="Ex: Próximo à padaria, em frente ao poste X" {...field} />
                     </FormControl>
-                    <FormDescription>Ajude-nos a localizar o incidente com mais precisão.</FormDescription>
+                    <FormDescription>Ajude-nos a localizar a ocorrência com mais precisão.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -164,7 +164,7 @@ export default function NewIncidentReportPage() {
                       <Input type="file" multiple onChange={(e) => field.onChange(e.target.files)} />
                     </FormControl>
                     <FormDescription>
-                      Anexe evidências visuais do incidente (limite 5MB por arquivo).
+                      Anexe evidências visuais da denúncia (limite 5MB por arquivo).
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -187,7 +187,7 @@ export default function NewIncidentReportPage() {
                         Reportar anonimamente
                       </FormLabel>
                       <FormDescription>
-                        Se marcado, seus dados pessoais não serão vinculados a este relato.
+                        Se marcado, seus dados pessoais não serão vinculados a esta denúncia.
                       </FormDescription>
                     </div>
                   </FormItem>
@@ -197,7 +197,7 @@ export default function NewIncidentReportPage() {
                 <Button type="button" variant="outline" asChild>
                   <Link href="/dashboard/citizen/incidents">Cancelar</Link>
                 </Button>
-                <Button type="submit">Enviar Relato</Button>
+                <Button type="submit">Enviar Denúncia</Button>
               </div>
             </form>
           </Form>

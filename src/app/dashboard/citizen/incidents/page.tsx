@@ -47,11 +47,11 @@ export default function CitizenIncidentsPage() {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <PageTitle title="Meus Incidentes Reportados" icon={AlertTriangle} className="mb-0" />
+        <PageTitle title="Minhas Denúncias Registradas" icon={AlertTriangle} className="mb-0" />
         <Button asChild>
           <Link href="/dashboard/citizen/incidents/new">
             <span className="flex items-center">
-              <PlusCircle className="mr-2 h-4 w-4" /> Novo Relato
+              <PlusCircle className="mr-2 h-4 w-4" /> Nova Denúncia
             </span>
           </Link>
         </Button>
@@ -61,16 +61,16 @@ export default function CitizenIncidentsPage() {
          <Card className="text-center py-12">
           <CardHeader>
             <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
-            <CardTitle>Nenhum incidente reportado</CardTitle>
+            <CardTitle>Nenhuma denúncia registrada</CardTitle>
           </CardHeader>
           <CardContent>
-            <CardDescription>Você ainda não reportou nenhum incidente. Ajude a cuidar da nossa cidade!</CardDescription>
+            <CardDescription>Você ainda não registrou nenhuma denúncia. Ajude a cuidar da nossa cidade!</CardDescription>
           </CardContent>
           <CardFooter className="justify-center">
             <Button asChild>
               <Link href="/dashboard/citizen/incidents/new">
                 <span className="flex items-center">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Reportar Incidente
+                  <PlusCircle className="mr-2 h-4 w-4" /> Registrar Denúncia
                 </span>
               </Link>
             </Button>
@@ -79,8 +79,8 @@ export default function CitizenIncidentsPage() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Histórico de Incidentes</CardTitle>
-            <CardDescription>Acompanhe o status dos seus relatos.</CardDescription>
+            <CardTitle>Histórico de Denúncias</CardTitle>
+            <CardDescription>Acompanhe o status das suas denúncias.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>

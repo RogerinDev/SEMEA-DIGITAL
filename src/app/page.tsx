@@ -18,7 +18,7 @@ export default function HomePage() {
     },
     {
       icon: AlertTriangle,
-      title: 'Registro de Ocorrências',
+      title: 'Denúncias Ambientais',
       description: 'Denuncie descarte irregular, maus-tratos a animais e outras infrações ambientais.',
       link: '/dashboard/citizen/incidents/new',
       dataAiHint: 'environmental problem'
@@ -62,7 +62,7 @@ export default function HomePage() {
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 text-black hover:bg-white/10 hover:text-black" asChild>
+            <Button size="lg" variant="outline" className="border-gray-300 hover:bg-white/10" asChild>
               <Link href="/info/sobre"><span className="text-black">Saber Mais</span></Link>
             </Button>
           </div>
@@ -75,7 +75,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature) => {
               let iconColorClass = 'text-primary';
-              if (feature.title === 'Registro de Ocorrências') {
+              if (feature.title === 'Denúncias Ambientais') { // Updated title check
                 iconColorClass = 'text-accent';
               } else if (feature.title === 'Bem-Estar Animal') {
                 iconColorClass = 'text-secondary';
@@ -109,7 +109,7 @@ export default function HomePage() {
             <div>
               <h2 className="text-3xl font-bold mb-6 text-primary">Participe da Construção de uma Varginha Mais Verde!</h2>
               <p className="text-foreground/80 mb-4">
-                Utilize nossos canais digitais para solicitar serviços, reportar problemas e se informar sobre as ações ambientais em nosso município. Sua participação é fundamental.
+                Utilize nossos canais digitais para solicitar serviços, registrar denúncias e se informar sobre as ações ambientais em nosso município. Sua participação é fundamental.
               </p>
               <ul className="space-y-2 mb-6">
                 {[

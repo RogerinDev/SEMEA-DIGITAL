@@ -46,7 +46,7 @@ function getStatusVariant(status: IncidentReport['status']): "default" | "second
 
 export default function AdminIncidentDetailPage({ params }: { params: { id: string } }) {
   const incident = mockIncident; 
-  if (!incident) return <p>Incidente não encontrado.</p>;
+  if (!incident) return <p>Denúncia não encontrada.</p>;
 
   const currentStatusOption = statusOptions.find(s => s.value === incident.status);
 
@@ -58,7 +58,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
             <span><ArrowLeft className="h-4 w-4" /></span>
           </Link>
         </Button>
-        <PageTitle title={`Incidente #${incident.protocol}`} icon={AlertTriangle} className="mb-0 flex-grow" />
+        <PageTitle title={`Denúncia #${incident.protocol}`} icon={AlertTriangle} className="mb-0 flex-grow" />
         {currentStatusOption && (
           <Badge variant={getStatusVariant(incident.status)} className="text-sm px-3 py-1">
             {currentStatusOption.icon && <currentStatusOption.icon className="h-4 w-4 mr-2"/>}
@@ -71,11 +71,11 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
         <div className="md:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Detalhes do Incidente</CardTitle>
+              <CardTitle>Detalhes da Denúncia</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Tipo de Incidente</p>
+                <p className="text-sm font-medium text-muted-foreground">Tipo de Denúncia</p>
                 <p className="text-md">{incident.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
               </div>
               <Separator/>

@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default function AdminDashboardPage() {
   const overviewCards = [
     { title: 'Solicitações Pendentes', value: '12', icon: Clock, color: 'text-yellow-500', link: '/dashboard/admin/requests?status=pendente' },
-    { title: 'Incidentes Novos', value: '5', icon: AlertTriangle, color: 'text-red-500', link: '/dashboard/admin/incidents?status=novo' },
+    { title: 'Denúncias Novas', value: '5', icon: AlertTriangle, color: 'text-red-500', link: '/dashboard/admin/incidents?status=novo' },
     { title: 'Serviços Concluídos (Mês)', value: '47', icon: CheckSquare, color: 'text-green-500', link: '/dashboard/admin/requests?status=concluido' },
     // { title: 'Usuários Ativos', value: '125', icon: Users, color: 'text-blue-500', link: '#' },
   ];
@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/dashboard/admin/incidents">
                 <span className="flex items-center">
-                  <AlertTriangle className="mr-2 h-4 w-4 text-primary"/> Gerenciar Incidentes Ambientais
+                  <AlertTriangle className="mr-2 h-4 w-4 text-primary"/> Gerenciar Denúncias Ambientais
                 </span>
               </Link>
             </Button>
