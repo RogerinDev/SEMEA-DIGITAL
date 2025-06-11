@@ -22,17 +22,22 @@ export function PublicHeader() {
         <div className="container flex h-16 items-center justify-between">
           <Logo iconSize={28} className="ml-2 md:ml-0" />
           
-          <nav className="flex flex-grow items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 text-sm font-medium">
+          <nav className="flex flex-grow items-center justify-center space-x-3 text-sm font-medium"> {/* Adjusted space-x */}
             {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center p-2 rounded-md text-primary/90 transition-colors hover:text-primary hover:bg-primary/10 md:px-2 md:py-1"
-                aria-label={item.label}
-              >
-                <item.icon className="h-5 w-5 shrink-0 md:mr-1.5" />
-                <span className="hidden md:inline">{item.label}</span>
-              </Link>
+              <Tooltip key={item.label} delayDuration={100}>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={item.href}
+                    className="flex items-center justify-center p-2 rounded-md text-primary/90 transition-colors hover:text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring"
+                    aria-label={item.label}
+                  >
+                    <item.icon className="h-6 w-6 shrink-0" /> {/* Icon size increased, md:mr-1.5 removed */}
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="center">
+                  <p>{item.label}</p>
+                </TooltipContent>
+              </Tooltip>
             ))}
           </nav>
 
