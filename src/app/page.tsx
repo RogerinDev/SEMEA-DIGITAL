@@ -47,7 +47,7 @@ export default function HomePage() {
     <PublicLayout>
       <section
         className="relative py-16 md:py-24 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/hero-background.png)' }} // Alterado aqui
+        style={{ backgroundImage: 'url(/hero-background.png)' }}
       >
         <div className="absolute inset-0 bg-black/60 z-0"></div>
         <div className="relative z-10 container mx-auto px-4 text-center">
@@ -136,8 +136,8 @@ export default function HomePage() {
             </div>
             <div>
               <Image
-                src="/hero-participacao-semea.jpg" // Ou https://placehold.co/600x400.png se preferir
-                alt="Varginha Sustentável"
+                src="/varginha-verde.png" 
+                alt="Varginha Sustentável e Verde"
                 width={600}
                 height={400}
                 className="rounded-lg shadow-xl"
