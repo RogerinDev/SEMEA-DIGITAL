@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 const educationNavItems = [
-  { href: '/info/education', label: 'Sobre o Programa', icon: GraduationCap },
   { href: '/info/education/projects', label: 'Projetos', icon: Lightbulb },
   { href: '/info/education/lectures', label: 'Palestras', icon: BookOpen },
   { href: '/info/education/events', label: 'Eventos', icon: CalendarCheck2 },
@@ -27,8 +26,8 @@ export default function EnvironmentalEducationLayout({
     <PublicLayout>
       <div className="container mx-auto py-8 px-4">
         <nav className="mb-8">
-          <Tabs defaultValue="/info/education" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+          <Tabs defaultValue="/info/education/projects" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-2 md:grid-cols-4"> {/* Adjusted grid-cols */}
               {educationNavItems.map((item) => (
                 <TabsTrigger key={item.href} value={item.href} asChild>
                   <Link href={item.href} className="flex items-center justify-center gap-2">
