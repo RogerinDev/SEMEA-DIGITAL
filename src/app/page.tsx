@@ -2,33 +2,44 @@
 import PublicLayout from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, CheckCircle, Leaf, PawPrint, Recycle, AlertTriangle } from 'lucide-react';
+import { ArrowRight, CheckCircle, TreePine, Recycle, PawPrint, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 
 export default function HomePage() {
-  const features = [
+  const services = [
     {
-      icon: Leaf,
-      title: 'Solicitações de Serviços',
-      description: 'Peça poda de árvores, castração de animais, coletas especiais e mais.',
-      link: '/dashboard/citizen/requests/new',
-      dataAiHint: 'tree service'
+      icon: TreePine,
+      title: 'Arborização Urbana',
+      description: 'Solicite podas, remoção de árvores em risco e plantio de novas mudas. Cuidamos do verde da nossa cidade para um ambiente mais saudável e agradável para todos.',
+      link: '/info/urban-afforestation',
+      buttonLabel: 'Acessar Serviços',
+      iconColorClass: 'text-primary',
     },
     {
-      icon: AlertTriangle,
-      title: 'Denúncias Ambientais',
-      description: 'Denuncie descarte irregular, maus-tratos a animais e outras infrações ambientais.',
-      link: '/dashboard/citizen/incidents/new',
-      dataAiHint: 'environmental problem'
+      icon: Recycle,
+      title: 'Gestão de Resíduos',
+      description: 'Informe-se sobre a coleta seletiva, descarte corretamente seus resíduos e denuncie o descarte irregular. Juntos, mantemos nossa cidade limpa e sustentável.',
+      link: '/info/waste-management',
+      buttonLabel: 'Ver Coletas',
+      iconColorClass: 'text-primary',
     },
     {
       icon: PawPrint,
       title: 'Bem-Estar Animal',
-      description: 'Encontre animais para adoção ou reporte animais perdidos e encontrados na comunidade.',
+      description: 'Encontre um amigo para adoção, solicite a castração gratuita de cães e gatos, e ajude a reportar animais perdidos ou casos de maus-tratos.',
       link: '/animal-welfare',
-      dataAiHint: 'happy pet'
+      buttonLabel: 'Conhecer',
+      iconColorClass: 'text-primary',
+    },
+    {
+      icon: GraduationCap,
+      title: 'Educação Ambiental',
+      description: 'Participe de nossas palestras, oficinas e projetos de conscientização. Aprenda sobre práticas sustentáveis e ajude a construir um futuro mais verde para nossa comunidade.',
+      link: '/info/education',
+      buttonLabel: 'Saiba Mais',
+      iconColorClass: 'text-primary',
     },
   ];
 
@@ -72,33 +83,25 @@ export default function HomePage() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-primary">Nossos Principais Serviços</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => {
-              let iconColorClass = 'text-primary';
-              if (feature.title === 'Denúncias Ambientais') {
-                iconColorClass = 'text-accent';
-              } else if (feature.title === 'Bem-Estar Animal') {
-                iconColorClass = 'text-secondary';
-              }
-              return (
-                <Card key={feature.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {services.map((service) => (
+                <Card key={service.title} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card">
                   <CardHeader className="items-center">
-                    <feature.icon size={40} className={`${iconColorClass} mb-2`} />
-                    <CardTitle className="text-center text-primary">{feature.title}</CardTitle>
+                    <service.icon size={40} className={`${service.iconColorClass} mb-2`} />
+                    <CardTitle className="text-center text-primary">{service.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-grow flex flex-col">
-                    <p className="text-muted-foreground text-sm mb-4 flex-grow">{feature.description}</p>
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow">{service.description}</p>
                     <Button variant="outline" className="w-full mt-auto border-primary text-primary hover:bg-primary/10 hover:text-primary" asChild>
-                      <Link href={feature.link}>
+                      <Link href={service.link}>
                         <span className="flex items-center justify-center">
-                          Acessar <ArrowRight className="ml-2 h-4 w-4" />
+                          {service.buttonLabel} <ArrowRight className="ml-2 h-4 w-4" />
                         </span>
                       </Link>
                     </Button>
                   </CardContent>
                 </Card>
-              );
-            })}
+              ))}
           </div>
         </div>
       </section>
