@@ -47,7 +47,7 @@ export default function HomePage() {
     <PublicLayout>
       <section
         className="relative py-16 md:py-24 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/hero-background.png)' }}
+        style={{ backgroundImage: 'url(/hero-principal-semea.jpg)' }}
       >
         <div className="absolute inset-0 bg-black/60 z-0"></div>
         <div className="relative z-10 container mx-auto px-4 text-center">
