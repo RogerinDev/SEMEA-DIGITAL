@@ -19,10 +19,13 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <Logo iconSize={28} className="ml-2 md:ml-0" />
+        {/* Adicionado relative e removido justify-between. items-center é mantido. */}
+        <div className="container relative flex h-16 items-center">
+          {/* Logo à esquerda */}
+          <Logo iconSize={28} className="ml-2 flex-shrink-0 md:ml-0" />
           
-          <nav className="flex flex-grow items-center justify-center space-x-3 text-sm font-medium"> {/* Adjusted space-x */}
+          {/* Navegação centralizada absolutamente */}
+          <nav className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center space-x-3 text-sm font-medium">
             {navItems.map((item) => (
               <Tooltip key={item.label} delayDuration={100}>
                 <TooltipTrigger asChild>
@@ -31,7 +34,7 @@ export function PublicHeader() {
                     className="flex items-center justify-center p-2 rounded-md text-primary/90 transition-colors hover:text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-ring"
                     aria-label={item.label}
                   >
-                    <item.icon className="h-6 w-6 shrink-0" /> {/* Icon size increased, md:mr-1.5 removed */}
+                    <item.icon className="h-7 w-7 shrink-0" />
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="center">
@@ -41,13 +44,14 @@ export function PublicHeader() {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-2">
+          {/* Botões de autenticação à direita, empurrados com ml-auto */}
+          <div className="ml-auto flex flex-shrink-0 items-center space-x-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
                   href="/login"
                   passHref
-                  legacyBehavior
+                  legacyBehavior // Necessário se cn(buttonVariants(...)) retorna uma string e não um componente diretamente
                   className={cn(buttonVariants({ variant: "secondary", size: "icon" }))}
                 >
                   <a aria-label="Entrar">
@@ -65,7 +69,7 @@ export function PublicHeader() {
                  <Link
                   href="/register"
                   passHref
-                  legacyBehavior
+                  legacyBehavior // Necessário
                   className={cn(buttonVariants({ variant: "default", size: "icon" }))}
                 >
                   <a aria-label="Registrar">
