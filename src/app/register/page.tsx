@@ -1,23 +1,49 @@
+
 "use client";
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // Added
+import React, { useState } from 'react'; // Added
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PublicHeader } from '@/components/navigation/public-header';
 import { Footer } from '@/components/navigation/footer';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
+import { useAuth } from '@/contexts/auth-context'; // Added
+import { useToast } from '@/hooks/use-toast'; // Added
 
 export default function RegisterPage() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [name, setName] = useState(''); // Name is not directly used by Firebase Auth email/pass but good for forms
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const { register, loading: authLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle registration logic here
-    console.log('Registration form submitted');
-     // For now, redirect to citizen dashboard
-    window.location.href = '/dashboard/citizen';
+    if (password !== confirmPassword) {
+      toast({ title: "Erro no Cadastro", description: "As senhas não coincidem.", variant: "destructive" });
+      return;
+    }
+    setIsSubmitting(true);
+    const result = await register(email, password);
+    if (typeof result !== 'string') { // Assuming UserCredential object on success
+      // Successfully registered, Firebase onAuthStateChanged will handle currentUser update
+      // Redirect to login or directly to dashboard
+      router.push('/dashboard/citizen'); // Or router.push('/login');
+    } else {
+      // Error is handled by toast in AuthContext
+    }
+    setIsSubmitting(false);
   };
+
+  const isLoading = authLoading || isSubmitting;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -35,22 +61,53 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" type="text" placeholder="Seu Nome Completo" required />
+                <Input 
+                  id="name" 
+                  type="text" 
+                  placeholder="Seu Nome Completo" 
+                  required 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="seu@email.com" required />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="seu@email.com" 
+                  required 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirmar Senha</Label>
-                <Input id="confirm-password" type="password" required />
+                <Input 
+                  id="confirm-password" 
+                  type="password" 
+                  required 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
-              <Button type="submit" className="w-full">
-                <UserPlus className="mr-2 h-4 w-4" /> Registrar
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                Registrar
               </Button>
             </form>
             <div className="mt-6 text-center text-sm">

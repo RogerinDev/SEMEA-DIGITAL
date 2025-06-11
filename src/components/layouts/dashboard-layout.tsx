@@ -1,4 +1,5 @@
-"use client"; // Sidebar interaction requires client components
+
+"use client"; 
 
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -18,7 +19,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { LogOut, UserCircle } from 'lucide-react';
+import { LogOut, UserCircle, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context'; // Added
 
 export interface NavItem {
   href: string;
@@ -30,12 +32,22 @@ export interface NavItem {
 interface DashboardLayoutProps {
   children: React.ReactNode;
   navItems: NavItem[];
-  userName?: string;
-  userRole?: string;
+  userName?: string; // This will be overridden by currentUser if available
+  userRole?: string; // This will be overridden by currentUser if available
 }
 
-export default function DashboardLayout({ children, navItems, userName = "Usuário", userRole = "Cidadão" }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, navItems, userName: defaultUserName = "Usuário", userRole: defaultUserRole = "Cidadão" }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const { currentUser, logout, loading: authLoading } = useAuth(); // Get user and logout function
+
+  const displayUserName = currentUser?.email || defaultUserName; // Or currentUser.displayName if you set it
+  // User role would typically come from custom claims or a database, not directly from FirebaseUser object for email/pass
+  const displayUserRole = defaultUserRole; 
+
+  const handleLogout = async () => {
+    await logout();
+    // Router will redirect via AuthContext's logout method
+  };
 
   return (
     <SidebarProvider defaultOpen>
@@ -70,14 +82,18 @@ export default function DashboardLayout({ children, navItems, userName = "Usuár
           <div className="flex items-center gap-2 mb-2">
             <UserCircle className="h-8 w-8 text-sidebar-foreground" />
             <div>
-              <p className="text-sm font-medium text-sidebar-foreground">{userName}</p>
-              <p className="text-xs text-sidebar-foreground/70">{userRole}</p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate" title={displayUserName}>{displayUserName}</p>
+              <p className="text-xs text-sidebar-foreground/70">{displayUserRole}</p>
             </div>
           </div>
-          <Button variant="ghost" className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" asChild>
-            <Link href="/">
-              <LogOut className="mr-2 h-4 w-4" /> Sair
-            </Link>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+            onClick={handleLogout}
+            disabled={authLoading}
+          >
+            {authLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <LogOut className="mr-2 h-4 w-4" />}
+             Sair
           </Button>
         </SidebarFooter>
       </Sidebar>
@@ -87,7 +103,7 @@ export default function DashboardLayout({ children, navItems, userName = "Usuár
           {/* Add user menu or notifications here if needed for top bar */}
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">
-          {children}
+          {currentUser || authLoading ? children : <p>Você precisa estar logado para ver esta página. Redirecionando...</p>}
         </main>
       </SidebarInset>
     </SidebarProvider>
