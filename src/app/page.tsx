@@ -57,7 +57,7 @@ export default function HomePage() {
               alt="SEMEA Varginha Logo Principal"
               width={128}
               height={128}
-              data-ai-hint="brand logo"
+              data-ai-hint="brand logo semea" 
               priority
             />
           </div>
