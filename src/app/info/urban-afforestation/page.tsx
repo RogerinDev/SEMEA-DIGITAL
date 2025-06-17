@@ -1,9 +1,9 @@
 
 import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TreePine, Sprout, Info, ArrowRight, CheckCircle } from 'lucide-react';
+import { TreePine, Sprout, ArrowRight, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -44,7 +44,7 @@ export default function UrbanAfforestationPage() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid md:grid-cols-2 gap-6 mb-12"> {/* Updated from md:grid-cols-3 */}
             <Card className="shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
                     <Sprout className="h-10 w-10 text-primary mb-2"/>
@@ -81,36 +81,10 @@ export default function UrbanAfforestationPage() {
                     </Button>
                 </CardFooter>
             </Card>
-             <Card className="shadow-lg hover:shadow-xl transition-shadow">
-                <CardHeader>
-                    <Info className="h-10 w-10 text-primary mb-2"/>
-                    <CardTitle>Diretrizes e Cuidados</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">Conheça as espécies adequadas, como cuidar das árvores e a legislação municipal.</p>
-                </CardContent>
-                <CardFooter>
-                    <Button variant="outline" className="w-full" asChild>
-                        <Link href="#">
-                          <span className="flex items-center justify-center">
-                            Ler Diretrizes <ArrowRight className="ml-2 h-4 w-4"/>
-                          </span>
-                        </Link>
-                    </Button>
-                </CardFooter>
-            </Card>
+            {/* Card "Diretrizes e Cuidados" removido daqui */}
         </div>
 
-        <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle>Inventário de Árvores (Em Breve)</CardTitle>
-                <CardDescription>Em breve, você poderá consultar informações sobre as árvores em áreas públicas da cidade através de um mapa interativo.</CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-                <TreePine className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Estamos trabalhando para disponibilizar o inventário arbóreo municipal online.</p>
-            </CardContent>
-        </Card>
+        {/* Card "Inventário de Árvores (Em Breve)" removido daqui */}
       </div>
     </PublicLayout>
   );
