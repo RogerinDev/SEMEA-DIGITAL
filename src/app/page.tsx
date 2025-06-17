@@ -53,11 +53,11 @@ export default function HomePage() {
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
             <Image
-              src="/semea-hero-logo.png"
-              alt="SEMEA Varginha Logo Principal"
+              src={`/semea-hero-logo.png?v=${new Date().getTime()}`}
+              alt="SEMEA Varginha Logo Principal Hero"
               width={128}
               height={128}
-              data-ai-hint="brand logo semea" 
+              data-ai-hint="brand logo semea hero" 
               priority
             />
           </div>
