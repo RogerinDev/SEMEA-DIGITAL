@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -18,8 +19,7 @@ export function Logo({ className, iconSize = 24, textSize = "text-lg" }: LogoPro
         className="object-contain"
       />
       <span className={`font-bold ${textSize} text-foreground`}>
-        <span className="md:hidden">SEMEA</span>
-        <span className="hidden md:inline">SEMEA Digital</span>
+        SEMEA Digital
       </span>
     </Link>
   );
