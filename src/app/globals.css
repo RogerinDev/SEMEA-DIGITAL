@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 0 0% 100%; /* Branco */
-    --foreground: 100 30% 25%; /* Verde Contorno/Detalhe (#2A402A) - Ajustado de #0F3D0F */
+    --foreground: 100 30% 25%; /* Verde Contorno/Detalhe (#2A402A) */
 
     --card: 0 0% 100%; /* Branco */
     --card-foreground: 100 30% 25%; /* Verde Contorno/Detalhe */
@@ -13,16 +13,16 @@
     --popover: 0 0% 100%; /* Branco */
     --popover-foreground: 100 30% 25%; /* Verde Contorno/Detalhe */
 
-    --primary: 120 60% 35%; /* Verde Principal (#248F24) - Ajustado de #1A5D1A */
+    --primary: 120 60% 35%; /* Verde Principal (#248F24) */
     --primary-foreground: 0 0% 100%; /* Branco - Texto sobre Verde Principal */
 
-    --secondary: 120 55% 45%; /* Verde Secundário (#36A236) - Substituindo o Azul */
+    --secondary: 120 55% 45%; /* Verde Secundário (#36A236) */
     --secondary-foreground: 0 0% 100%; /* Branco - Texto sobre Verde Secundário */
 
-    --muted: 120 60% 95%; /* Verde Principal muito claro (#E6F5E6) - Ajustado de #80C739 muito claro */
+    --muted: 120 60% 95%; /* Verde Principal muito claro (#E6F5E6) */
     --muted-foreground: 100 25% 40%; /* Verde Contorno/Detalhe mais suave (#4D664D) */
 
-    --accent: 49 100% 50%; /* Amarelo Principal (#FFD700) - Ajustado de #FFD93D */
+    --accent: 49 100% 50%; /* Amarelo Principal (#FFD700) */
     --accent-foreground: 100 40% 15%; /* Verde bem escuro para contraste em amarelo (#132613) */
 
     --destructive: 0 84.2% 60.2%;
@@ -30,7 +30,7 @@
 
     --border: 120 30% 88%; /* Verde Contorno/Detalhe bem claro para bordas (#D1E7D1) */
     --input: 120 30% 96%; /* Verde Contorno/Detalhe muito claro para inputs (#EFF7EF) */
-    --ring: 120 60% 35%; /* Verde Principal para anéis de foco (Substituindo Azul) */
+    --ring: 120 60% 35%; /* Verde Principal para anéis de foco */
 
     --radius: 0.5rem;
 
@@ -48,58 +48,59 @@
     --sidebar-ring: 49 100% 50%; /* Amarelo Principal */
 
     --chart-1: 120 60% 35%; /* Verde Principal */
-    --chart-2: 120 50% 50%;  /* Verde médio (Substituindo Azul) */
+    --chart-2: 120 50% 50%;  /* Verde médio */
     --chart-3: 49 100% 50%; /* Amarelo Principal */
     --chart-4: 91 52% 70%;  /* Verde Secundário (logo) mais claro */
     --chart-5: 100 30% 25%; /* Verde Contorno/Detalhe */
   }
 
   .dark {
-    --background: 120 15% 10%; /* Verde muito escuro para fundo */
-    --foreground: 100 25% 85%; /* Verde claro para texto */
+    --background: 120 10% 10%; /* Verde muito escuro para fundo */
+    --foreground: 100 15% 85%; /* Verde claro para texto */
 
-    --card: 120 15% 15%; /* Verde escuro para card */
-    --card-foreground: 100 25% 85%;
+    --card: 120 10% 15%; /* Verde escuro para card */
+    --card-foreground: 100 15% 85%;
 
-    --popover: 120 15% 15%;
-    --popover-foreground: 100 25% 85%;
+    --popover: 120 10% 15%;
+    --popover-foreground: 100 15% 85%;
 
-    --primary: 120 50% 50%; /* Verde Principal (dark) */
+    --primary: 120 50% 55%; /* Verde Principal (dark) */
     --primary-foreground: 0 0% 100%; 
 
-    --secondary: 120 45% 60%; /* Verde Secundário (dark) - Substituindo o Azul */
+    --secondary: 120 45% 50%; /* Verde Secundário (dark) */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 120 15% 20%; /* Verde escuro suave para fundos muted */
-    --muted-foreground: 100 25% 70%; 
+    --muted: 120 10% 20%; /* Verde escuro suave para fundos muted */
+    --muted-foreground: 100 15% 70%; 
 
-    --accent: 49 80% 60%; /* Amarelo (dark) */
+    --accent: 49 80% 55%; /* Amarelo (dark) */
     --accent-foreground: 100 30% 10%; 
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 120 15% 30%;
-    --input: 120 15% 20%;
-    --ring: 120 50% 50%; /* Verde Principal (dark) para anéis de foco */
+    --border: 120 10% 25%; /* Verde escuro para bordas */
+    --input: 120 10% 22%; /* Verde escuro para inputs */
+    --ring: 120 50% 55%; /* Verde Principal (dark) para anéis de foco */
     
-    --sidebar-background: 120 50% 28%; 
-    --sidebar-foreground: 0 0% 92%;
+    /* Sidebar specific colors for dark mode */
+    --sidebar-background: 120 35% 20%; /* Verde escuro mais profundo para sidebar */
+    --sidebar-foreground: 0 0% 92%; /* Texto claro para sidebar */
     
-    --sidebar-primary: 49 80% 60%; 
-    --sidebar-primary-foreground: 100 30% 10%;
+    --sidebar-primary: 49 80% 55%; /* Amarelo Principal (dark) - para itens ativos */
+    --sidebar-primary-foreground: 100 30% 10%; /* Verde bem escuro para contraste em amarelo */
     
-    --sidebar-accent: 91 40% 50%; 
+    --sidebar-accent: 91 35% 45%; /* Verde secundário (logo) mais escuro para hover */
     --sidebar-accent-foreground: 0 0% 95%; 
     
-    --sidebar-border: 120 50% 20%;
-    --sidebar-ring: 49 80% 60%;
+    --sidebar-border: 120 35% 15%; /* Verde ainda mais escuro para borda da sidebar */
+    --sidebar-ring: 49 80% 55%; /* Amarelo Principal (dark) */
 
-    --chart-1: 120 50% 50%;
-    --chart-2: 120 40% 65%; /* Verde médio claro (Substituindo Azul) */
-    --chart-3: 49 80% 60%;
-    --chart-4: 91 40% 50%;
-    --chart-5: 100 25% 75%;
+    --chart-1: 120 50% 55%;
+    --chart-2: 120 40% 60%; 
+    --chart-3: 49 80% 55%;
+    --chart-4: 91 35% 50%;
+    --chart-5: 100 15% 75%;
   }
 }
 
@@ -109,6 +110,8 @@
   }
   body {
     @apply bg-background text-foreground font-body;
+    transition-property: background-color, color;
+    transition-duration: 0.3s;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;

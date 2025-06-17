@@ -4,11 +4,14 @@
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint } from 'lucide-react';
+import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon } from 'lucide-react'; // Added Sun, Moon
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/theme-context'; // Added useTheme
 
 export function PublicHeader() {
+  const { theme, toggleTheme } = useTheme(); // Consuming theme context
+
   const navItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
@@ -20,10 +23,8 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-3 md:px-4 md:relative md:justify-start">
-          {/* Logo à esquerda */}
           <Logo iconSize={22} textSize="text-base md:text-lg" className="flex-shrink-0" />
           
-          {/* Navegação centralizada: em linha para mobile, absoluta para desktop */}
           <nav className="flex flex-shrink-0 items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:flex-shrink md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:space-x-2 lg:space-x-3">
             {navItems.map((item) => (
               <Tooltip key={item.label} delayDuration={100}>
@@ -43,7 +44,6 @@ export function PublicHeader() {
             ))}
           </nav>
 
-          {/* Botões de autenticação à direita */}
           <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2 md:ml-auto">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -78,6 +78,17 @@ export function PublicHeader() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Registrar</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Alternar tema">
+                  {theme === 'light' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{theme === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro'}</p>
               </TooltipContent>
             </Tooltip>
           </div>
