@@ -3,14 +3,14 @@ import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TreePine, Sprout, ArrowRight, CheckCircle, Seedling, Recycle, Grape, HandHeart, FileText, ClipboardList, Smartphone, Baby } from 'lucide-react';
+import { TreePine, Sprout, ArrowRight, CheckCircle, Recycle, Grape, HandHeart, FileText, ClipboardList, Smartphone, Baby } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 const arborizationProjects = [
   {
     id: 'plantar',
-    icon: Seedling,
+    icon: Sprout,
     title: 'PLANTAR',
     description: 'Plantio de árvores nativas e exóticas em praças e vias públicas.',
     buttonText: 'Saiba Mais',
@@ -69,7 +69,7 @@ const arborizationProjects = [
     description: 'Solicite o plantio na sua calçada via WhatsApp e participe!',
     buttonText: 'Participe Agora!',
     isFeatured: true,
-    ctaHref: 'https://wa.me/5535000000000?text=Olá!%20Gostaria%20de%20solicitar%20o%20plantio%20de%20uma%20árvore%20pelo%20Tele-Árvore.',
+    ctaHref: 'https://wa.me/5535000000000?text=Olá!%20Gostaria%20de%20solicitar%20o%20plantio%20de%20uma%20árvore%20pelo%20Tele-Árvore.', // Substituir pelo número correto
   },
   {
     id: 'nasce-crianca',
@@ -213,4 +213,3 @@ export default function UrbanAfforestationPage() {
     </PublicLayout>
   );
 }
-
