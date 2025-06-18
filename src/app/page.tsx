@@ -57,7 +57,7 @@ export default function HomePage() {
               alt="SEMEA Varginha Logo Principal Hero"
               width={128}
               height={128}
-              data-ai-hint="brand logo semea hero" 
+              data-ai-hint="brand logo semea" 
               priority
             />
           </div>
@@ -73,7 +73,7 @@ export default function HomePage() {
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 text-black hover:bg-white/10" asChild>
+            <Button size="lg" variant="outline" className="border-gray-300 text-black hover:bg-white/10 dark:text-white dark:border-gray-500 dark:hover:bg-gray-700/50" asChild>
               <Link href="/info/sobre"><span>Saber Mais</span></Link>
             </Button>
           </div>
