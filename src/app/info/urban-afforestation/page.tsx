@@ -116,7 +116,7 @@ export default function UrbanAfforestationPage() {
             </ul>
           </div>
           <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
-             <Image src="https://placehold.co/600x400.png" data-ai-hint="city park" alt="Parque urbano com árvores" layout="fill" objectFit="cover" />
+             <Image src="/arborizacao-urbana-importancia.png" data-ai-hint="city trees" alt="Parque urbano com árvores" layout="fill" objectFit="cover" priority />
           </div>
         </div>
 
