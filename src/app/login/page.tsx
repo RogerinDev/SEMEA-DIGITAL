@@ -2,8 +2,8 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // Added
-import React, { useState } from 'react'; // Added
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,14 +12,15 @@ import { PublicHeader } from '@/components/navigation/public-header';
 import { Footer } from '@/components/navigation/footer';
 import { LogIn, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
-import { useAuth } from '@/contexts/auth-context'; // Added
-import { useToast } from '@/hooks/use-toast'; // Added
+import { useAuth } from '@/contexts/auth-context';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, loading: authLoading } = useAuth(); // Use loading from context
+  const { login, loading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdminDevLoggingIn, setIsAdminDevLoggingIn] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -27,24 +28,37 @@ export default function LoginPage() {
     event.preventDefault();
     setIsSubmitting(true);
     const result = await login(email, password);
-    if (typeof result !== 'string') { // Assuming UserCredential object on success
-      // Redirect based on role or default (e.g. citizen dashboard)
-      // For now, just redirect to a generic citizen dashboard
-      // A more robust solution would check user roles (custom claims)
-      // and redirect accordingly. This is a placeholder.
+    if (typeof result !== 'string') { 
       const userEmail = result.user.email;
-      if (userEmail && userEmail.includes('admin')) { // Simple check for demo
+      // Simple check for demo - in a real app, use custom claims or roles from DB
+      if (userEmail && (userEmail.includes('admin') || userEmail.includes('dev.admin'))) { 
          router.push('/dashboard/admin');
       } else {
          router.push('/dashboard/citizen');
       }
-    } else {
-      // Error is handled by toast in AuthContext, but you can add specific logic here if needed
     }
     setIsSubmitting(false);
   };
   
-  const isLoading = authLoading || isSubmitting;
+  const handleAdminDevLogin = async () => {
+    setIsAdminDevLoggingIn(true);
+    // IMPORTANTE: Use credenciais de um usuário admin de teste REAL que exista no seu Firebase Auth.
+    // Estas são apenas credenciais de EXEMPLO.
+    const adminDevEmail = "admin.dev@semea.example.com";
+    const adminDevPassword = "adminpassword"; // Lembre-se de criar esta conta!
+
+    const result = await login(adminDevEmail, adminDevPassword);
+    if (typeof result !== 'string') {
+      router.push('/dashboard/admin');
+    } else {
+      // O toast de erro já é mostrado pelo AuthContext
+      // Você pode querer um toast específico aqui se o login falhar, por exemplo:
+      // toast({ title: "Falha no Login Rápido", description: "Verifique se a conta de dev admin está configurada.", variant: "destructive"});
+    }
+    setIsAdminDevLoggingIn(false);
+  };
+
+  const isLoading = authLoading || isSubmitting || isAdminDevLoggingIn;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -88,8 +102,8 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
+              <Button type="submit" className="w-full" disabled={isLoading || isSubmitting}>
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
                 Entrar
               </Button>
             </form>
@@ -100,7 +114,8 @@ export default function LoginPage() {
               </Link>
             </div>
              <div className="mt-4 text-center text-sm">
-              <Button variant="link" onClick={() => router.push('/dashboard/admin')} className="text-primary" disabled={isLoading}>
+              <Button variant="link" onClick={handleAdminDevLogin} className="text-primary" disabled={isLoading || isAdminDevLoggingIn}>
+                {isAdminDevLoggingIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Acesso Rápido Admin (Dev)
               </Button>
             </div>
