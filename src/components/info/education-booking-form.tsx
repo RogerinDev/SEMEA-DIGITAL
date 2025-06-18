@@ -28,20 +28,24 @@ import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { educationalProjects, thematicLectures } from "@/lib/education-data";
 
-const projectTitles = educationalProjects.map(p => p.title) as [string, ...string[]]; // Ensure non-empty array for Zod enum
-const ageRanges = ["Crianças (3 a 10 anos)", "Adolescentes (11 a 15 anos)", "Jovens (16 a 24 anos)"] as [string, ...string[]];
+const projectEnumValues = educationalProjects.map(p => p.title);
+const ageEnumValues = ["Crianças (3 a 10 anos)", "Adolescentes (11 a 15 anos)", "Jovens (16 a 24 anos)"];
+
+// Ensure there's at least one value for z.enum, using a fallback if necessary (though current data is non-empty)
+const safeProjectTitles = projectEnumValues.length > 0 ? projectEnumValues : [""]; 
+const safeAgeRanges = ageEnumValues.length > 0 ? ageEnumValues : [""];
 
 
 const bookingFormSchema = z.object({
   responsibleName: z.string().min(3, "Nome do responsável é obrigatório."),
   contactPhone: z.string().min(10, "Telefone inválido. Inclua o DDD."),
   institutionName: z.string().min(3, "Nome da instituição é obrigatório."),
-  projectOfInterest: z.enum(projectTitles, { required_error: "Selecione um projeto de interesse." }),
+  projectOfInterest: z.enum(safeProjectTitles as [string, ...string[]], { required_error: "Selecione um projeto de interesse." }),
   selectedLectures: z.array(z.string()).optional(),
   requestedDate: z.date({ required_error: "Data pretendida é obrigatória." }),
   requestedTime: z.string().min(1, "Horário pretendido é obrigatório."),
   estimatedAudience: z.coerce.number().min(1, "Público estimado deve ser no mínimo 1."),
-  audienceAgeRange: z.enum(ageRanges, { required_error: "Selecione a faixa etária." }),
+  audienceAgeRange: z.enum(safeAgeRanges as [string, ...string[]], { required_error: "Selecione a faixa etária." }),
   additionalInfo: z.string().optional(),
 });
 
@@ -53,25 +57,38 @@ interface EducationBookingFormProps {
 
 export function EducationBookingForm({ preselectedProject }: EducationBookingFormProps) {
   const { toast } = useToast();
+  
+  const initialProjectOfInterest = (preselectedProject && safeProjectTitles.includes(preselectedProject) 
+                                      ? preselectedProject 
+                                      : (safeProjectTitles[0] || undefined)) as (typeof safeProjectTitles)[number] | undefined;
+
+  const initialAudienceAgeRange = (safeAgeRanges[0] || undefined) as (typeof safeAgeRanges)[number] | undefined;
+
+
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       responsibleName: "",
       contactPhone: "",
       institutionName: "",
+      projectOfInterest: initialProjectOfInterest,
       selectedLectures: [],
+      requestedDate: undefined, // Calendar component handles undefined well
       requestedTime: "",
+      estimatedAudience: undefined, // Input type number handles undefined (becomes empty)
+      audienceAgeRange: initialAudienceAgeRange,
       additionalInfo: "",
-      projectOfInterest: undefined,
-      audienceAgeRange: undefined,
     },
   });
 
   useEffect(() => {
-    if (preselectedProject && projectTitles.includes(preselectedProject)) {
-      form.setValue('projectOfInterest', preselectedProject as (typeof projectTitles)[number]);
+    if (preselectedProject && safeProjectTitles.includes(preselectedProject)) {
+      form.setValue('projectOfInterest', preselectedProject as (typeof safeProjectTitles)[number]);
+    } else if (safeProjectTitles.length > 0 && !form.getValues('projectOfInterest')) {
+       // If no valid preselection and current value is falsy, set to first default
+       // form.setValue('projectOfInterest', safeProjectTitles[0] as typeof safeProjectTitles[number]); // Already handled by defaultValues
     }
-  }, [preselectedProject, form]);
+  }, [preselectedProject, form, safeProjectTitles]);
 
   function onSubmit(data: BookingFormValues) {
     console.log("Solicitação de Agendamento Enviada:", data);
@@ -80,22 +97,27 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
       description: `Obrigado, ${data.responsibleName}. Sua solicitação para o projeto "${data.projectOfInterest}" foi registrada. Entraremos em contato em breve.`,
       variant: "default",
     });
+    
+    const resetProjectOfInterest = (preselectedProject && safeProjectTitles.includes(preselectedProject)
+                                  ? preselectedProject
+                                  : (safeProjectTitles[0] || undefined)) as (typeof safeProjectTitles)[number] | undefined;
+    
     form.reset({
         responsibleName: "",
         contactPhone: "",
         institutionName: "",
+        projectOfInterest: resetProjectOfInterest,
         selectedLectures: [],
         requestedDate: undefined,
         requestedTime: "",
         estimatedAudience: undefined,
+        audienceAgeRange: (safeAgeRanges[0] || undefined) as typeof safeAgeRanges[number] | undefined,
         additionalInfo: "",
-        projectOfInterest: preselectedProject && projectTitles.includes(preselectedProject) ? preselectedProject as (typeof projectTitles)[number] : undefined,
-        audienceAgeRange: undefined,
     });
   }
   
   const watchedProject = form.watch("projectOfInterest");
-  const lecturesForCheckboxes = thematicLectures; // Using the full list as per user request
+  const lecturesForCheckboxes = thematicLectures; 
 
   return (
     <Form {...form}>
@@ -128,8 +150,12 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
           <FormItem className="space-y-3">
             <FormLabel>Ação ou Projeto de Interesse</FormLabel>
             <FormControl>
-              <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {projectTitles.map((projectTitle) => (
+              <RadioGroup 
+                onValueChange={field.onChange} 
+                value={field.value || ""} // Ensure string value for RadioGroup
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                {(safeProjectTitles[0] === "" ? [] : safeProjectTitles).map((projectTitle) => ( // Avoid rendering if fallback "" is the only option
                   <FormItem key={projectTitle} className="flex items-center space-x-3 space-y-0">
                     <FormControl>
                       <RadioGroupItem value={projectTitle} />
@@ -151,7 +177,7 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
                 : "Selecione um projeto acima para ver sugestões ou escolha da lista completa."}
             </FormDescription>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 mt-2 max-h-60 overflow-y-auto border p-3 rounded-md">
-                {lecturesForCheckboxes.map((lecture) => {
+                {(lecturesForCheckboxes || []).map((lecture) => {
                     const isAssociated = watchedProject && educationalProjects.find(p=>p.title === watchedProject)?.associatedLectures?.includes(lecture.title);
                     return (
                     <FormField
@@ -168,7 +194,7 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
                                     return checked
                                     ? field.onChange([...(field.value || []), lecture.title])
                                     : field.onChange(
-                                        field.value?.filter((value) => value !== lecture.title)
+                                        (field.value || []).filter((value) => value !== lecture.title)
                                     );
                                 }}
                                 />
@@ -218,7 +244,7 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
         <FormField control={form.control} name="estimatedAudience" render={({ field }) => (
             <FormItem>
                 <FormLabel>Público Estimado (Número)</FormLabel>
-                <FormControl><Input type="number" {...field} /></FormControl>
+                <FormControl><Input type="number" {...field} onChange={event => field.onChange(event.target.value === '' ? undefined : +event.target.value)} /></FormControl>
                 <FormMessage />
             </FormItem>
         )} />
@@ -227,8 +253,12 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
           <FormItem className="space-y-3">
             <FormLabel>Faixa Etária do Público</FormLabel>
             <FormControl>
-              <RadioGroup onValueChange={field.onChange} value={field.value} className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-4">
-                {ageRanges.map((range) => (
+              <RadioGroup 
+                onValueChange={field.onChange} 
+                value={field.value || ""}  // Ensure string value for RadioGroup
+                className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-4"
+              >
+                {(safeAgeRanges[0] === "" ? [] : safeAgeRanges).map((range) => ( // Avoid rendering if fallback "" is only option
                   <FormItem key={range} className="flex items-center space-x-3 space-y-0">
                     <FormControl><RadioGroupItem value={range} /></FormControl>
                     <FormLabel className="font-normal">{range}</FormLabel>
