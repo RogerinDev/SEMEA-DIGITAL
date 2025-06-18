@@ -1,19 +1,58 @@
 
-import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { GraduationCap, Lightbulb, BookOpen, CalendarCheck2, Users, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
+"use client";
 
-const subSections = [
-  { title: 'Projetos de Educação Ambiental', description: 'Conheça os projetos desenvolvidos pela SEMEA para escolas e comunidades.', href: '/info/education/projects', icon: Lightbulb, dataAiHint: 'environmental project' },
-  { title: 'Palestras Temáticas', description: 'Solicite palestras sobre sustentabilidade, ODS e outros temas ambientais relevantes.', href: '/info/education/lectures', icon: BookOpen, dataAiHint: 'lecture presentation' },
-  { title: 'Eventos Ambientais', description: 'Fique por dentro do nosso calendário de eventos, workshops e atividades especiais.', href: '/info/education/events', icon: CalendarCheck2, dataAiHint: 'community event' },
-  { title: 'Como Participar', description: 'Saiba como sua instituição pode solicitar projetos e palestras da SEMEA.', href: '/info/education/how-to-participate', icon: Users, dataAiHint: 'community participation' },
-];
+import React, { useState, useRef } from 'react';
+import { PageTitle } from '@/components/page-title';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { GraduationCap, Lightbulb, Recycle, Sprout, HeartHandshake, ArrowRight, Mail, Phone } from 'lucide-react';
+import Image from 'next/image';
+import { EducationBookingForm } from '@/components/info/education-booking-form';
+import type { EducationalProject as EducationalProjectType } from '@/types';
+import { educationalProjects } from '@/lib/education-data';
+
+const mainProjects: EducationalProjectType[] = educationalProjects.slice(0, 4); // Assuming first 4 are the main ones
+
+const projectIcons: { [key: string]: React.ElementType } = {
+  'escola-verde-educacao-climatica': Lightbulb,
+  'educacao-lixo-zero': Recycle,
+  'botanica-no-parque': Sprout,
+  'conexao-animal': HeartHandshake,
+};
 
 export default function EnvironmentalEducationPage() {
+  const [selectedProjectForForm, setSelectedProjectForForm] = useState<string | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const handleScheduleProjectClick = (projectName: string) => {
+    setSelectedProjectForForm(projectName);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100); // Short delay to ensure state update before scroll
+  };
+  
+  const getProjectSpecificNote = (slug: string): string | null => {
+    if (slug === 'botanica-no-parque') {
+      const project = educationalProjects.find(p => p.slug === 'botanica-no-parque');
+      if (project) {
+        let note = "Metodologia: ";
+        if (project.methodology && project.methodology.length > 0) {
+          note += project.methodology.join(' ');
+        }
+        if (project.duration) {
+          note += ` Duração: ${project.duration}.`;
+        }
+        if (project.observations && project.observations.length > 0) {
+           note += ` ${project.observations.join(' ')}`;
+        }
+        return note.replace("SEMEA não oferece transporte até os parques.", "Transporte não incluso.");
+
+      }
+    }
+    return null;
+  }
+
   return (
     <>
       <PageTitle
@@ -38,34 +77,96 @@ export default function EnvironmentalEducationPage() {
             O Programa Varginha Sustentável de Educação Ambiental visa engajar cidadãos, escolas e instituições na construção de um futuro mais verde e consciente. Através de projetos inovadores, palestras informativas e eventos participativos, buscamos semear o conhecimento e as práticas sustentáveis em toda a comunidade.
           </p>
           <p className="text-muted-foreground">
-            Explore nossas iniciativas e descubra como você e sua organização podem fazer parte desta transformação!
+            Explore nossos projetos e descubra como sua instituição pode solicitar uma ação educativa!
           </p>
         </div>
       </div>
 
-      <h3 className="text-2xl font-semibold mb-6 text-center">Explore Nossas Seções</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-        {subSections.map((section) => (
-          <Card key={section.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
-            <CardHeader className="items-center text-center">
-              <section.icon className="h-10 w-10 text-primary mb-3" />
-              <CardTitle>{section.title}</CardTitle>
+      <Separator className="my-12" />
+
+      <section className="mb-16">
+        <h2 className="text-3xl font-bold text-center mb-2 text-primary">Conheça os Projetos do Programa Varginha Sustentável</h2>
+        <p className="text-center text-muted-foreground mb-10">Clique em "Quero Agendar este Projeto" para solicitar uma ação para sua instituição.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {mainProjects.map((project) => {
+            const Icon = projectIcons[project.slug] || Lightbulb;
+            const specificNote = getProjectSpecificNote(project.slug);
+            return (
+            <Card key={project.id} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-2">
+                    <Icon className="h-8 w-8 text-primary" />
+                    <CardTitle className="text-xl text-primary">{project.title}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-grow space-y-3">
+                <div>
+                    <h4 className="font-semibold text-foreground mb-1">Objetivos:</h4>
+                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-0.5">
+                        {project.objectives.map((obj, index) => <li key={index}>{obj}</li>)}
+                    </ul>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-foreground mb-1">Público-Alvo:</h4>
+                    <p className="text-sm text-muted-foreground">{project.targetAudience}</p>
+                </div>
+                {project.associatedLectures && project.associatedLectures.length > 0 && (
+                    <div>
+                        <h4 className="font-semibold text-foreground mb-1">Palestras Associadas:</h4>
+                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-0.5">
+                            {project.associatedLectures.map((lecture, index) => <li key={index}>{lecture}</li>)}
+                        </ul>
+                    </div>
+                )}
+                {specificNote && (
+                     <div>
+                        <h4 className="font-semibold text-foreground mb-1">Observação:</h4>
+                        <p className="text-sm text-muted-foreground">{specificNote}</p>
+                    </div>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full" onClick={() => handleScheduleProjectClick(project.title)}>
+                    <span className="flex items-center">Quero Agendar este Projeto <ArrowRight className="ml-2 h-4 w-4"/></span>
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
+        </div>
+      </section>
+
+      <Separator className="my-12" />
+      
+      <section ref={formRef} className="mb-16 scroll-mt-20">
+        <h2 className="text-3xl font-bold text-center mb-10 text-primary">Faça seu Agendamento</h2>
+        <Card className="max-w-3xl mx-auto shadow-lg">
+            <CardHeader>
+                <CardTitle>Formulário de Solicitação de Ação Educativa</CardTitle>
+                <CardDescription>Preencha os campos abaixo para solicitar um projeto ou palestra para sua instituição. Entraremos em contato para confirmar o agendamento.</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-sm text-muted-foreground text-center">{section.description}</p>
+            <CardContent>
+                <EducationBookingForm preselectedProject={selectedProjectForForm} />
             </CardContent>
-            <CardFooter>
-              <Button asChild className="w-full">
-                <Link href={section.href}>
-                  <span className="flex items-center justify-center">
-                    Saber Mais <ArrowRight className="ml-2 h-4 w-4" />
-                  </span>
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+        </Card>
+      </section>
+
+      <Separator className="my-12" />
+
+      <section className="text-center">
+        <h2 className="text-2xl font-semibold mb-4 text-primary">Dúvidas ou mais informações?</h2>
+        <Card className="max-w-md mx-auto bg-muted/50 p-6">
+            <p className="font-semibold">Contato: Bióloga Jaara Alvarenga Cardoso Tavares</p>
+            <div className="flex items-center justify-center gap-2 mt-2 text-muted-foreground">
+                <Mail className="h-4 w-4" />
+                <a href="mailto:jaara.cardoso@varginha.mg.gov.br" className="hover:text-primary">jaara.cardoso@varginha.mg.gov.br</a>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-1 text-muted-foreground">
+                <Phone className="h-4 w-4" />
+                <span>(35) 3690-2529</span>
+            </div>
+        </Card>
+      </section>
     </>
   );
 }
