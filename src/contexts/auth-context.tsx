@@ -24,7 +24,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<UserCredential | string>;
   register: (name: string, email: string, pass:string) => Promise<UserCredential | string>;
   logout: () => Promise<void>;
-  updateUserProfile: (name: string) => Promise<boolean>;
+  updateUserProfile: (name: string, photoURL?: string | null) => Promise<boolean>;
   changeUserPassword: (currentPass: string, newPass: string) => Promise<boolean>;
 }
 
@@ -79,7 +79,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(userCredential.user, { displayName: name });
       
-      setCurrentUser({ ...userCredential.user, displayName: name });
+      // We manually update the local state because onAuthStateChanged might not be immediate
+      setCurrentUser({ ...userCredential.user, displayName: name, photoURL: userCredential.user.photoURL });
 
       toast({ title: "Cadastro realizado com sucesso!" });
       return userCredential;
@@ -109,22 +110,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
   
-  const updateUserProfile = async (name: string): Promise<boolean> => {
+  const updateUserProfile = async (name: string, photoURL?: string | null): Promise<boolean> => {
     if (!currentUser) return false;
-    setLoading(true);
-    try {
-      await updateProfile(currentUser, { displayName: name });
-      setCurrentUser({ ...currentUser, displayName: name }); // Update local state immediately
-      toast({ title: "Sucesso!", description: "Seu nome foi atualizado." });
-      return true;
-    } catch (error) {
-      const authError = error as AuthError;
-      console.error("Error updating profile:", authError);
-      toast({ title: "Erro ao atualizar", description: authError.message, variant: "destructive" });
-      return false;
-    } finally {
-      setLoading(false);
-    }
+    // This function is now just for updating the local context state, 
+    // as the actual Firebase update happens in the component for better UX.
+    setCurrentUser({ 
+        ...currentUser, 
+        displayName: name, 
+        photoURL: photoURL !== undefined ? photoURL : currentUser.photoURL 
+    });
+    return true;
   };
 
   const changeUserPassword = async (currentPass: string, newPass: string): Promise<boolean> => {
