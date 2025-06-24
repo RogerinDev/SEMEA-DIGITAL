@@ -1,13 +1,17 @@
 
+"use client";
+
 import PublicLayout from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, CheckCircle, TreePine, Recycle, PawPrint, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Logo } from '@/components/logo';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function HomePage() {
+  const { currentUser } = useAuth();
+  
   const services = [
     {
       icon: TreePine,
@@ -106,47 +110,49 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-muted/50">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-6 text-primary">Participe da Construção de uma Varginha Mais Verde!</h2>
-              <p className="text-foreground/80 mb-4">
-                Utilize nossos canais digitais para solicitar serviços, registrar denúncias e se informar sobre as ações ambientais em nosso município. Sua participação é fundamental.
-              </p>
-              <ul className="space-y-2 mb-6">
-                {[
-                  'Facilidade no acesso aos serviços ambientais.',
-                  'Transparência nas ações da secretaria.',
-                  'Contribuição direta para um meio ambiente mais saudável.'
-                ].map(item => (
-                  <li key={item} className="flex items-center">
-                    <span className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-primary mr-2" />
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <Button size="lg" variant="secondary" asChild>
-                <Link href="/register">
-                  <span className="flex items-center justify-center">Crie sua Conta Agora</span>
-                </Link>
-              </Button>
-            </div>
-            <div>
-              <Image
-                src="/varginha-verde.png" 
-                alt="Varginha Sustentável e Verde"
-                width={600}
-                height={400}
-                className="rounded-lg shadow-xl"
-                data-ai-hint="city nature"
-              />
+      {!currentUser && (
+        <section className="py-16 md:py-24 bg-muted/50">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl font-bold mb-6 text-primary">Participe da Construção de uma Varginha Mais Verde!</h2>
+                <p className="text-foreground/80 mb-4">
+                  Utilize nossos canais digitais para solicitar serviços, registrar denúncias e se informar sobre as ações ambientais em nosso município. Sua participação é fundamental.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  {[
+                    'Facilidade no acesso aos serviços ambientais.',
+                    'Transparência nas ações da secretaria.',
+                    'Contribuição direta para um meio ambiente mais saudável.'
+                  ].map(item => (
+                    <li key={item} className="flex items-center">
+                      <span className="flex items-center">
+                        <CheckCircle className="h-5 w-5 text-primary mr-2" />
+                        {item}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <Button size="lg" variant="secondary" asChild>
+                  <Link href="/register">
+                    <span className="flex items-center justify-center">Crie sua Conta Agora</span>
+                  </Link>
+                </Button>
+              </div>
+              <div>
+                <Image
+                  src="/varginha-verde.png" 
+                  alt="Varginha Sustentável e Verde"
+                  width={600}
+                  height={400}
+                  className="rounded-lg shadow-xl"
+                  data-ai-hint="city nature"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </PublicLayout>
   );
 }
