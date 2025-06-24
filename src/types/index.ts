@@ -19,7 +19,7 @@ export type ServiceRequestType =
   | "agendamento_uso_area_parque"
   | "solicitacao_adocao_animal"
   | "licenca_ambiental_simplificada"
-  | "solicitacao_projeto_educacao_ambiental" // Added for the new form
+  | "solicitacao_projeto_educacao_ambiental"
   | "outros_servicos_gerais";
 
 export interface ServiceRequest {
@@ -34,18 +34,33 @@ export interface ServiceRequest {
   address?: string; // Optional for now
 }
 
-export const SERVICE_REQUEST_TYPES: { value: ServiceRequestType, label: string }[] = [
-  { value: "castracao_animal", label: "Castração de Animal" },
-  { value: "corte_arvore_risco", label: "Corte de Árvore em Risco" },
-  { value: "poda_arvore", label: "Poda de Árvore" },
-  { value: "plantio_arvore_area_publica", label: "Plantio de Árvore em Área Pública" },
-  { value: "coleta_especial_residuos", label: "Coleta Especial de Resíduos" },
-  { value: "recolhimento_animal_errante_doente_ferido", label: "Recolhimento de Animal Errante/Doente/Ferido" },
-  { value: "agendamento_uso_area_parque", label: "Agendamento de Uso de Área em Parque" },
-  { value: "solicitacao_adocao_animal", label: "Solicitação de Adoção de Animal" },
-  { value: "licenca_ambiental_simplificada", label: "Licença Ambiental Simplificada" },
-  { value: "solicitacao_projeto_educacao_ambiental", label: "Solicitação de Projeto/Palestra de Educação Ambiental" },
-  { value: "outros_servicos_gerais", label: "Outros Serviços Gerais" },
+export type ServiceCategory = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental';
+
+export interface ServiceRequestTypeInfo {
+  value: ServiceRequestType;
+  label: string;
+  category: ServiceCategory;
+}
+
+export const SERVICE_REQUEST_TYPES: ServiceRequestTypeInfo[] = [
+  // Arborização
+  { value: "poda_arvore", label: "Poda de Árvore", category: 'arborizacao' },
+  { value: "corte_arvore_risco", label: "Corte de Árvore em Risco", category: 'arborizacao' },
+  { value: "plantio_arvore_area_publica", label: "Plantio de Árvore em Área Pública", category: 'arborizacao' },
+  { value: "licenca_ambiental_simplificada", label: "Licença Ambiental Simplificada", category: 'arborizacao' },
+
+  // Resíduos
+  { value: "coleta_especial_residuos", label: "Coleta Especial de Resíduos", category: 'residuos' },
+
+  // Bem-Estar Animal
+  { value: "castracao_animal", label: "Castração de Animal", category: 'bem_estar_animal' },
+  { value: "recolhimento_animal_errante_doente_ferido", label: "Recolhimento de Animal Errante/Doente/Ferido", category: 'bem_estar_animal' },
+  { value: "solicitacao_adocao_animal", label: "Solicitação de Adoção de Animal", category: 'bem_estar_animal' },
+
+  // Educação Ambiental & Outros
+  { value: "solicitacao_projeto_educacao_ambiental", label: "Solicitação de Projeto/Palestra de Educação Ambiental", category: 'educacao_ambiental' },
+  { value: "agendamento_uso_area_parque", label: "Agendamento de Uso de Área em Parque", category: 'educacao_ambiental' },
+  { value: "outros_servicos_gerais", label: "Outros Serviços Gerais", category: 'educacao_ambiental' },
 ];
 
 

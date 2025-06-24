@@ -6,7 +6,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
+import { TreePine, Droplets, GraduationCap, PawPrint } from 'lucide-react';
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,12 +23,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SERVICE_REQUEST_TYPES, type ServiceRequestType } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequestType, type ServiceCategory } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   requestType: z.custom<ServiceRequestType>(val => SERVICE_REQUEST_TYPES.map(srt => srt.value).includes(val as ServiceRequestType), {
-    message: "Tipo de solicitação inválido",
+    message: "Por favor, selecione um serviço específico.",
   }),
   description: z.string().min(10, {
     message: "A descrição deve ter pelo menos 10 caracteres.",
@@ -37,31 +39,31 @@ const formSchema = z.object({
   contactPhone: z.string().optional(),
 });
 
+const categories: { [key in ServiceCategory]: { label: string; icon: React.ElementType } } = {
+  arborizacao: { label: 'Arborização', icon: TreePine },
+  residuos: { label: 'Resíduos', icon: Droplets },
+  bem_estar_animal: { label: 'Bem-Estar Animal', icon: PawPrint },
+  educacao_ambiental: { label: 'Educação Ambiental e Outros', icon: GraduationCap },
+};
+
 export default function NewRequestFormLogic() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
+
   const preselectedType = searchParams.get('type') as ServiceRequestType | null;
+  const initialTypeInfo = SERVICE_REQUEST_TYPES.find(rt => rt.value === preselectedType);
+  
+  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(initialTypeInfo?.category || null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      requestType: preselectedType && SERVICE_REQUEST_TYPES.some(rt => rt.value === preselectedType) ? preselectedType : undefined,
+      requestType: initialTypeInfo?.value || undefined,
       description: "",
       address: "",
       contactPhone: "",
     },
   });
-
-  useEffect(() => {
-    const currentFormType = form.getValues('requestType');
-    if (preselectedType && SERVICE_REQUEST_TYPES.some(rt => rt.value === preselectedType)) {
-      if (currentFormType !== preselectedType) {
-        form.setValue('requestType', preselectedType);
-      }
-    } else if (!preselectedType && currentFormType !== undefined) {
-      form.setValue('requestType', undefined);
-    }
-  }, [preselectedType, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -71,53 +73,84 @@ export default function NewRequestFormLogic() {
       variant: "default",
     });
     
-    const resetValues: Partial<z.infer<typeof formSchema>> = {
-        requestType: undefined,
-        description: "",
-        address: "",
-        contactPhone: "",
-    };
-    // Re-apply preselectedType if it was originally in the URL, for a "new" form experience
-    if (preselectedType && SERVICE_REQUEST_TYPES.some(rt => rt.value === preselectedType)) {
-        resetValues.requestType = preselectedType;
-    }
-    form.reset(resetValues);
+    form.reset();
+    setSelectedCategory(initialTypeInfo?.category || null);
+  }
+
+  const handleCategorySelect = (category: ServiceCategory) => {
+    setSelectedCategory(category);
+    // Reset requestType when category changes, forcing user to pick a specific service
+    form.setValue('requestType', undefined, { shouldValidate: true });
+  }
+  
+  const handleBackToCategories = () => {
+      setSelectedCategory(null);
+      form.setValue('requestType', undefined);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="requestType"
-          render={({ field }) => (
+        
+        {!selectedCategory ? (
             <FormItem>
-              <FormLabel>Tipo de Solicitação</FormLabel>
-              <Select 
-                  onValueChange={field.onChange} 
-                  value={field.value || ""}
-                  defaultValue={field.value || ""}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo de serviço" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {SERVICE_REQUEST_TYPES.map(type => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
+              <FormLabel className="text-base">Tipo de Solicitação</FormLabel>
+              <FormDescription>Primeiro, selecione a categoria do serviço desejado.</FormDescription>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {Object.entries(categories).map(([key, { label, icon: Icon }]) => (
+                      <Button
+                          key={key}
+                          type="button"
+                          variant="outline"
+                          className="h-auto justify-start p-4 text-left group"
+                          onClick={() => handleCategorySelect(key as ServiceCategory)}
+                      >
+                          <Icon className="mr-4 h-8 w-8 text-primary transition-transform group-hover:scale-110" />
+                          <span className="font-semibold text-base">{label}</span>
+                      </Button>
                   ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Selecione o tipo de serviço desejado.
-              </FormDescription>
-              <FormMessage />
+              </div>
             </FormItem>
-          )}
-        />
+        ) : (
+            <div className="p-4 border rounded-md bg-card space-y-4 shadow-sm">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        {React.createElement(categories[selectedCategory].icon, { className: "h-6 w-6 text-primary"})}
+                        <h3 className="text-lg font-semibold text-foreground">Categoria: {categories[selectedCategory].label}</h3>
+                    </div>
+                    <Button type="button" variant="link" onClick={handleBackToCategories} className="text-sm">
+                        Trocar Categoria
+                    </Button>
+                </div>
+                 <FormField
+                  control={form.control}
+                  name="requestType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Serviço Específico</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""} >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o serviço desejado" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {SERVICE_REQUEST_TYPES
+                            .filter(type => type.category === selectedCategory)
+                            .map(type => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
+        )}
+
         <FormField
           control={form.control}
           name="description"
@@ -180,6 +213,3 @@ export default function NewRequestFormLogic() {
     </Form>
   );
 }
-
-
-    
