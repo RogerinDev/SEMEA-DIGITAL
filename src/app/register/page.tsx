@@ -2,8 +2,8 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // Added
-import React, { useState } from 'react'; // Added
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,11 +12,11 @@ import { PublicHeader } from '@/components/navigation/public-header';
 import { Footer } from '@/components/navigation/footer';
 import { UserPlus, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
-import { useAuth } from '@/contexts/auth-context'; // Added
-import { useToast } from '@/hooks/use-toast'; // Added
+import { useAuth } from '@/contexts/auth-context';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RegisterPage() {
-  const [name, setName] = useState(''); // Name is not directly used by Firebase Auth email/pass but good for forms
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -32,11 +32,9 @@ export default function RegisterPage() {
       return;
     }
     setIsSubmitting(true);
-    const result = await register(email, password);
-    if (typeof result !== 'string') { // Assuming UserCredential object on success
-      // Successfully registered, Firebase onAuthStateChanged will handle currentUser update
-      // Redirect to login or directly to dashboard
-      router.push('/dashboard/citizen'); // Or router.push('/login');
+    const result = await register(name, email, password);
+    if (typeof result !== 'string') {
+      router.push('/dashboard/citizen');
     } else {
       // Error is handled by toast in AuthContext
     }

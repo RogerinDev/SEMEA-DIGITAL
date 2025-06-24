@@ -9,6 +9,7 @@ import {
   signOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
   type UserCredential,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -18,7 +19,7 @@ interface AuthContextType {
   currentUser: FirebaseUser | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<UserCredential | string>;
-  register: (email: string, pass: string) => Promise<UserCredential | string>;
+  register: (name: string, email: string, pass: string) => Promise<UserCredential | string>;
   logout: () => Promise<void>;
 }
 
@@ -67,11 +68,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const register = async (email: string, pass: string): Promise<UserCredential | string> => {
+  const register = async (name: string, email: string, pass: string): Promise<UserCredential | string> => {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-      // User will be set by onAuthStateChanged
+      await updateProfile(userCredential.user, { displayName: name });
+      
+      // Manually update the currentUser state as onAuthStateChanged might not be immediate
+      setCurrentUser({ ...userCredential.user, displayName: name });
+
       toast({ title: "Cadastro realizado com sucesso!" });
       return userCredential;
     } catch (error) {

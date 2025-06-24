@@ -4,7 +4,7 @@
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect } from 'react'; // Added useEffect
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   SidebarProvider,
@@ -18,9 +18,17 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { LogOut, UserCircle, Loader2 } from 'lucide-react'; // Added Loader2
+import { LogOut, Loader2, Edit, Lock, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 
 export interface NavItem {
@@ -42,9 +50,6 @@ export default function DashboardLayout({ children, navItems, userName: defaultU
   const router = useRouter();
   const { currentUser, logout, loading: authLoading } = useAuth();
 
-  const displayUserName = currentUser?.email || defaultUserName; 
-  const displayUserRole = defaultUserRole; 
-
   const handleLogout = async () => {
     await logout();
   };
@@ -55,22 +60,19 @@ export default function DashboardLayout({ children, navItems, userName: defaultU
     }
   }, [authLoading, currentUser, router, pathname]);
 
-  // Se o estado de autenticação está carregando, OU
-  // se não há usuário logado E estamos tentando acessar uma rota de dashboard (redirecionamento está pendente)
   if (authLoading || (!currentUser && pathname.startsWith('/dashboard/'))) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-         {/* Você pode adicionar uma mensagem como "Carregando..." ou "Redirecionando..." aqui se desejar */}
       </div>
     );
   }
 
-  // Se chegou aqui e currentUser ainda é null, mas não estamos mais carregando e não é uma rota de dashboard,
-  // é um estado inesperado para este layout ou o redirecionamento ainda não ocorreu.
-  // No entanto, a lógica acima deve cobrir o redirecionamento.
-  // Se currentUser existir, renderizamos o dashboard.
   if (currentUser) {
+    const displayUserName = currentUser?.displayName || currentUser?.email || defaultUserName;
+    const displayUserRole = defaultUserRole; 
+    const userInitials = (currentUser?.displayName || currentUser?.email || 'U').charAt(0).toUpperCase();
+
     return (
       <SidebarProvider defaultOpen>
         <Sidebar>
@@ -100,24 +102,47 @@ export default function DashboardLayout({ children, navItems, userName: defaultU
               </SidebarMenu>
             </ScrollArea>
           </SidebarContent>
-          <SidebarFooter className="p-4 border-t border-sidebar-border">
-            <div className="flex items-center gap-2 mb-2">
-              <UserCircle className="h-8 w-8 text-sidebar-foreground" />
-              <div>
-                <p className="text-sm font-medium text-sidebar-foreground truncate" title={displayUserName}>{displayUserName}</p>
-                <p className="text-xs text-sidebar-foreground/70">{displayUserRole}</p>
-              </div>
-            </div>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
-              onClick={handleLogout}
-              disabled={authLoading} // Desabilita enquanto o logout está em processamento
-            >
-              {/* O authLoading aqui também indica que uma operação de auth (como logout) pode estar em andamento */}
-              {authLoading && false ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <LogOut className="mr-2 h-4 w-4" />}
-               Sair
-            </Button>
+          <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-full justify-start h-auto p-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <div className="flex justify-between items-center w-full">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                          <Avatar className="h-9 w-9">
+                              <AvatarImage src={currentUser?.photoURL || undefined} alt={displayUserName} />
+                              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground font-semibold">
+                                  {userInitials}
+                              </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col items-start overflow-hidden">
+                              <span className="text-sm font-medium text-sidebar-foreground truncate" title={displayUserName}>
+                                  {displayUserName}
+                              </span>
+                              <span className="text-xs text-sidebar-foreground/70">
+                                  {displayUserRole}
+                              </span>
+                          </div>
+                      </div>
+                      <ChevronUp className="h-4 w-4 text-sidebar-foreground/70 shrink-0" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-[calc(var(--sidebar-width)_-_1rem)] mb-2 bg-background border-border shadow-lg">
+                  <DropdownMenuItem>
+                      <Edit className="mr-2 h-4 w-4" />
+                      <span>Editar Informações</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                      <Lock className="mr-2 h-4 w-4" />
+                      <span>Trocar Senha</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} disabled={authLoading} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sair</span>
+                  </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
@@ -132,8 +157,7 @@ export default function DashboardLayout({ children, navItems, userName: defaultU
     );
   }
 
-  // Fallback caso algo muito inesperado aconteça (não deveria ser alcançado)
-   return (
+  return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <p>Ocorreu um erro ao verificar a autenticação.</p>
       </div>
