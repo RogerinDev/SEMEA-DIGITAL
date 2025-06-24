@@ -8,10 +8,7 @@ import Link from 'next/link';
 import type { IncidentReport } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-const mockIncidents: IncidentReport[] = [
-  { id: '1', protocol: 'DEN2024001', type: 'descarte_irregular_residuo', description: 'Descarte de lixo em terreno baldio na Rua das Palmeiras.', status: 'em_verificacao', dateCreated: new Date(2024, 6, 15).toISOString(), location: 'Rua das Palmeiras, próximo ao nº 100' },
-  { id: '2', protocol: 'DEN2024002', type: 'maus_tratos_animal', description: 'Cachorro aparentemente abandonado e magro em lote vago.', status: 'fiscalizacao_agendada', dateCreated: new Date(2024, 6, 1).toISOString(), location: 'Av. Central, Lote 22' },
-];
+const mockIncidents: IncidentReport[] = [];
 
 function getStatusVariant(status: IncidentReport['status']): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {

@@ -7,8 +7,8 @@ import Link from 'next/link';
 
 export default function CitizenDashboardPage() {
   const summaryCards = [
-    { title: 'Solicitações Abertas', value: '3', icon: FileText, link: '/dashboard/citizen/requests' },
-    { title: 'Denúncias Registradas', value: '1', icon: AlertTriangle, link: '/dashboard/citizen/incidents' },
+    { title: 'Solicitações Abertas', value: '0', icon: FileText, link: '/dashboard/citizen/requests' },
+    { title: 'Denúncias Registradas', value: '0', icon: AlertTriangle, link: '/dashboard/citizen/incidents' },
   ];
 
   const quickActions = [
