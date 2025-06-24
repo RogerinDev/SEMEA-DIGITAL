@@ -1,4 +1,3 @@
-
 "use client";
 
 import PublicLayout from '@/components/layouts/public-layout';
@@ -57,7 +56,7 @@ export default function HomePage() {
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
             <Image
-              src={`/semea-hero-logo.png?v=${new Date().getTime()}`}
+              src="/semea-hero-logo.png"
               alt="SEMEA Varginha Logo Principal Hero"
               width={128}
               height={128}
