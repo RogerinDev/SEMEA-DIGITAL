@@ -10,7 +10,7 @@ const citizenNavItems: NavItem[] = [
   { href: '/dashboard/citizen/requests/new', label: 'Nova Solicitação', icon: PlusCircle },
   { href: '/dashboard/citizen/incidents', label: 'Denúncias Solicitadas', icon: AlertTriangle },
   { href: '/dashboard/citizen/incidents/new', label: 'Nova Denúncia', icon: PlusCircle },
-  // { href: '/dashboard/citizen/profile', label: 'Meu Perfil', icon: User },
+  { href: '/dashboard/citizen/profile', label: 'Meu Perfil', icon: User },
 ];
 
 export default function CitizenDashboardLayout({
@@ -24,4 +24,3 @@ export default function CitizenDashboardLayout({
     </DashboardLayout>
   );
 }
-

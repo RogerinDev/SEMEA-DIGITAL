@@ -11,6 +11,9 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
   type UserCredential,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
@@ -19,8 +22,10 @@ interface AuthContextType {
   currentUser: FirebaseUser | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<UserCredential | string>;
-  register: (name: string, email: string, pass: string) => Promise<UserCredential | string>;
+  register: (name: string, email: string, pass:string) => Promise<UserCredential | string>;
   logout: () => Promise<void>;
+  updateUserProfile: (name: string) => Promise<boolean>;
+  changeUserPassword: (currentPass: string, newPass: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,7 +79,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(userCredential.user, { displayName: name });
       
-      // Manually update the currentUser state as onAuthStateChanged might not be immediate
       setCurrentUser({ ...userCredential.user, displayName: name });
 
       toast({ title: "Cadastro realizado com sucesso!" });
@@ -95,11 +99,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await signOut(auth);
       setCurrentUser(null);
       toast({ title: "Logout realizado com sucesso." });
-      router.push("/"); // Redirect to home page after logout
+      router.push("/");
     } catch (error) {
       const authError = error as AuthError;
       console.error("Error logging out:", authError);
       toast({ title: "Erro ao sair", description: authError.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const updateUserProfile = async (name: string): Promise<boolean> => {
+    if (!currentUser) return false;
+    setLoading(true);
+    try {
+      await updateProfile(currentUser, { displayName: name });
+      setCurrentUser({ ...currentUser, displayName: name }); // Update local state immediately
+      toast({ title: "Sucesso!", description: "Seu nome foi atualizado." });
+      return true;
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Error updating profile:", authError);
+      toast({ title: "Erro ao atualizar", description: authError.message, variant: "destructive" });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changeUserPassword = async (currentPass: string, newPass: string): Promise<boolean> => {
+    if (!currentUser || !currentUser.email) return false;
+    setLoading(true);
+    try {
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPass);
+      // Re-authenticate before changing password for security
+      await reauthenticateWithCredential(currentUser, credential);
+      await updatePassword(currentUser, newPass);
+      toast({ title: "Sucesso!", description: "Sua senha foi alterada." });
+      return true;
+    } catch (error) {
+       const authError = error as AuthError;
+       console.error("Error changing password:", authError);
+       const description = authError.code === 'auth/wrong-password' 
+          ? "A senha atual está incorreta."
+          : authError.message;
+       toast({ title: "Erro ao alterar senha", description, variant: "destructive" });
+      return false;
     } finally {
       setLoading(false);
     }
@@ -111,6 +156,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
+    updateUserProfile,
+    changeUserPassword,
   };
 
   return (

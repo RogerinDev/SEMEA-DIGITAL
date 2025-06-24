@@ -28,7 +28,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { LogOut, Loader2, Edit, Lock, ChevronUp } from 'lucide-react';
+import { LogOut, Loader2, Edit, Lock, ChevronUp, User } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 
 export interface NavItem {
@@ -72,6 +72,7 @@ export default function DashboardLayout({ children, navItems, userName: defaultU
     const displayUserName = currentUser?.displayName || currentUser?.email || defaultUserName;
     const displayUserRole = defaultUserRole; 
     const userInitials = (currentUser?.displayName || currentUser?.email || 'U').charAt(0).toUpperCase();
+    const profileBaseUrl = displayUserRole === 'Administrador' ? '/dashboard/admin/profile' : '/dashboard/citizen/profile';
 
     return (
       <SidebarProvider defaultOpen>
@@ -128,13 +129,17 @@ export default function DashboardLayout({ children, navItems, userName: defaultU
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-[calc(var(--sidebar-width)_-_1rem)] mb-2 bg-background border-border shadow-lg">
-                  <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>Editar Informações</span>
+                  <DropdownMenuItem asChild>
+                    <Link href={profileBaseUrl}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Editar Informações</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                      <Lock className="mr-2 h-4 w-4" />
-                      <span>Trocar Senha</span>
+                  <DropdownMenuItem asChild>
+                    <Link href={`${profileBaseUrl}/change-password`}>
+                        <Lock className="mr-2 h-4 w-4" />
+                        <span>Trocar Senha</span>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} disabled={authLoading} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
