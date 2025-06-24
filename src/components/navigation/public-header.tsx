@@ -4,13 +4,23 @@
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon } from 'lucide-react'; // Added Sun, Moon
+import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon, Edit, Lock, LogOut } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/contexts/theme-context'; // Added useTheme
+import { useTheme } from '@/contexts/theme-context';
+import { useAuth } from '@/contexts/auth-context';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function PublicHeader() {
-  const { theme, toggleTheme } = useTheme(); // Consuming theme context
+  const { theme, toggleTheme } = useTheme();
+  const { currentUser, logout } = useAuth();
 
   const navItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
@@ -45,41 +55,76 @@ export function PublicHeader() {
           </nav>
 
           <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2 md:ml-auto">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/login"
-                  passHref
-                  legacyBehavior 
-                  className={cn(buttonVariants({ variant: "secondary", size: "icon" }))}
-                >
-                  <a aria-label="Entrar">
-                    <LogIn className="h-4 w-4" />
-                  </a>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Entrar</p>
-              </TooltipContent>
-            </Tooltip>
+            {currentUser ? (
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                       <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                        <Avatar className="h-10 w-10 border-2 border-primary/50">
+                          <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || 'User'} />
+                          <AvatarFallback>{currentUser.displayName?.charAt(0).toUpperCase() || currentUser.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Meu Perfil</p>
+                  </TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/citizen/profile">
+                      <Edit className="mr-2 h-4 w-4" />
+                      <span>Editar Informações</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/citizen/profile/change-password">
+                      <Lock className="mr-2 h-4 w-4" />
+                      <span>Trocar Senha</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href="/login"
+                      passHref
+                      className={cn(buttonVariants({ variant: "secondary", size: "icon" }))}
+                    >
+                      <LogIn className="h-4 w-4" />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Entrar</p>
+                  </TooltipContent>
+                </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                 <Link
-                  href="/register"
-                  passHref
-                  legacyBehavior 
-                  className={cn(buttonVariants({ variant: "default", size: "icon" }))}
-                >
-                  <a aria-label="Registrar">
-                     <UserPlus className="h-4 w-4" />
-                  </a>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Registrar</p>
-              </TooltipContent>
-            </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href="/register"
+                      passHref
+                      className={cn(buttonVariants({ variant: "default", size: "icon" }))}
+                    >
+                      <UserPlus className="h-4 w-4" />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Registrar</p>
+                  </TooltipContent>
+                </Tooltip>
+              </>
+            )}
 
             <Tooltip>
               <TooltipTrigger asChild>
