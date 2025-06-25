@@ -56,6 +56,7 @@ export default function NewIncidentReportPage() {
     defaultValues: {
       description: "",
       location: "",
+      locationReference: "",
       anonymous: false,
     },
   });

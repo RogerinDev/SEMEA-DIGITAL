@@ -56,6 +56,15 @@ function LostFoundForm() {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof reportFormSchema>>({
     resolver: zodResolver(reportFormSchema),
+    defaultValues: {
+      species: "",
+      breed: "",
+      description: "",
+      lastSeenLocation: "",
+      date: "",
+      contactName: "",
+      contactPhone: "",
+    },
   });
 
   function onSubmit(values: z.infer<typeof reportFormSchema>) {
