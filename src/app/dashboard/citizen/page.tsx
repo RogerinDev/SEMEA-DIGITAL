@@ -1,14 +1,34 @@
 
+"use client";
+
+import { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, PlusCircle, AlertTriangle, ArrowRight, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
+import type { ServiceRequest, IncidentReport } from '@/types';
 
 export default function CitizenDashboardPage() {
+  const [requestCount, setRequestCount] = useState(0);
+  const [incidentCount, setIncidentCount] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedRequestsJSON = localStorage.getItem('citizen_requests');
+      const storedIncidentsJSON = localStorage.getItem('citizen_incidents');
+      
+      const requests: ServiceRequest[] = storedRequestsJSON ? JSON.parse(storedRequestsJSON) : [];
+      const incidents: IncidentReport[] = storedIncidentsJSON ? JSON.parse(storedIncidentsJSON) : [];
+
+      setRequestCount(requests.length);
+      setIncidentCount(incidents.length);
+    }
+  }, []);
+
   const summaryCards = [
-    { title: 'Solicitações Abertas', value: '0', icon: FileText, link: '/dashboard/citizen/requests' },
-    { title: 'Denúncias Registradas', value: '0', icon: AlertTriangle, link: '/dashboard/citizen/incidents' },
+    { title: 'Solicitações Abertas', value: requestCount.toString(), icon: FileText, link: '/dashboard/citizen/requests' },
+    { title: 'Denúncias Registradas', value: incidentCount.toString(), icon: AlertTriangle, link: '/dashboard/citizen/incidents' },
   ];
 
   const quickActions = [

@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -7,14 +10,13 @@ import { FileText, PlusCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import type { ServiceRequest } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-const mockRequests: ServiceRequest[] = [];
+import { SERVICE_REQUEST_TYPES } from '@/types';
 
 function getStatusVariant(status: ServiceRequest['status']): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case 'aprovado':
     case 'concluido':
-      return 'default'; // Primary color (greenish in this theme)
+      return 'default'; 
     case 'em_analise':
     case 'vistoria_agendada':
       return 'secondary';
@@ -40,6 +42,17 @@ const statusTranslations: Record<ServiceRequest['status'], string> = {
 };
 
 export default function CitizenRequestsPage() {
+  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedRequestsJSON = localStorage.getItem('citizen_requests');
+      if (storedRequestsJSON) {
+        setRequests(JSON.parse(storedRequestsJSON));
+      }
+    }
+  }, []);
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -53,7 +66,7 @@ export default function CitizenRequestsPage() {
         </Button>
       </div>
 
-      {mockRequests.length === 0 ? (
+      {requests.length === 0 ? (
         <Card className="text-center py-12">
           <CardHeader>
             <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -90,24 +103,26 @@ export default function CitizenRequestsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell className="font-medium">{request.protocol}</TableCell>
-                    <TableCell>{request.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
-                    <TableCell>{new Date(request.dateCreated).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(request.status)}>{statusTranslations[request.status]}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                       <Button variant="outline" size="sm" asChild>
-                        {/* This link would go to a detailed view page e.g. /dashboard/citizen/requests/${request.id} */}
-                        <Link href="#">
-                          <span>Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" /></span>
-                        </Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {requests.map((request) => {
+                  const typeLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.label || request.type;
+                  return (
+                    <TableRow key={request.id}>
+                      <TableCell className="font-medium">{request.protocol}</TableCell>
+                      <TableCell>{typeLabel}</TableCell>
+                      <TableCell>{new Date(request.dateCreated).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(request.status)}>{statusTranslations[request.status]}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/dashboard/citizen/requests/${request.protocol}`}>
+                            <span>Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" /></span>
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>

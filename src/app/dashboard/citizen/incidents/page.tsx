@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -7,8 +10,7 @@ import { AlertTriangle, PlusCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import type { IncidentReport } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-const mockIncidents: IncidentReport[] = [];
+import { INCIDENT_TYPES } from '@/types';
 
 function getStatusVariant(status: IncidentReport['status']): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
@@ -20,7 +22,7 @@ function getStatusVariant(status: IncidentReport['status']): "default" | "second
       return 'secondary';
     case 'auto_infracao_emitido':
     case 'medida_corretiva_solicitada':
-      return 'default'; // Consider this a progress state, so primary
+      return 'default';
     case 'arquivada_improcedente':
       return 'destructive';
     case 'recebida':
@@ -41,6 +43,17 @@ const statusTranslations: Record<IncidentReport['status'], string> = {
 };
 
 export default function CitizenIncidentsPage() {
+  const [incidents, setIncidents] = useState<IncidentReport[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedIncidentsJSON = localStorage.getItem('citizen_incidents');
+      if (storedIncidentsJSON) {
+        setIncidents(JSON.parse(storedIncidentsJSON));
+      }
+    }
+  }, []);
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -54,7 +67,7 @@ export default function CitizenIncidentsPage() {
         </Button>
       </div>
 
-      {mockIncidents.length === 0 ? (
+      {incidents.length === 0 ? (
          <Card className="text-center py-12">
           <CardHeader>
             <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -91,24 +104,26 @@ export default function CitizenIncidentsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockIncidents.map((incident) => (
+                {incidents.map((incident) => {
+                   const typeLabel = INCIDENT_TYPES.find(t => t.value === incident.type)?.label || incident.type;
+                   return (
                   <TableRow key={incident.id}>
                     <TableCell className="font-medium">{incident.protocol}</TableCell>
-                    <TableCell>{incident.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
+                    <TableCell>{typeLabel}</TableCell>
                     <TableCell>{new Date(incident.dateCreated).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusVariant(incident.status)}>{statusTranslations[incident.status]}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                        <Button variant="outline" size="sm" asChild>
-                        {/* This link would go to a detailed view page e.g. /dashboard/citizen/incidents/${incident.id} */}
-                        <Link href="#">
+                        <Link href={`/dashboard/citizen/incidents/${incident.protocol}`}>
                           <span>Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" /></span>
                         </Link>
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                   );
+                })}
               </TableBody>
             </Table>
           </CardContent>

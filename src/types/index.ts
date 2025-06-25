@@ -30,8 +30,9 @@ export interface ServiceRequest {
   dateCreated: string; // Store as ISO string for simplicity with mock data
   dateUpdated: string;
   description: string;
-  citizenName?: string; // Optional for now
-  address?: string; // Optional for now
+  citizenName?: string; 
+  address?: string;
+  contactPhone?: string;
 }
 
 export type ServiceCategory = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental';
@@ -87,6 +88,7 @@ export interface IncidentReport {
   description: string;
   location: string;
   reportedBy?: string; // Optional, can be anonymous
+  isAnonymous?: boolean;
 }
 
 export const INCIDENT_TYPES: { value: IncidentType, label: string }[] = [

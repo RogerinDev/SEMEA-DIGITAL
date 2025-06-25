@@ -1,9 +1,11 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +24,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, PlusCircle, ArrowLeft } from 'lucide-react';
-import { INCIDENT_TYPES, type IncidentType } from '@/types';
+import { INCIDENT_TYPES, type IncidentType, type IncidentReport } from '@/types';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/auth-context";
+
 
 const formSchema = z.object({
   incidentType: z.custom<IncidentType>(val => INCIDENT_TYPES.map(it => it.value).includes(val as IncidentType), {
@@ -44,6 +48,9 @@ const formSchema = z.object({
 
 export default function NewIncidentReportPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const { currentUser } = useAuth();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,15 +61,31 @@ export default function NewIncidentReportPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Backend submission logic
+    
+    const newIncident: IncidentReport = {
+      id: `DEN${Date.now()}`,
+      protocol: `DEN${Date.now().toString().slice(-6)}`,
+      type: values.incidentType,
+      description: values.description,
+      location: `${values.location}${values.locationReference ? ` (${values.locationReference})` : ''}`,
+      status: 'recebida',
+      dateCreated: new Date().toISOString(),
+      reportedBy: values.anonymous ? 'Anônimo' : currentUser?.displayName || currentUser?.email || 'Cidadão',
+      isAnonymous: values.anonymous || false,
+    };
+    
+    // Save to localStorage
+    const existingIncidentsJSON = localStorage.getItem('citizen_incidents');
+    const existingIncidents: IncidentReport[] = existingIncidentsJSON ? JSON.parse(existingIncidentsJSON) : [];
+    localStorage.setItem('citizen_incidents', JSON.stringify([newIncident, ...existingIncidents]));
+    
     toast({
       title: "Denúncia Registrada!",
-      description: `Sua denúncia de ${INCIDENT_TYPES.find(s => s.value === values.incidentType)?.label} foi registrada. Protocolo: DEN${Date.now().toString().slice(-6)}`,
+      description: `Sua denúncia de ${INCIDENT_TYPES.find(s => s.value === values.incidentType)?.label} foi registrada. Protocolo: ${newIncident.protocol}`,
       variant: "default",
     });
-    form.reset();
-    // router.push('/dashboard/citizen/incidents');
+    
+    router.push('/dashboard/citizen/incidents');
   }
 
   return (

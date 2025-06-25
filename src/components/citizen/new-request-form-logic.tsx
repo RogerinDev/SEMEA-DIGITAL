@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { TreePine, Droplets, GraduationCap, PawPrint } from 'lucide-react';
 
@@ -23,8 +23,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SERVICE_REQUEST_TYPES, type ServiceRequestType, type ServiceCategory } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequestType, type ServiceCategory, type ServiceRequest } from '@/types';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/auth-context";
 
 const formSchema = z.object({
   requestType: z.custom<ServiceRequestType>(val => SERVICE_REQUEST_TYPES.map(srt => srt.value).includes(val as ServiceRequestType), {
@@ -49,6 +50,8 @@ const categories: { [key in ServiceCategory]: { label: string; icon: React.Eleme
 export default function NewRequestFormLogic() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { currentUser } = useAuth();
 
   const preselectedType = searchParams.get('type') as ServiceRequestType | null;
   const initialTypeInfo = SERVICE_REQUEST_TYPES.find(rt => rt.value === preselectedType);
@@ -66,26 +69,41 @@ export default function NewRequestFormLogic() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    const newRequest: ServiceRequest = {
+        id: `SOL${Date.now()}`,
+        protocol: `SOL${Date.now().toString().slice(-6)}`,
+        type: values.requestType,
+        description: values.description,
+        status: 'pendente',
+        dateCreated: new Date().toISOString(),
+        dateUpdated: new Date().toISOString(),
+        citizenName: currentUser?.displayName || currentUser?.email || 'Cidadão',
+        address: values.address,
+        contactPhone: values.contactPhone,
+    };
+
+    // Save to localStorage
+    const existingRequestsJSON = localStorage.getItem('citizen_requests');
+    const existingRequests: ServiceRequest[] = existingRequestsJSON ? JSON.parse(existingRequestsJSON) : [];
+    localStorage.setItem('citizen_requests', JSON.stringify([newRequest, ...existingRequests]));
+
     toast({
       title: "Solicitação Enviada!",
-      description: `Sua solicitação de ${SERVICE_REQUEST_TYPES.find(s => s.value === values.requestType)?.label} foi registrada com sucesso. Protocolo: ${Date.now().toString().slice(-6)}`,
+      description: `Sua solicitação de ${SERVICE_REQUEST_TYPES.find(s => s.value === values.requestType)?.label} foi registrada com sucesso. Protocolo: ${newRequest.protocol}`,
       variant: "default",
     });
     
-    form.reset();
-    setSelectedCategory(initialTypeInfo?.category || null);
+    router.push('/dashboard/citizen/requests');
   }
 
   const handleCategorySelect = (category: ServiceCategory) => {
     setSelectedCategory(category);
-    // Reset requestType when category changes, forcing user to pick a specific service
-    form.setValue('requestType', undefined, { shouldValidate: true });
+    form.resetField('requestType');
   }
   
   const handleBackToCategories = () => {
       setSelectedCategory(null);
-      form.setValue('requestType', undefined);
+      form.resetField('requestType');
   }
 
   return (
