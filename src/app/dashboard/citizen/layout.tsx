@@ -1,7 +1,7 @@
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
-import { LayoutDashboard, FileText, AlertTriangle, User, PlusCircle, Edit } from 'lucide-react';
+import { LayoutDashboard, FileText, AlertTriangle, User, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
 
 const citizenNavItems: NavItem[] = [
   { href: '/dashboard/citizen', label: 'Painel', icon: LayoutDashboard, matchExact: true },
@@ -53,8 +54,11 @@ export default function CitizenDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { currentUser } = useAuth();
+  const userName = currentUser?.displayName || currentUser?.email || 'Cidadão';
+
   return (
-    <DashboardLayout navItems={citizenNavItems} sidebarActions={<SidebarActions />} userName="Cidadão Exemplo" userRole="Cidadão">
+    <DashboardLayout navItems={citizenNavItems} sidebarActions={<SidebarActions />} userName={userName} userRole="Cidadão">
       {children}
     </DashboardLayout>
   );

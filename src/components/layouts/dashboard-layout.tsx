@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import type { LucideIcon } from 'lucide-react';
@@ -28,7 +27,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { LogOut, Loader2, Edit, Lock, ChevronUp, User } from 'lucide-react';
+import { LogOut, Loader2, Edit, Lock, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 
 export interface NavItem {
@@ -70,10 +69,10 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
   }
 
   if (currentUser) {
-    const displayUserName = currentUser?.displayName || currentUser?.email || defaultUserName;
+    const displayUserName = defaultUserName;
     const displayUserRole = defaultUserRole; 
     const userInitials = (currentUser?.displayName || currentUser?.email || 'U').charAt(0).toUpperCase();
-    const profileBaseUrl = displayUserRole === 'Administrador' ? '/dashboard/admin/profile' : '/dashboard/citizen/profile';
+    const profileBaseUrl = displayUserRole.toLowerCase().includes('admin') ? '/dashboard/admin/profile' : '/dashboard/citizen/profile';
 
     return (
       <SidebarProvider defaultOpen>
@@ -166,7 +165,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
   return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <p>Ocorreu um erro ao verificar a autenticação.</p>
+        <p>Ocorreu um erro ao verificar la autenticação.</p>
       </div>
     );
 }

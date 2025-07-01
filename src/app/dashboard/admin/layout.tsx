@@ -1,15 +1,14 @@
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
-import { LayoutDashboard, FileText, AlertTriangle, Users, BarChart3, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, AlertTriangle, Users } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
 
 const adminNavItems: NavItem[] = [
   { href: '/dashboard/admin', label: 'Painel Geral', icon: LayoutDashboard, matchExact: true },
   { href: '/dashboard/admin/requests', label: 'Gerenciar Solicitações', icon: FileText },
   { href: '/dashboard/admin/incidents', label: 'Gerenciar Denúncias', icon: AlertTriangle },
   { href: '/dashboard/admin/users', label: 'Gerenciar Usuários', icon: Users },
-  // { href: '/dashboard/admin/reports', label: 'Relatórios', icon: BarChart3 },
-  // { href: '/dashboard/admin/settings', label: 'Configurações', icon: Settings },
 ];
 
 export default function AdminDashboardLayout({
@@ -17,8 +16,14 @@ export default function AdminDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { currentUser } = useAuth();
+  
+  // Determina o papel e nome a ser exibido com base no usuário logado
+  const userRole = currentUser?.role === 'superAdmin' ? 'Super Administrador' : 'Administrador';
+  const userName = currentUser?.displayName || currentUser?.email || 'Admin';
+
   return (
-    <DashboardLayout navItems={adminNavItems} userName="Admin SEMEA" userRole="Administrador">
+    <DashboardLayout navItems={adminNavItems} userName={userName} userRole={userRole}>
       {children}
     </DashboardLayout>
   );
