@@ -72,6 +72,9 @@ export default function ManageUsersPage() {
         }
     }
 
+    // IMPORTANT: This check was temporarily disabled to allow the first superAdmin to be created.
+    // Re-enable this block for security after the first promotion.
+    /*
     if (currentUser?.role !== 'superAdmin') {
         return (
             <div className="flex flex-col items-center justify-center h-full text-center">
@@ -81,6 +84,7 @@ export default function ManageUsersPage() {
             </div>
         );
     }
+    */
     
     return (
         <>
