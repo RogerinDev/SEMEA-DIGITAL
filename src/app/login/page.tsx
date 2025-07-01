@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -50,9 +49,16 @@ export default function LoginPage() {
     if (typeof result !== 'string') {
       router.push('/dashboard/admin');
     } else {
-      // O toast de erro já é mostrado pelo AuthContext
-      // Você pode querer um toast específico aqui se o login falhar, por exemplo:
-      // toast({ title: "Falha no Login Rápido", description: "Verifique se a conta de dev admin está configurada.", variant: "destructive"});
+      // The generic toast is already shown by AuthContext for general errors.
+      // Let's add a more specific one for this button's common failure case.
+      if (result.includes('auth/invalid-credential')) {
+        toast({
+            title: "Conta de Admin Dev não encontrada",
+            description: "Por favor, crie o usuário 'admin.dev@semea.example.com' no seu painel do Firebase Authentication.",
+            variant: "destructive",
+            duration: 9000,
+        });
+      }
     }
     setIsAdminDevLoggingIn(false);
   };
