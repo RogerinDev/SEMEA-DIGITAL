@@ -41,11 +41,12 @@ export interface NavItem {
 interface DashboardLayoutProps {
   children: React.ReactNode;
   navItems: NavItem[];
+  sidebarActions?: React.ReactNode;
   userName?: string; 
   userRole?: string; 
 }
 
-export default function DashboardLayout({ children, navItems, userName: defaultUserName = "Usuário", userRole: defaultUserRole = "Cidadão" }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, navItems, sidebarActions, userName: defaultUserName = "Usuário", userRole: defaultUserRole = "Cidadão" }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { currentUser, logout, loading: authLoading } = useAuth();
@@ -85,7 +86,8 @@ export default function DashboardLayout({ children, navItems, userName: defaultU
           </SidebarHeader>
           <SidebarContent asChild>
             <ScrollArea className="h-full">
-              <SidebarMenu className="p-4">
+              {sidebarActions}
+              <SidebarMenu className="p-4 pt-0">
                 {navItems.map((item) => (
                   <SidebarMenuItem key={item.label}>
                     <SidebarMenuButton
