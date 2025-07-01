@@ -66,6 +66,8 @@ export const SERVICE_REQUEST_TYPES: ServiceRequestTypeInfo[] = [
 ];
 
 
+export type IncidentCategory = 'residuos_poluicao' | 'animais' | 'flora_areas_protegidas' | 'outras';
+
 export type IncidentStatus = "recebida" | "em_verificacao" | "fiscalizacao_agendada" | "em_andamento_fiscalizacao" | "auto_infracao_emitido" | "medida_corretiva_solicitada" | "resolvida" | "arquivada_improcedente";
 export type IncidentType =
   | "descarte_irregular_residuo"
@@ -93,18 +95,28 @@ export interface IncidentReport {
   isAnonymous?: boolean;
 }
 
-export const INCIDENT_TYPES: { value: IncidentType, label: string }[] = [
-    { value: "descarte_irregular_residuo", label: "Descarte Irregular de Resíduo" },
-    { value: "maus_tratos_animal", label: "Maus Tratos a Animal" },
-    { value: "desmatamento_ilegal", label: "Desmatamento Ilegal" },
-    { value: "poluicao_sonora", label: "Poluição Sonora" },
-    { value: "poluicao_agua_solo_ar", label: "Poluição da Água/Solo/Ar" },
-    { value: "queimada_ilegal", label: "Queimada Ilegal" },
-    { value: "invasao_area_protegida", label: "Invasão de Área Protegida" },
-    { value: "animal_silvestre_risco_resgate", label: "Animal Silvestre em Risco/Resgate" },
-    { value: "problema_parque_municipal", label: "Problema em Parque Municipal" },
-    { value: "arvore_doente_risco_nao_solicitado_corte", label: "Árvore Doente/Risco (Não Solicitado Corte)" },
-    { value: "outra_infracao_ambiental", label: "Outra Infração Ambiental" },
+export interface IncidentTypeInfo {
+  value: IncidentType;
+  label: string;
+  category: IncidentCategory;
+}
+
+export const INCIDENT_TYPES: IncidentTypeInfo[] = [
+    // Resíduos e Poluição
+    { value: "descarte_irregular_residuo", label: "Descarte Irregular de Resíduo", category: 'residuos_poluicao' },
+    { value: "poluicao_sonora", label: "Poluição Sonora", category: 'residuos_poluicao' },
+    { value: "poluicao_agua_solo_ar", label: "Poluição da Água/Solo/Ar", category: 'residuos_poluicao' },
+    // Maus Tratos e Animais
+    { value: "maus_tratos_animal", label: "Maus Tratos a Animal", category: 'animais' },
+    { value: "animal_silvestre_risco_resgate", label: "Animal Silvestre em Risco/Resgate", category: 'animais' },
+    // Flora e Áreas Protegidas
+    { value: "desmatamento_ilegal", label: "Desmatamento Ilegal", category: 'flora_areas_protegidas' },
+    { value: "queimada_ilegal", label: "Queimada Ilegal", category: 'flora_areas_protegidas' },
+    { value: "invasao_area_protegida", label: "Invasão de Área Protegida", category: 'flora_areas_protegidas' },
+    { value: "arvore_doente_risco_nao_solicitado_corte", label: "Árvore Doente/Risco (Não Solicitado Corte)", category: 'flora_areas_protegidas' },
+    // Outras
+    { value: "problema_parque_municipal", label: "Problema em Parque Municipal", category: 'outras' },
+    { value: "outra_infracao_ambiental", label: "Outra Infração Ambiental", category: 'outras' },
 ];
 
 
