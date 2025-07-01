@@ -1,18 +1,15 @@
 
-"use client";
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, FileText, UserCircle, CalendarDays, MapPin } from 'lucide-react';
+import { ArrowLeft, FileText, CalendarDays, MapPin } from 'lucide-react';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest } from '@/types';
-import { Skeleton } from '@/components/ui/skeleton';
+import { getRequestByIdAction } from '@/app/actions/requests-actions';
 
 const statusTranslations: Record<ServiceRequest['status'], string> = {
   pendente: "Pendente",
@@ -34,53 +31,11 @@ function getStatusVariant(status: ServiceRequest['status']): "default" | "second
   }
 }
 
-export default function CitizenRequestDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [request, setRequest] = useState<ServiceRequest | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && id) {
-      const storedRequestsJSON = localStorage.getItem('citizen_requests');
-      const storedRequests: ServiceRequest[] = storedRequestsJSON ? JSON.parse(storedRequestsJSON) : [];
-      const foundRequest = storedRequests.find(req => req.protocol === id);
-      
-      if (foundRequest) {
-        setRequest(foundRequest);
-      }
-      setLoading(false);
-    }
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-1/2" />
-        <Card>
-            <CardHeader><Skeleton className="h-8 w-1/3" /></CardHeader>
-            <CardContent className="space-y-4">
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-20 w-full" />
-            </CardContent>
-        </Card>
-      </div>
-    );
-  }
+export default async function CitizenRequestDetailPage({ params }: { params: { id: string } }) {
+  const request = await getRequestByIdAction(params.id);
 
   if (!request) {
-    return (
-      <div className="text-center">
-        <PageTitle title="Solicitação não encontrada" icon={FileText} />
-        <p className="text-muted-foreground mb-4">A solicitação que você está procurando não foi encontrada.</p>
-        <Button onClick={() => router.push('/dashboard/citizen/requests')}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Minhas Solicitações
-        </Button>
-      </div>
-    );
+    notFound();
   }
 
   const typeLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.label || request.type;

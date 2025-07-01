@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,10 +24,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, PlusCircle, ArrowLeft } from 'lucide-react';
-import { INCIDENT_TYPES, type IncidentType, type IncidentReport } from '@/types';
+import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { INCIDENT_TYPES, type IncidentType } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";
+import { addIncidentAction } from "@/app/actions/incidents-actions";
 
 
 const formSchema = z.object({
@@ -43,13 +45,13 @@ const formSchema = z.object({
   }),
   locationReference: z.string().optional(),
   anonymous: z.boolean().default(false).optional(),
-  // attachments: z.instanceof(FileList).optional(), // File uploads
 });
 
 export default function NewIncidentReportPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { currentUser } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,32 +63,37 @@ export default function NewIncidentReportPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!currentUser) {
+      toast({ title: "Erro", description: "Você precisa estar logado para enviar uma denúncia.", variant: "destructive" });
+      return;
+    }
+    setIsSubmitting(true);
     
-    const newIncident: IncidentReport = {
-      id: `DEN${Date.now()}`,
-      protocol: `DEN${Date.now().toString().slice(-6)}`,
-      type: values.incidentType,
+    const result = await addIncidentAction({
+      incidentType: values.incidentType,
       description: values.description,
       location: `${values.location}${values.locationReference ? ` (${values.locationReference})` : ''}`,
-      status: 'recebida',
-      dateCreated: new Date().toISOString(),
-      reportedBy: values.anonymous ? 'Anônimo' : currentUser?.displayName || currentUser?.email || 'Cidadão',
       isAnonymous: values.anonymous || false,
-    };
-    
-    // Save to localStorage
-    const existingIncidentsJSON = localStorage.getItem('citizen_incidents');
-    const existingIncidents: IncidentReport[] = existingIncidentsJSON ? JSON.parse(existingIncidentsJSON) : [];
-    localStorage.setItem('citizen_incidents', JSON.stringify([newIncident, ...existingIncidents]));
-    
-    toast({
-      title: "Denúncia Registrada!",
-      description: `Sua denúncia de ${INCIDENT_TYPES.find(s => s.value === values.incidentType)?.label} foi registrada. Protocolo: ${newIncident.protocol}`,
-      variant: "default",
+      citizenId: currentUser.uid,
+      citizenName: currentUser.displayName || currentUser.email || 'Cidadão',
     });
     
-    router.push('/dashboard/citizen/incidents');
+    if (result.success) {
+        toast({
+            title: "Denúncia Registrada!",
+            description: `Sua denúncia foi registrada com sucesso. Protocolo: ${result.protocol}`,
+            variant: "default",
+        });
+        router.push('/dashboard/citizen/incidents');
+    } else {
+        toast({
+            title: "Erro ao Registrar",
+            description: result.error || "Não foi possível registrar a denúncia. Tente novamente.",
+            variant: "destructive",
+        });
+    }
+    setIsSubmitting(false);
   }
 
   return (
@@ -177,24 +184,6 @@ export default function NewIncidentReportPage() {
                   </FormItem>
                 )}
               />
-               {/* Placeholder for file uploads
-              <FormField
-                control={form.control}
-                name="attachments"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fotos/Vídeos (opcional)</FormLabel>
-                    <FormControl>
-                      <Input type="file" multiple onChange={(e) => field.onChange(e.target.files)} />
-                    </FormControl>
-                    <FormDescription>
-                      Anexe evidências visuais da denúncia (limite 5MB por arquivo).
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              */}
               <FormField
                 control={form.control}
                 name="anonymous"
@@ -221,7 +210,10 @@ export default function NewIncidentReportPage() {
                 <Button type="button" variant="outline" asChild>
                   <Link href="/dashboard/citizen/incidents">Cancelar</Link>
                 </Button>
-                <Button type="submit">Enviar Denúncia</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Enviar Denúncia
+                </Button>
               </div>
             </form>
           </Form>

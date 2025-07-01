@@ -23,13 +23,14 @@ export type ServiceRequestType =
   | "outros_servicos_gerais";
 
 export interface ServiceRequest {
-  id: string;
+  id: string; // Firestore document ID
   type: ServiceRequestType;
   protocol: string;
   status: ServiceRequestStatus;
-  dateCreated: string; // Store as ISO string for simplicity with mock data
+  dateCreated: string; // Store as ISO string for simplicity on client
   dateUpdated: string;
   description: string;
+  citizenId?: string; // UID from Firebase Auth
   citizenName?: string; 
   address?: string;
   contactPhone?: string;
@@ -80,13 +81,14 @@ export type IncidentType =
   | "outra_infracao_ambiental";
 
 export interface IncidentReport {
-  id: string;
+  id: string; // Firestore document ID
   type: IncidentType;
   protocol: string;
   status: IncidentStatus;
   dateCreated: string; // Store as ISO string
   description: string;
   location: string;
+  citizenId?: string; // UID from Firebase Auth
   reportedBy?: string; // Optional, can be anonymous
   isAnonymous?: boolean;
 }
@@ -115,6 +117,23 @@ export interface Animal {
   photoUrl: string;
   description: string;
   statusAdocao: "disponivel" | "processo_adocao_em_andamento" | "adotado";
+}
+
+export interface LostFoundAnimal {
+  id: string; // Firestore document ID
+  type: 'perdido' | 'encontrado';
+  species: string;
+  breed?: string;
+  description: string;
+  lastSeenLocation: string;
+  date: string; // ISO string for the event date
+  contactName: string;
+  contactPhone: string;
+  photoUrl: string; // URL from Firebase Storage
+  status: 'ativo' | 'resolvido';
+  citizenId: string; // UID from Firebase Auth
+  dateCreated: string; // ISO String - Firestore server timestamp
+  dateExpiration: string; // ISO String - Firestore server timestamp
 }
 
 export interface EnvironmentalEvent {

@@ -1,6 +1,7 @@
 
 import { initializeApp, getApps, getApp, type FirebaseApp, type FirebaseOptions } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfigValues: FirebaseOptions = {
@@ -29,6 +30,8 @@ if (!firebaseConfigValues.apiKey) {
 
 
 let app: FirebaseApp;
+let db: Firestore;
+
 try {
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfigValues);
@@ -44,7 +47,7 @@ try {
 // Initialize Firebase services after ensuring the app is initialized.
 const auth: Auth = getAuth(app);
 const storage = getStorage(app);
+db = getFirestore(app);
 
-// const db = getFirestore(app);
 
-export { app, auth, storage };
+export { app, auth, db, storage };

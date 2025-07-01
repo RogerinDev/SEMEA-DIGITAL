@@ -1,0 +1,127 @@
+
+'use server';
+
+import { db } from '@/lib/firebase';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer } from 'firebase/firestore';
+import type { IncidentReport, IncidentType } from '@/types';
+
+function isValidIncidentType(type: any): type is IncidentType {
+  const validTypes: IncidentType[] = [
+    "descarte_irregular_residuo", "maus_tratos_animal", "desmatamento_ilegal", 
+    "poluicao_sonora", "poluicao_agua_solo_ar", "queimada_ilegal", 
+    "invasao_area_protegida", "animal_silvestre_risco_resgate", 
+    "problema_parque_municipal", "arvore_doente_risco_nao_solicitado_corte", 
+    "outra_infracao_ambiental"
+  ];
+  return validTypes.includes(type);
+}
+
+interface NewIncidentData {
+  incidentType: IncidentType;
+  description: string;
+  location: string;
+  isAnonymous: boolean;
+  citizenId?: string; // Optional because anonymous users might not have a UID
+  citizenName: string;
+}
+
+export async function addIncidentAction(data: NewIncidentData): Promise<{ success: boolean; protocol?: string; error?: string }> {
+  if (!isValidIncidentType(data.incidentType)) {
+    return { success: false, error: "Tipo de denúncia inválido." };
+  }
+
+  try {
+    const protocol = `DEN${Date.now().toString().slice(-6)}`;
+    await addDoc(collection(db, 'incidents'), {
+      protocol,
+      type: data.incidentType,
+      description: data.description,
+      location: data.location,
+      isAnonymous: data.isAnonymous,
+      // Only store citizenId if not anonymous
+      citizenId: data.isAnonymous ? null : data.citizenId,
+      reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
+      status: 'recebida',
+      dateCreated: serverTimestamp(),
+    });
+    return { success: true, protocol };
+  } catch (error: any) {
+    console.error("Error adding incident: ", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getIncidentsByCitizenAction(citizenId: string): Promise<IncidentReport[]> {
+  if (!citizenId) return [];
+
+  try {
+    const q = query(
+        collection(db, "incidents"), 
+        where("citizenId", "==", citizenId),
+        orderBy("dateCreated", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    const incidents: IncidentReport[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      incidents.push({
+        id: doc.id,
+        protocol: data.protocol,
+        type: data.type,
+        status: data.status,
+        dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        description: data.description,
+        location: data.location,
+        reportedBy: data.reportedBy,
+        isAnonymous: data.isAnonymous,
+        citizenId: data.citizenId,
+      });
+    });
+    return incidents;
+  } catch (error) {
+    console.error("Error fetching incidents: ", error);
+    return [];
+  }
+}
+
+export async function getIncidentByIdAction(id: string): Promise<IncidentReport | null> {
+    if(!id) return null;
+    try {
+        const docRef = doc(db, 'incidents', id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            return {
+                id: docSnap.id,
+                protocol: data.protocol,
+                type: data.type,
+                status: data.status,
+                dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+                description: data.description,
+                location: data.location,
+                reportedBy: data.reportedBy,
+                isAnonymous: data.isAnonymous,
+                citizenId: data.citizenId,
+            };
+        } else {
+            console.log("No such incident document!");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching incident by ID: ", error);
+        return null;
+    }
+}
+
+export async function getIncidentCountByCitizenAction(citizenId: string): Promise<number> {
+    if (!citizenId) return 0;
+    try {
+        const q = query(collection(db, "incidents"), where("citizenId", "==", citizenId));
+        const snapshot = await getCountFromServer(q);
+        return snapshot.data().count;
+    } catch (error) {
+        console.error("Error getting incident count: ", error);
+        return 0;
+    }
+}

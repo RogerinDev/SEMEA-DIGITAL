@@ -1,18 +1,15 @@
 
-"use client";
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, FileText } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, CalendarDays, MapPin } from 'lucide-react';
 import { INCIDENT_TYPES, type IncidentReport } from '@/types';
-import { Skeleton } from '@/components/ui/skeleton';
+import { getIncidentByIdAction } from '@/app/actions/incidents-actions';
 
 const statusTranslations: Record<IncidentReport['status'], string> = {
   recebida: "Recebida",
@@ -35,53 +32,11 @@ function getStatusVariant(status: IncidentReport['status']): "default" | "second
   }
 }
 
-export default function CitizenIncidentDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [incident, setIncident] = useState<IncidentReport | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && id) {
-      const storedIncidentsJSON = localStorage.getItem('citizen_incidents');
-      const storedIncidents: IncidentReport[] = storedIncidentsJSON ? JSON.parse(storedIncidentsJSON) : [];
-      const foundIncident = storedIncidents.find(inc => inc.protocol === id);
-      
-      if (foundIncident) {
-        setIncident(foundIncident);
-      }
-      setLoading(false);
-    }
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-1/2" />
-        <Card>
-            <CardHeader><Skeleton className="h-8 w-1/3" /></CardHeader>
-            <CardContent className="space-y-4">
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-20 w-full" />
-            </CardContent>
-        </Card>
-      </div>
-    );
-  }
+export default async function CitizenIncidentDetailPage({ params }: { params: { id: string } }) {
+  const incident = await getIncidentByIdAction(params.id);
 
   if (!incident) {
-    return (
-      <div className="text-center">
-        <PageTitle title="Denúncia não encontrada" icon={AlertTriangle} />
-        <p className="text-muted-foreground mb-4">A denúncia que você está procurando não foi encontrada.</p>
-        <Button onClick={() => router.push('/dashboard/citizen/incidents')}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Minhas Denúncias
-        </Button>
-      </div>
-    );
+    notFound();
   }
 
   const typeLabel = INCIDENT_TYPES.find(t => t.value === incident.type)?.label || incident.type;

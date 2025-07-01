@@ -6,11 +6,13 @@ import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, PlusCircle, ArrowRight } from 'lucide-react';
+import { AlertTriangle, PlusCircle, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import type { IncidentReport } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { INCIDENT_TYPES } from '@/types';
+import { useAuth } from '@/contexts/auth-context';
+import { getIncidentsByCitizenAction } from '@/app/actions/incidents-actions';
 
 function getStatusVariant(status: IncidentReport['status']): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
@@ -44,15 +46,24 @@ const statusTranslations: Record<IncidentReport['status'], string> = {
 
 export default function CitizenIncidentsPage() {
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedIncidentsJSON = localStorage.getItem('citizen_incidents');
-      if (storedIncidentsJSON) {
-        setIncidents(JSON.parse(storedIncidentsJSON));
+    async function fetchIncidents() {
+      if (currentUser?.uid) {
+        setLoading(true);
+        const fetchedIncidents = await getIncidentsByCitizenAction(currentUser.uid);
+        setIncidents(fetchedIncidents);
+        setLoading(false);
+      } else {
+        // If user is not logged in or logs out, clear incidents
+        setIncidents([]);
+        setLoading(false);
       }
     }
-  }, []);
+    fetchIncidents();
+  }, [currentUser]);
 
   return (
     <>
@@ -67,7 +78,11 @@ export default function CitizenIncidentsPage() {
         </Button>
       </div>
 
-      {incidents.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : incidents.length === 0 ? (
          <Card className="text-center py-12">
           <CardHeader>
             <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -116,7 +131,7 @@ export default function CitizenIncidentsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                        <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/citizen/incidents/${incident.protocol}`}>
+                        <Link href={`/dashboard/citizen/incidents/${incident.id}`}>
                           <span>Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" /></span>
                         </Link>
                       </Button>

@@ -4,7 +4,7 @@
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PawPrint, Search, MapPin, CalendarDays, PlusCircle, BadgeHelp, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { PawPrint, Search, MapPin, CalendarDays, PlusCircle, BadgeHelp, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,46 +18,28 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Badge } from '@/components/ui/badge';
-
-interface LostFoundAnimal {
-  id: string;
-  type: 'perdido' | 'encontrado';
-  species: string;
-  breed?: string;
-  description: string;
-  lastSeenLocation: string;
-  date: string; // ISO string
-  contactName: string;
-  contactPhone: string;
-  photoUrl: string;
-  status: 'ativo' | 'resolvido';
-}
-
-const thirtyDaysAgo = new Date();
-thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 35); // Set to 35 days ago to test expiration
-
-const mockLostFoundAnimals: LostFoundAnimal[] = [
-  { id: '1', type: 'perdido', species: 'Cachorro', breed: 'Labrador', description: 'Atende por "Max", coleira azul, muito dócil. Fugiu durante a chuva.', lastSeenLocation: 'Próximo ao Parque Municipal', date: new Date().toISOString(), status: 'ativo' },
-  { id: '2', type: 'encontrado', species: 'Gato', breed: 'SRD', description: 'Gatinho preto e branco encontrado assustado na Rua das Flores. Parece doméstico.', lastSeenLocation: 'Rua das Flores, perto da padaria', date: new Date().toISOString(), status: 'ativo' },
-  { id: '3', type: 'perdido', species: 'Cachorro', breed: 'Poodle', description: 'Branquinho, pequeno porte, se chama "Lulu". Recompensa-se. Foi encontrado!', lastSeenLocation: 'Centro da cidade', date: new Date(2024, 5, 10).toISOString(), status: 'resolvido' },
-  { id: '4', type: 'perdido', species: 'Gato', breed: 'SRD', description: 'Este é um anúncio antigo que deveria expirar e não ser mais exibido na lista pública.', lastSeenLocation: 'Bairro Sion', date: thirtyDaysAgo.toISOString(), status: 'ativo' }, // This one should be filtered out
-];
-
-const reportFormSchema = z.object({
-  reportType: z.enum(["perdido", "encontrado"], { required_error: "Selecione o tipo de registro."}),
-  species: z.string().min(1, "Espécie é obrigatória."),
-  breed: z.string().optional(),
-  description: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres."),
-  lastSeenLocation: z.string().min(5, "Localização é obrigatória."),
-  date: z.string().min(1, "Data é obrigatória."), // Ideally use a date picker
-  contactName: z.string().min(1, "Nome para contato é obrigatório."),
-  contactPhone: z.string().min(10, "Telefone para contato é obrigatório."),
-  // photo: z.instanceof(File).optional(), // For image upload
-});
+import type { LostFoundAnimal } from '@/types';
+import { useAuth } from '@/contexts/auth-context';
+import { useEffect, useState } from 'react';
+import { addLostFoundPostAction, getActiveLostFoundPostsAction } from '@/app/actions/lost-found-actions';
 
 
 function LostFoundForm() {
   const { toast } = useToast();
+  const { currentUser } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const reportFormSchema = z.object({
+    reportType: z.enum(["perdido", "encontrado"], { required_error: "Selecione o tipo de registro."}),
+    species: z.string().min(1, "Espécie é obrigatória."),
+    breed: z.string().optional(),
+    description: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres."),
+    lastSeenLocation: z.string().min(5, "Localização é obrigatória."),
+    date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data inválida."}),
+    contactName: z.string().min(1, "Nome para contato é obrigatório."),
+    contactPhone: z.string().min(10, "Telefone para contato é obrigatório."),
+  });
+
   const form = useForm<z.infer<typeof reportFormSchema>>({
     resolver: zodResolver(reportFormSchema),
     defaultValues: {
@@ -65,26 +47,61 @@ function LostFoundForm() {
       breed: "",
       description: "",
       lastSeenLocation: "",
-      date: "",
-      contactName: "",
+      date: new Date().toISOString().split('T')[0], // Default to today
+      contactName: currentUser?.displayName || "",
       contactPhone: "",
     },
   });
+  
+  useEffect(() => {
+    if(currentUser?.displayName) {
+        form.setValue('contactName', currentUser.displayName);
+    }
+  }, [currentUser, form])
 
-  function onSubmit(values: z.infer<typeof reportFormSchema>) {
-    console.log(values);
-    toast({
-      title: "Registro Enviado!",
-      description: `Seu registro de animal ${values.reportType === 'perdido' ? 'perdido' : 'encontrado'} foi criado com sucesso.`,
+  async function onSubmit(values: z.infer<typeof reportFormSchema>) {
+    if (!currentUser) {
+        toast({ title: "Erro de Autenticação", description: "Você precisa estar logado para criar um registro.", variant: "destructive"});
+        return;
+    }
+    setIsSubmitting(true);
+    
+    // In a real app, you would handle file upload to Firebase Storage here and get a URL.
+    // For now, we'll use a placeholder.
+    const photoUrl = 'https://placehold.co/400x300.png';
+
+    const result = await addLostFoundPostAction({
+      type: values.reportType,
+      species: values.species,
+      breed: values.breed,
+      description: values.description,
+      lastSeenLocation: values.lastSeenLocation,
+      date: values.date,
+      contactName: values.contactName,
+      contactPhone: values.contactPhone,
+      photoUrl,
+      status: 'ativo',
+      citizenId: currentUser.uid,
     });
-    form.reset();
+
+    if(result.success) {
+      toast({
+        title: "Registro Enviado!",
+        description: `Seu registro de animal ${values.reportType === 'perdido' ? 'perdido' : 'encontrado'} foi criado com sucesso.`,
+      });
+      form.reset();
+      // Ideally, trigger a refresh of the posts list here.
+    } else {
+       toast({ title: "Erro", description: result.error || "Não foi possível criar o registro.", variant: "destructive"});
+    }
+    setIsSubmitting(false);
   }
   
   return (
      <Card className="shadow-lg">
         <CardHeader>
             <CardTitle className="flex items-center"><PlusCircle className="mr-2 h-6 w-6 text-primary"/>Registrar Animal Perdido ou Encontrado</CardTitle>
-            <CardDescription>Ajude um pet a voltar para casa ou encontrar um novo lar temporário. Os anúncios expiram após 30 dias.</CardDescription>
+            <CardDescription>Ajude um pet a voltar para casa. Os anúncios são públicos por 30 dias.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -177,7 +194,10 @@ function LostFoundForm() {
                     <Label>Foto do Animal (opcional)</Label>
                     <Input type="file" accept="image/*" />
                 </FormItem> */}
-                <Button type="submit" className="w-full md:w-auto">Enviar Registro</Button>
+                <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : null}
+                    Enviar Registro
+                </Button>
             </form>
             </Form>
         </CardContent>
@@ -191,7 +211,7 @@ function AnimalCard({ animal }: { animal: LostFoundAnimal }) {
   return (
     <Card className="flex flex-col overflow-hidden shadow-md hover:shadow-lg transition-shadow">
       <div className="relative aspect-[4/3] overflow-hidden">
-        <Image src={animal.photoUrl} alt={`${animal.type} - ${animal.species}`} layout="fill" objectFit="cover" data-ai-hint={`${animal.species} animal`}/>
+        <Image src={animal.photoUrl || 'https://placehold.co/400x300.png'} alt={`${animal.type} - ${animal.species}`} layout="fill" objectFit="cover" data-ai-hint={`${animal.species} animal`}/>
         <Badge variant={animal.type === 'perdido' ? 'destructive' : 'secondary'} className="absolute top-2 left-2 capitalize">
           {animal.type === 'perdido' ? <AlertTriangle className="h-3 w-3 mr-1"/> : <BadgeHelp className="h-3 w-3 mr-1"/>}
           {animal.type}
@@ -225,17 +245,24 @@ function AnimalCard({ animal }: { animal: LostFoundAnimal }) {
 
 
 export default function LostFoundPage() {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const [posts, setPosts] = useState<LostFoundAnimal[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const visiblePosts = mockLostFoundAnimals.filter(a => {
-    const isRecentAndActive = a.status === 'ativo' && new Date(a.date) >= thirtyDaysAgo;
-    const isResolved = a.status === 'resolvido';
-    return isRecentAndActive || isResolved;
-  });
-
-  const animaisPerdidos = visiblePosts.filter(a => a.type === 'perdido');
-  const animaisEncontrados = visiblePosts.filter(a => a.type === 'encontrado');
+  useEffect(() => {
+    async function fetchPosts() {
+        setLoading(true);
+        const fetchedPosts = await getActiveLostFoundPostsAction();
+        // In a real scenario with a cron job, we wouldn't need to filter by status === 'resolvido' here
+        // but for now, we add them to the list to show all relevant posts.
+        const allPostsToShow = fetchedPosts; // Simplified for now.
+        setPosts(allPostsToShow);
+        setLoading(false);
+    }
+    fetchPosts();
+  }, []);
+  
+  const animaisPerdidos = posts.filter(a => a.type === 'perdido');
+  const animaisEncontrados = posts.filter(a => a.type === 'encontrado');
 
   return (
     <>
@@ -246,16 +273,24 @@ export default function LostFoundPage() {
           <TabsTrigger value="perdidos">Animais Perdidos</TabsTrigger>
           <TabsTrigger value="encontrados">Animais Encontrados</TabsTrigger>
         </TabsList>
-        <TabsContent value="perdidos">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {animaisPerdidos.length > 0 ? animaisPerdidos.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal perdido registrado no momento.</p>}
-          </div>
-        </TabsContent>
-        <TabsContent value="encontrados">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-             {animaisEncontrados.length > 0 ? animaisEncontrados.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal encontrado registrado no momento.</p>}
-          </div>
-        </TabsContent>
+        {loading ? (
+            <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        ) : (
+            <>
+                <TabsContent value="perdidos">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                    {animaisPerdidos.length > 0 ? animaisPerdidos.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal perdido registrado no momento.</p>}
+                </div>
+                </TabsContent>
+                <TabsContent value="encontrados">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                    {animaisEncontrados.length > 0 ? animaisEncontrados.map(animal => <AnimalCard key={animal.id} animal={animal} />) : <p className="col-span-full text-center text-muted-foreground py-8">Nenhum animal encontrado registrado no momento.</p>}
+                </div>
+                </TabsContent>
+            </>
+        )}
       </Tabs>
 
       <LostFoundForm />

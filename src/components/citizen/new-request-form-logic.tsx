@@ -7,8 +7,7 @@ import * as z from "zod";
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { TreePine, Droplets, GraduationCap, PawPrint } from 'lucide-react';
-
+import { TreePine, Droplets, GraduationCap, PawPrint, Loader2 } from 'lucide-react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +22,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SERVICE_REQUEST_TYPES, type ServiceRequestType, type ServiceCategory, type ServiceRequest } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequestType, type ServiceCategory } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";
+import { addRequestAction } from "@/app/actions/requests-actions";
 
 const formSchema = z.object({
   requestType: z.custom<ServiceRequestType>(val => SERVICE_REQUEST_TYPES.map(srt => srt.value).includes(val as ServiceRequestType), {
@@ -52,6 +52,7 @@ export default function NewRequestFormLogic() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { currentUser } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const preselectedType = searchParams.get('type') as ServiceRequestType | null;
   const initialTypeInfo = SERVICE_REQUEST_TYPES.find(rt => rt.value === preselectedType);
@@ -68,32 +69,37 @@ export default function NewRequestFormLogic() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const newRequest: ServiceRequest = {
-        id: `SOL${Date.now()}`,
-        protocol: `SOL${Date.now().toString().slice(-6)}`,
-        type: values.requestType,
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!currentUser) {
+      toast({ title: "Erro", description: "Você precisa estar logado para enviar uma solicitação.", variant: "destructive" });
+      return;
+    }
+    setIsSubmitting(true);
+    
+    const result = await addRequestAction({
+        requestType: values.requestType,
         description: values.description,
-        status: 'pendente',
-        dateCreated: new Date().toISOString(),
-        dateUpdated: new Date().toISOString(),
-        citizenName: currentUser?.displayName || currentUser?.email || 'Cidadão',
         address: values.address,
         contactPhone: values.contactPhone,
-    };
-
-    // Save to localStorage
-    const existingRequestsJSON = localStorage.getItem('citizen_requests');
-    const existingRequests: ServiceRequest[] = existingRequestsJSON ? JSON.parse(existingRequestsJSON) : [];
-    localStorage.setItem('citizen_requests', JSON.stringify([newRequest, ...existingRequests]));
-
-    toast({
-      title: "Solicitação Enviada!",
-      description: `Sua solicitação de ${SERVICE_REQUEST_TYPES.find(s => s.value === values.requestType)?.label} foi registrada com sucesso. Protocolo: ${newRequest.protocol}`,
-      variant: "default",
+        citizenId: currentUser.uid,
+        citizenName: currentUser.displayName || currentUser.email || 'Cidadão',
     });
-    
-    router.push('/dashboard/citizen/requests');
+
+    if (result.success) {
+        toast({
+            title: "Solicitação Enviada!",
+            description: `Sua solicitação de ${SERVICE_REQUEST_TYPES.find(s => s.value === values.requestType)?.label} foi registrada com sucesso. Protocolo: ${result.protocol}`,
+            variant: "default",
+        });
+        router.push('/dashboard/citizen/requests');
+    } else {
+        toast({
+            title: "Erro ao Enviar",
+            description: result.error || "Não foi possível registrar a solicitação. Tente novamente.",
+            variant: "destructive",
+        });
+    }
+    setIsSubmitting(false);
   }
 
   const handleCategorySelect = (category: ServiceCategory) => {
@@ -225,7 +231,10 @@ export default function NewRequestFormLogic() {
           <Button type="button" variant="outline" asChild>
             <Link href="/dashboard/citizen/requests">Cancelar</Link>
           </Button>
-          <Button type="submit">Enviar Solicitação</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Enviar Solicitação
+          </Button>
         </div>
       </form>
     </Form>

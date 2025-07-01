@@ -6,11 +6,13 @@ import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, PlusCircle, ArrowRight } from 'lucide-react';
+import { FileText, PlusCircle, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import type { ServiceRequest } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SERVICE_REQUEST_TYPES } from '@/types';
+import { useAuth } from '@/contexts/auth-context';
+import { getRequestsByCitizenAction } from '@/app/actions/requests-actions';
 
 function getStatusVariant(status: ServiceRequest['status']): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
@@ -43,15 +45,22 @@ const statusTranslations: Record<ServiceRequest['status'], string> = {
 
 export default function CitizenRequestsPage() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedRequestsJSON = localStorage.getItem('citizen_requests');
-      if (storedRequestsJSON) {
-        setRequests(JSON.parse(storedRequestsJSON));
+    async function fetchRequests() {
+      if (currentUser?.uid) {
+        setLoading(true);
+        const fetchedRequests = await getRequestsByCitizenAction(currentUser.uid);
+        setRequests(fetchedRequests);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     }
-  }, []);
+    fetchRequests();
+  }, [currentUser]);
 
   return (
     <>
@@ -66,7 +75,11 @@ export default function CitizenRequestsPage() {
         </Button>
       </div>
 
-      {requests.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : requests.length === 0 ? (
         <Card className="text-center py-12">
           <CardHeader>
             <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -115,7 +128,7 @@ export default function CitizenRequestsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <Button variant="outline" size="sm" asChild>
-                          <Link href={`/dashboard/citizen/requests/${request.protocol}`}>
+                          <Link href={`/dashboard/citizen/requests/${request.id}`}>
                             <span>Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" /></span>
                           </Link>
                         </Button>
