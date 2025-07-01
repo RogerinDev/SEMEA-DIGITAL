@@ -1,20 +1,17 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Filter, ArrowRight, Edit3, Eye } from 'lucide-react';
+import { FileText, Filter, Eye, Loader2, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import type { ServiceRequest } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const mockAdminRequests: ServiceRequest[] = [
-  { id: '1', protocol: '2024001', type: 'poda_arvore', citizenName: 'Maria Silva', description: 'Árvore muito alta na frente de casa, galhos tocando fios.', status: 'em_analise', dateCreated: new Date(2024, 6, 10).toISOString(), dateUpdated: new Date(2024, 6, 11).toISOString() },
-  { id: '2', protocol: '2024002', type: 'castracao_animal', citizenName: 'João Pereira', description: 'Solicitação de castração para gato SRD, fêmea.', status: 'aprovado', dateCreated: new Date(2024, 5, 20).toISOString(), dateUpdated: new Date(2024, 5, 25).toISOString() },
-  { id: '3', protocol: '2024003', type: 'coleta_especial_residuos', citizenName: 'Ana Costa', description: 'Coleta de entulho de pequena reforma.', status: 'concluido', dateCreated: new Date(2024, 4, 1).toISOString(), dateUpdated: new Date(2024, 4, 5).toISOString() },
-  { id: '4', protocol: '2024004', type: 'corte_arvore_risco', citizenName: 'Carlos Souza', description: 'Árvore com risco de queda na Rua Principal.', status: 'pendente', dateCreated: new Date(2024, 6, 18).toISOString(), dateUpdated: new Date(2024, 6, 18).toISOString() },
-  { id: '5', protocol: '2024005', type: 'licenca_ambiental_simplificada', citizenName: 'Empresa XYZ', description: 'Solicitação de licença para pequena obra.', status: 'aguardando_documentacao', dateCreated: new Date(2024, 6, 1).toISOString(), dateUpdated: new Date(2024, 6, 15).toISOString() },
-];
+import { useAuth } from '@/contexts/auth-context';
+import { getRequestsForAdminAction } from '@/app/actions/requests-actions';
 
 const requestStatusTabs: { value: ServiceRequest['status'] | 'todos', label: string }[] = [
     { value: 'todos', label: 'Todas' },
@@ -42,6 +39,7 @@ function getStatusVariant(status: ServiceRequest['status']): "default" | "second
       return 'outline';
   }
 }
+
 const statusTranslations: Record<ServiceRequest['status'], string> = {
   pendente: "Pendente", em_analise: "Em Análise", vistoria_agendada: "Vistoria Agendada", 
   aguardando_documentacao: "Aguardando Documentação", aprovado: "Aprovado", rejeitado: "Rejeitado",
@@ -81,11 +79,6 @@ function RequestTable({ requests }: { requests: ServiceRequest[] }) {
                   <span><Eye className="h-4 w-4" /></span>
                 </Link>
               </Button>
-              {/* <Button variant="outline" size="icon" asChild title="Editar/Processar">
-                <Link href={`/dashboard/admin/requests/${request.id}/process`}>
-                  <Edit3 className="h-4 w-4" />
-                </Link>
-              </Button> */}
             </TableCell>
           </TableRow>
         ))}
@@ -96,10 +89,37 @@ function RequestTable({ requests }: { requests: ServiceRequest[] }) {
 
 
 export default function AdminRequestsPage() {
+  const { currentUser } = useAuth();
+  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>('todos');
+
+  useEffect(() => {
+    async function fetchRequests() {
+      if (!currentUser || !currentUser.role) return;
+      setLoading(true);
+      
+      const department = currentUser.role === 'admin' ? currentUser.department : undefined;
+      const fetchedRequests = await getRequestsForAdminAction(department);
+      
+      setRequests(fetchedRequests);
+      setLoading(false);
+    }
+    fetchRequests();
+  }, [currentUser]);
+
+  const filteredRequests = activeTab === 'todos' 
+    ? requests 
+    : requests.filter(r => r.status === activeTab);
+
+  if (!currentUser?.role || currentUser.role === 'citizen') {
+     return <div className="text-center py-10"><ShieldAlert className="mx-auto h-10 w-10 text-destructive mb-2"/> <h2 className="text-xl font-semibold">Acesso Negado</h2><p>Você não tem permissão para ver esta página.</p></div>;
+  }
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <PageTitle title="Gerenciar Solicitações" icon={FileText} className="mb-0" />
+        <PageTitle title="Gerenciar Solicitações" icon={FileText} className="mb-0" description={`Departamento: ${currentUser.role === 'superAdmin' ? 'Todos' : currentUser.department}`} />
         <Button variant="outline">
           <Filter className="mr-2 h-4 w-4" /> Filtrar
         </Button>
@@ -111,18 +131,20 @@ export default function AdminRequestsPage() {
           <CardDescription>Visualize e gerencie todas as solicitações feitas pelos cidadãos.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="todos" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-4">
-              {requestStatusTabs.map(tab => (
-                <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
-              ))}
-            </TabsList>
-            {requestStatusTabs.map(tab => (
-              <TabsContent key={tab.value} value={tab.value}>
-                 <RequestTable requests={tab.value === 'todos' ? mockAdminRequests : mockAdminRequests.filter(r => r.status === tab.value)} />
+           {loading ? (
+             <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary"/></div>
+           ) : (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-4">
+                {requestStatusTabs.map(tab => (
+                  <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
+                ))}
+              </TabsList>
+              <TabsContent value={activeTab}>
+                  <RequestTable requests={filteredRequests} />
               </TabsContent>
-            ))}
-          </Tabs>
+            </Tabs>
+           )}
         </CardContent>
       </Card>
     </>

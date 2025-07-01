@@ -1,20 +1,17 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Filter, Eye } from 'lucide-react';
+import { AlertTriangle, Filter, Eye, Loader2, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import type { IncidentReport } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-
-const mockAdminIncidents: IncidentReport[] = [
-  { id: '1', protocol: 'DEN2024001', type: 'descarte_irregular_residuo', reportedBy: 'Cidadão Anônimo', description: 'Descarte de lixo em terreno baldio.', status: 'em_verificacao', dateCreated: new Date(2024, 6, 15).toISOString(), location: 'Rua das Palmeiras' },
-  { id: '2', protocol: 'DEN2024002', type: 'maus_tratos_animal', reportedBy: 'Ana B.', description: 'Cachorro abandonado e magro.', status: 'fiscalizacao_agendada', dateCreated: new Date(2024, 6, 1).toISOString(), location: 'Av. Central' },
-  { id: '3', protocol: 'DEN2024003', type: 'poluicao_sonora', reportedBy: 'Marcos L.', description: 'Som alto recorrente em bar vizinho após 22h.', status: 'recebida', dateCreated: new Date(2024, 6, 19).toISOString(), location: 'Rua do Sossego, 50' },
-  { id: '4', protocol: 'DEN2024004', type: 'desmatamento_ilegal', reportedBy: 'Cidadão Anônimo', description: 'Corte de árvores em área de preservação nos fundos do bairro X.', status: 'auto_infracao_emitido', dateCreated: new Date(2024, 5, 10).toISOString(), location: 'Bairro X, fundos' },
-];
+import { useAuth } from '@/contexts/auth-context';
+import { getIncidentsForAdminAction } from '@/app/actions/incidents-actions';
 
 const incidentStatusTabs: { value: IncidentReport['status'] | 'todos', label: string }[] = [
     { value: 'todos', label: 'Todas' },
@@ -83,10 +80,37 @@ function IncidentTable({ incidents }: { incidents: IncidentReport[] }) {
 
 
 export default function AdminIncidentsPage() {
+  const { currentUser } = useAuth();
+  const [incidents, setIncidents] = useState<IncidentReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>('todos');
+
+  useEffect(() => {
+    async function fetchIncidents() {
+      if (!currentUser || !currentUser.role) return;
+      setLoading(true);
+      
+      const department = currentUser.role === 'admin' ? currentUser.department : undefined;
+      const fetchedIncidents = await getIncidentsForAdminAction(department);
+      
+      setIncidents(fetchedIncidents);
+      setLoading(false);
+    }
+    fetchIncidents();
+  }, [currentUser]);
+
+  const filteredIncidents = activeTab === 'todos' 
+    ? incidents 
+    : incidents.filter(r => r.status === activeTab);
+
+  if (!currentUser?.role || currentUser.role === 'citizen') {
+     return <div className="text-center py-10"><ShieldAlert className="mx-auto h-10 w-10 text-destructive mb-2"/> <h2 className="text-xl font-semibold">Acesso Negado</h2><p>Você não tem permissão para ver esta página.</p></div>;
+  }
+  
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <PageTitle title="Gerenciar Denúncias" icon={AlertTriangle} className="mb-0" />
+        <PageTitle title="Gerenciar Denúncias" icon={AlertTriangle} className="mb-0" description={`Departamento: ${currentUser.role === 'superAdmin' ? 'Todos' : currentUser.department}`} />
          <Button variant="outline">
           <Filter className="mr-2 h-4 w-4" /> Filtrar
         </Button>
@@ -97,18 +121,20 @@ export default function AdminIncidentsPage() {
           <CardDescription>Acompanhe e gerencie as denúncias ambientais.</CardDescription>
         </CardHeader>
         <CardContent>
-           <Tabs defaultValue="todos" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-4">
-              {incidentStatusTabs.map(tab => (
-                <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
-              ))}
-            </TabsList>
-            {incidentStatusTabs.map(tab => (
-              <TabsContent key={tab.value} value={tab.value}>
-                 <IncidentTable incidents={tab.value === 'todos' ? mockAdminIncidents : mockAdminIncidents.filter(r => r.status === tab.value)} />
+           {loading ? (
+             <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary"/></div>
+           ) : (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-4">
+                {incidentStatusTabs.map(tab => (
+                  <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
+                ))}
+              </TabsList>
+              <TabsContent value={activeTab}>
+                 <IncidentTable incidents={filteredIncidents} />
               </TabsContent>
-            ))}
-          </Tabs>
+            </Tabs>
+           )}
         </CardContent>
       </Card>
     </>

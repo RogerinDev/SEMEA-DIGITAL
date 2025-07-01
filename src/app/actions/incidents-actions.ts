@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department } from '@/types';
 
 function isValidIncidentType(type: any): type is IncidentType {
@@ -27,7 +27,6 @@ function mapIncidentCategoryToDepartment(category: IncidentCategory): Department
         case 'outras':
             return 'educacao_ambiental';
         default:
-            // Fallback for safety, though every type should have a category
             return 'educacao_ambiental';
     }
 }
@@ -37,7 +36,7 @@ interface NewIncidentData {
   description: string;
   location: string;
   isAnonymous: boolean;
-  citizenId?: string; // Optional because anonymous users might not have a UID
+  citizenId?: string;
   citizenName: string;
 }
 
@@ -61,7 +60,6 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       location: data.location,
       department: department,
       isAnonymous: data.isAnonymous,
-      // Only store citizenId if not anonymous
       citizenId: data.isAnonymous ? null : data.citizenId,
       reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
       status: 'recebida',
@@ -149,4 +147,41 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
         console.error("Error getting incident count: ", error);
         return 0;
     }
+}
+
+
+export async function getIncidentsForAdminAction(department?: Department): Promise<IncidentReport[]> {
+  try {
+    let q;
+    const incidentsCollection = collection(db, "incidents") as CollectionReference<IncidentReport>;
+
+    if (department) {
+      q = query(incidentsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
+    } else {
+      q = query(incidentsCollection, orderBy("dateCreated", "desc"));
+    }
+
+    const querySnapshot = await getDocs(q);
+    const incidents: IncidentReport[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      incidents.push({
+        id: doc.id,
+        protocol: data.protocol,
+        type: data.type,
+        status: data.status,
+        dateCreated: (data.dateCreated as any)?.toDate().toISOString() || new Date().toISOString(),
+        description: data.description,
+        location: data.location,
+        department: data.department,
+        reportedBy: data.reportedBy,
+        isAnonymous: data.isAnonymous,
+        citizenId: data.citizenId,
+      });
+    });
+    return incidents;
+  } catch (error) {
+    console.error("Error fetching incidents for admin: ", error);
+    return [];
+  }
 }

@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type Department } from '@/types';
 
 // This is a type guard to ensure the service type is valid
@@ -137,4 +137,41 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
         console.error("Error getting request count: ", error);
         return 0;
     }
+}
+
+
+export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
+  try {
+    let q;
+    const requestsCollection = collection(db, "service_requests") as CollectionReference<ServiceRequest>;
+    
+    if (department) {
+      q = query(requestsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
+    } else {
+      q = query(requestsCollection, orderBy("dateCreated", "desc"));
+    }
+
+    const querySnapshot = await getDocs(q);
+    const requests: ServiceRequest[] = [];
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        requests.push({
+            id: doc.id,
+            protocol: data.protocol,
+            type: data.type,
+            status: data.status,
+            dateCreated: (data.dateCreated as any)?.toDate().toISOString() || new Date().toISOString(),
+            dateUpdated: (data.dateUpdated as any)?.toDate().toISOString() || new Date().toISOString(),
+            description: data.description,
+            department: data.department,
+            citizenName: data.citizenName,
+            address: data.address,
+            contactPhone: data.contactPhone,
+        });
+    });
+    return requests;
+  } catch (error) {
+    console.error("Error fetching requests for admin: ", error);
+    return [];
+  }
 }

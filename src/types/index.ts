@@ -1,14 +1,13 @@
+import type { User as FirebaseUser } from 'firebase/auth';
 
-export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin_secretaria';
+export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin' | 'superAdmin';
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
+export interface AppUser extends FirebaseUser {
+  role?: UserRole;
+  department?: Department;
 }
 
-export type Department = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental';
+export type Department = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental' | 'gabinete';
 
 export type ServiceRequestStatus = "pendente" | "em_analise" | "vistoria_agendada" | "aguardando_documentacao" | "aprovado" | "rejeitado" | "concluido" | "cancelado_pelo_usuario";
 export type ServiceRequestType =

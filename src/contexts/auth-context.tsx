@@ -5,7 +5,7 @@ import type { User as FirebaseUser, AuthError } from "firebase/auth";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
-  onAuthStateChanged,
+  onIdTokenChanged,
   signOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -17,9 +17,10 @@ import {
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import type { AppUser } from "@/types";
 
 interface AuthContextType {
-  currentUser: FirebaseUser | null;
+  currentUser: AppUser | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<UserCredential | string>;
   register: (name: string, email: string, pass:string) => Promise<UserCredential | string>;
@@ -43,14 +44,32 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onIdTokenChanged(auth, async (user) => {
+      if (user) {
+        const idTokenResult = await user.getIdTokenResult();
+        const claims = idTokenResult.claims;
+        const appUser: AppUser = {
+          ...user,
+          // We need to provide the methods manually as they are not part of the plain user object
+          getIdToken: user.getIdToken.bind(user),
+          getIdTokenResult: user.getIdTokenResult.bind(user),
+          reload: user.reload.bind(user),
+          toJSON: user.toJSON.bind(user),
+          delete: user.delete.bind(user),
+          // Custom claims
+          role: claims.role as AppUser['role'],
+          department: claims.department as AppUser['department'],
+        };
+        setCurrentUser(appUser);
+      } else {
+        setCurrentUser(null);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -60,7 +79,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-      setCurrentUser(userCredential.user);
+      // Let onIdTokenChanged handle setting the user state with custom claims
       toast({ title: "Login realizado com sucesso!" });
       return userCredential;
     } catch (error) {
@@ -79,8 +98,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(userCredential.user, { displayName: name });
       
-      // We manually update the local state because onAuthStateChanged might not be immediate
-      setCurrentUser({ ...userCredential.user, displayName: name, photoURL: userCredential.user.photoURL });
+      const appUser: AppUser = {
+        ...userCredential.user,
+        // We need to provide the methods manually as they are not part of the plain user object
+        getIdToken: userCredential.user.getIdToken.bind(userCredential.user),
+        getIdTokenResult: userCredential.user.getIdTokenResult.bind(userCredential.user),
+        reload: userCredential.user.reload.bind(userCredential.user),
+        toJSON: userCredential.user.toJSON.bind(userCredential.user),
+        delete: userCredential.user.delete.bind(userCredential.user),
+        // New user will be a 'citizen'
+        role: 'citizen',
+      };
+      setCurrentUser(appUser);
 
       toast({ title: "Cadastro realizado com sucesso!" });
       return userCredential;
@@ -112,8 +141,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   
   const updateUserProfile = async (name: string, photoURL?: string | null): Promise<boolean> => {
     if (!currentUser) return false;
-    // This function is now just for updating the local context state, 
-    // as the actual Firebase update happens in the component for better UX.
     setCurrentUser({ 
         ...currentUser, 
         displayName: name, 
@@ -127,7 +154,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
     try {
       const credential = EmailAuthProvider.credential(currentUser.email, currentPass);
-      // Re-authenticate before changing password for security
       await reauthenticateWithCredential(currentUser, credential);
       await updatePassword(currentUser, newPass);
       toast({ title: "Sucesso!", description: "Sua senha foi alterada." });
