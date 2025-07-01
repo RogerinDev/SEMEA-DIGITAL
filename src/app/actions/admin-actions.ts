@@ -26,6 +26,9 @@ export async function setAdminRoleAction(data: SetAdminRoleData): Promise<{ succ
     return { success: true, message: result.data.message };
   } catch (error: any) {
     console.error("Error calling setAdminRole function:", error);
+    if (error.code === 'functions/not-found') {
+        return { success: false, error: "A função de administração não foi encontrada (not-found). Verifique se a Cloud Function 'setAdminRole' foi implantada corretamente no Firebase." };
+    }
     // Firebase callable function errors have a 'message' property
     return { success: false, error: error.message || "Ocorreu um erro desconhecido ao chamar a função." };
   }
