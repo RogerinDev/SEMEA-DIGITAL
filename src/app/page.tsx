@@ -66,7 +66,7 @@ export default function HomePage() {
             />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-            Bem-vindo ao SEMEA Digital
+            Bem-vindo à SEMEA Digital
           </h1>
           <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
             Sua plataforma online para serviços e informações da Secretaria Municipal de Meio Ambiente de Varginha - MG.
