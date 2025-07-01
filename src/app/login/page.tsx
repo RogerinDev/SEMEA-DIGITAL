@@ -28,10 +28,9 @@ export default function LoginPage() {
     event.preventDefault();
     setIsSubmitting(true);
     const result = await login(email, password);
-    if (typeof result !== 'string') { 
-      const userEmail = result.user.email;
-      // Simple check for demo - in a real app, use custom claims or roles from DB
-      if (userEmail && (userEmail.includes('admin') || userEmail.includes('dev.admin'))) { 
+    if (typeof result !== 'string') {
+      // Redirect based on the role from custom claims
+      if (result.role === 'admin' || result.role === 'superAdmin') {
          router.push('/dashboard/admin');
       } else {
          router.push('/dashboard/citizen');

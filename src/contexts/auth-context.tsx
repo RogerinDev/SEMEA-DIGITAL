@@ -22,7 +22,7 @@ import type { AppUser } from "@/types";
 interface AuthContextType {
   currentUser: AppUser | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<UserCredential | string>;
+  login: (email: string, pass: string) => Promise<AppUser | string>;
   register: (name: string, email: string, pass:string) => Promise<UserCredential | string>;
   logout: () => Promise<void>;
   updateUserProfile: (name: string, photoURL?: string | null) => Promise<boolean>;
@@ -75,13 +75,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, pass: string): Promise<UserCredential | string> => {
+  const login = async (email: string, pass: string): Promise<AppUser | string> => {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-      // Let onIdTokenChanged handle setting the user state with custom claims
+      const user = userCredential.user;
+
+      // Force refresh to get latest claims. Important after promotion.
+      const idTokenResult = await user.getIdTokenResult(true); 
+      const claims = idTokenResult.claims;
+      const appUser: AppUser = {
+        ...user,
+        // We need to provide the methods manually as they are not part of the plain user object
+        getIdToken: user.getIdToken.bind(user),
+        getIdTokenResult: user.getIdTokenResult.bind(user),
+        reload: user.reload.bind(user),
+        toJSON: user.toJSON.bind(user),
+        delete: user.delete.bind(user),
+        // Custom claims
+        role: claims.role as AppUser['role'],
+        department: claims.department as AppUser['department'],
+      };
+
+      setCurrentUser(appUser); // Update context state immediately
+      
       toast({ title: "Login realizado com sucesso!" });
-      return userCredential;
+      return appUser;
     } catch (error) {
       const authError = error as AuthError;
       console.error("Error logging in:", authError);
