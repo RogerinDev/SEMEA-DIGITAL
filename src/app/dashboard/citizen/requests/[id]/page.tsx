@@ -40,6 +40,7 @@ export default async function CitizenRequestDetailPage({ params }: { params: { i
 
   const typeLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.label || request.type;
   const statusLabel = statusTranslations[request.status] || request.status;
+  const departmentLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "N/A";
 
   return (
     <>
@@ -61,6 +62,11 @@ export default async function CitizenRequestDetailPage({ params }: { params: { i
           <CardDescription>Aqui estão as informações que você registrou.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Departamento Responsável</p>
+            <p className="text-md font-semibold">{departmentLabel}</p>
+          </div>
+          <Separator />
           <div>
             <p className="text-sm font-medium text-muted-foreground">Tipo de Serviço</p>
             <p className="text-md font-semibold">{typeLabel}</p>

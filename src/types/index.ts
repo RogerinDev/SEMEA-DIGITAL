@@ -8,6 +8,8 @@ export interface User {
   role: UserRole;
 }
 
+export type Department = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental';
+
 export type ServiceRequestStatus = "pendente" | "em_analise" | "vistoria_agendada" | "aguardando_documentacao" | "aprovado" | "rejeitado" | "concluido" | "cancelado_pelo_usuario";
 export type ServiceRequestType =
   | "castracao_animal"
@@ -30,6 +32,7 @@ export interface ServiceRequest {
   dateCreated: string; // Store as ISO string for simplicity on client
   dateUpdated: string;
   description: string;
+  department: Department;
   citizenId?: string; // UID from Firebase Auth
   citizenName?: string; 
   address?: string;
@@ -90,6 +93,7 @@ export interface IncidentReport {
   dateCreated: string; // Store as ISO string
   description: string;
   location: string;
+  department: Department;
   citizenId?: string; // UID from Firebase Auth
   reportedBy?: string; // Optional, can be anonymous
   isAnonymous?: boolean;

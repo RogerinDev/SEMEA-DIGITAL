@@ -3,7 +3,7 @@
 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer } from 'firebase/firestore';
-import type { ServiceRequest, ServiceRequestType } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type Department } from '@/types';
 
 // This is a type guard to ensure the service type is valid
 function isValidServiceRequestType(type: any): type is ServiceRequestType {
@@ -34,12 +34,19 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
     return { success: false, error: "Usuário não autenticado." };
   }
 
+  const serviceTypeInfo = SERVICE_REQUEST_TYPES.find(t => t.value === data.requestType);
+  if (!serviceTypeInfo) {
+    return { success: false, error: "Categoria de serviço não encontrada." };
+  }
+  const department: Department = serviceTypeInfo.category;
+
   try {
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
     await addDoc(collection(db, 'service_requests'), {
       protocol: protocol,
       type: data.requestType,
       description: data.description,
+      department: department,
       address: data.address || '',
       contactPhone: data.contactPhone || '',
       citizenId: data.citizenId,
@@ -76,6 +83,7 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
             dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
             dateUpdated: (data.dateUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
             description: data.description,
+            department: data.department,
             citizenName: data.citizenName,
             address: data.address,
             contactPhone: data.contactPhone,
@@ -104,6 +112,7 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
                 dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
                 dateUpdated: (data.dateUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
                 description: data.description,
+                department: data.department,
                 citizenName: data.citizenName,
                 address: data.address,
                 contactPhone: data.contactPhone,

@@ -3,7 +3,7 @@
 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer } from 'firebase/firestore';
-import type { IncidentReport, IncidentType } from '@/types';
+import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department } from '@/types';
 
 function isValidIncidentType(type: any): type is IncidentType {
   const validTypes: IncidentType[] = [
@@ -14,6 +14,22 @@ function isValidIncidentType(type: any): type is IncidentType {
     "outra_infracao_ambiental"
   ];
   return validTypes.includes(type);
+}
+
+function mapIncidentCategoryToDepartment(category: IncidentCategory): Department {
+    switch (category) {
+        case 'residuos_poluicao':
+            return 'residuos';
+        case 'animais':
+            return 'bem_estar_animal';
+        case 'flora_areas_protegidas':
+            return 'arborizacao';
+        case 'outras':
+            return 'educacao_ambiental';
+        default:
+            // Fallback for safety, though every type should have a category
+            return 'educacao_ambiental';
+    }
 }
 
 interface NewIncidentData {
@@ -30,6 +46,12 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
     return { success: false, error: "Tipo de denúncia inválido." };
   }
 
+  const incidentTypeInfo = INCIDENT_TYPES.find(t => t.value === data.incidentType);
+  if (!incidentTypeInfo) {
+      return { success: false, error: "Categoria de denúncia não encontrada." };
+  }
+  const department = mapIncidentCategoryToDepartment(incidentTypeInfo.category);
+
   try {
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
     await addDoc(collection(db, 'incidents'), {
@@ -37,6 +59,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       type: data.incidentType,
       description: data.description,
       location: data.location,
+      department: department,
       isAnonymous: data.isAnonymous,
       // Only store citizenId if not anonymous
       citizenId: data.isAnonymous ? null : data.citizenId,
@@ -72,6 +95,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
         dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
         description: data.description,
         location: data.location,
+        department: data.department,
         reportedBy: data.reportedBy,
         isAnonymous: data.isAnonymous,
         citizenId: data.citizenId,
@@ -100,6 +124,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
                 dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
                 description: data.description,
                 location: data.location,
+                department: data.department,
                 reportedBy: data.reportedBy,
                 isAnonymous: data.isAnonymous,
                 citizenId: data.citizenId,

@@ -41,6 +41,7 @@ export default async function CitizenIncidentDetailPage({ params }: { params: { 
 
   const typeLabel = INCIDENT_TYPES.find(t => t.value === incident.type)?.label || incident.type;
   const statusLabel = statusTranslations[incident.status] || incident.status;
+  const departmentLabel = incident.department.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return (
     <>
@@ -62,6 +63,11 @@ export default async function CitizenIncidentDetailPage({ params }: { params: { 
           <CardDescription>Aqui estão as informações que você registrou.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Departamento Responsável</p>
+            <p className="text-md font-semibold">{departmentLabel}</p>
+          </div>
+          <Separator />
           <div>
             <p className="text-sm font-medium text-muted-foreground">Tipo de Denúncia</p>
             <p className="text-md font-semibold">{typeLabel}</p>
