@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Badge } from '@/components/ui/badge'; // Added missing import
+import { Badge } from '@/components/ui/badge';
 
 interface LostFoundAnimal {
   id: string;
@@ -33,10 +33,14 @@ interface LostFoundAnimal {
   status: 'ativo' | 'resolvido';
 }
 
+const thirtyDaysAgo = new Date();
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 35); // Set to 35 days ago to test expiration
+
 const mockLostFoundAnimals: LostFoundAnimal[] = [
-  { id: '1', type: 'perdido', species: 'Cachorro', breed: 'Labrador', description: 'Atende por "Max", coleira azul, muito dócil. Fugiu durante a chuva.', lastSeenLocation: 'Próximo ao Parque Municipal', date: new Date(2024, 6, 18).toISOString(), contactName: 'Carlos Alberto', contactPhone: '(35) 99999-1111', photoUrl: 'https://placehold.co/400x300.png', status: 'ativo' },
-  { id: '2', type: 'encontrado', species: 'Gato', breed: 'SRD', description: 'Gatinho preto e branco encontrado assustado na Rua das Flores. Parece doméstico.', lastSeenLocation: 'Rua das Flores, perto da padaria', date: new Date(2024, 6, 19).toISOString(), contactName: 'Mariana Lima', contactPhone: '(35) 98888-2222', photoUrl: 'https://placehold.co/400x300.png', status: 'ativo' },
-  { id: '3', type: 'perdido', species: 'Cachorro', breed: 'Poodle', description: 'Branquinho, pequeno porte, se chama "Lulu". Recompensa-se.', lastSeenLocation: 'Centro da cidade', date: new Date(2024, 5, 10).toISOString(), contactName: 'Família Silva', contactPhone: '(35) 97777-3333', photoUrl: 'https://placehold.co/400x300.png', status: 'resolvido' },
+  { id: '1', type: 'perdido', species: 'Cachorro', breed: 'Labrador', description: 'Atende por "Max", coleira azul, muito dócil. Fugiu durante a chuva.', lastSeenLocation: 'Próximo ao Parque Municipal', date: new Date().toISOString(), status: 'ativo' },
+  { id: '2', type: 'encontrado', species: 'Gato', breed: 'SRD', description: 'Gatinho preto e branco encontrado assustado na Rua das Flores. Parece doméstico.', lastSeenLocation: 'Rua das Flores, perto da padaria', date: new Date().toISOString(), status: 'ativo' },
+  { id: '3', type: 'perdido', species: 'Cachorro', breed: 'Poodle', description: 'Branquinho, pequeno porte, se chama "Lulu". Recompensa-se. Foi encontrado!', lastSeenLocation: 'Centro da cidade', date: new Date(2024, 5, 10).toISOString(), status: 'resolvido' },
+  { id: '4', type: 'perdido', species: 'Gato', breed: 'SRD', description: 'Este é um anúncio antigo que deveria expirar e não ser mais exibido na lista pública.', lastSeenLocation: 'Bairro Sion', date: thirtyDaysAgo.toISOString(), status: 'ativo' }, // This one should be filtered out
 ];
 
 const reportFormSchema = z.object({
@@ -80,7 +84,7 @@ function LostFoundForm() {
      <Card className="shadow-lg">
         <CardHeader>
             <CardTitle className="flex items-center"><PlusCircle className="mr-2 h-6 w-6 text-primary"/>Registrar Animal Perdido ou Encontrado</CardTitle>
-            <CardDescription>Ajude um pet a voltar para casa ou encontrar um novo lar temporário.</CardDescription>
+            <CardDescription>Ajude um pet a voltar para casa ou encontrar um novo lar temporário. Os anúncios expiram após 30 dias.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -221,12 +225,21 @@ function AnimalCard({ animal }: { animal: LostFoundAnimal }) {
 
 
 export default function LostFoundPage() {
-  const animaisPerdidos = mockLostFoundAnimals.filter(a => a.type === 'perdido');
-  const animaisEncontrados = mockLostFoundAnimals.filter(a => a.type === 'encontrado');
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const visiblePosts = mockLostFoundAnimals.filter(a => {
+    const isRecentAndActive = a.status === 'ativo' && new Date(a.date) >= thirtyDaysAgo;
+    const isResolved = a.status === 'resolvido';
+    return isRecentAndActive || isResolved;
+  });
+
+  const animaisPerdidos = visiblePosts.filter(a => a.type === 'perdido');
+  const animaisEncontrados = visiblePosts.filter(a => a.type === 'encontrado');
 
   return (
     <>
-      <PageTitle title="Animais Perdidos e Encontrados" icon={Search} description="Ajude a reunir pets com seus donos. Registre um animal perdido ou encontrado, ou procure por um pet desaparecido." />
+      <PageTitle title="Animais Perdidos e Encontrados" icon={Search} description="Ajude a reunir pets com seus donos. Anúncios ativos são removidos após 30 dias." />
       
       <Tabs defaultValue="perdidos" className="w-full mb-12">
         <TabsList className="grid w-full grid-cols-2 md:w-1/2 mx-auto">

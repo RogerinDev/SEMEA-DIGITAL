@@ -3,7 +3,7 @@ import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Building2, Clock, Users, Mail, Phone, PawPrint, HeartHandshake, Stethoscope, UserCircle } from 'lucide-react';
+import { Building2, Clock, Users, Mail, Phone, PawPrint, HeartHandshake, Stethoscope, UserCircle, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -47,13 +47,10 @@ export default function AnimalWelfareInfoPage() {
             <CardTitle className="flex items-center"><HeartHandshake className="mr-2 h-5 w-5 text-primary" />Serviços Oferecidos</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              O setor de Bem-Estar Animal da SEMEA oferece diversos serviços para a comunidade, visando a saúde e proteção dos animais em Varginha.
-            </p>
             <div className="p-4 bg-secondary/20 rounded-md">
                 <h4 className="font-semibold text-primary flex items-center mb-1"><Stethoscope className="mr-2 h-5 w-5"/>Serviços Veterinários e Castração</h4>
                 <p className="text-sm text-foreground">
-                Todos os cidadãos de Varginha têm direito a solicitar serviços de castração e atendimento veterinário básico para seus animais, conforme disponibilidade e critérios do programa municipal.
+                Todos os cidadãos de Varginha têm direito a solicitar serviços de castração para seus animais, conforme disponibilidade.
                 </p>
                  <Button asChild size="sm" className="mt-3">
                     <Link href="/dashboard/citizen/requests/new?type=castracao_animal">
@@ -61,8 +58,19 @@ export default function AnimalWelfareInfoPage() {
                     </Link>
                 </Button>
             </div>
+             <div className="p-4 bg-secondary/20 rounded-md">
+                <h4 className="font-semibold text-primary flex items-center mb-1"><CalendarDays className="mr-2 h-5 w-5"/>Agendamento de Consultas</h4>
+                <p className="text-sm text-foreground">
+                Agende uma consulta veterinária básica para o seu animal. Verifique os horários disponíveis e faça sua solicitação.
+                </p>
+                 <Button asChild size="sm" className="mt-3">
+                    <Link href="/animal-welfare/consultations">
+                        Agendar uma Consulta
+                    </Link>
+                </Button>
+            </div>
             <p className="text-muted-foreground">
-                Para mais informações sobre outros serviços veterinários ou agendamentos, entre em contato diretamente com o setor.
+                Para mais informações sobre outros serviços ou agendamentos, entre em contato diretamente com o setor.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-4">
                 <Button variant="outline" asChild className="flex-1">

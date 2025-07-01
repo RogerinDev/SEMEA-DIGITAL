@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,10 +25,29 @@ const getAnimalIcon = (species: Animal['species']) => {
 };
 
 export default function AnimalAdoptionPage() {
+  const [filter, setFilter] = useState<'all' | 'cao' | 'gato'>('all');
+
+  const filteredAnimals = mockAnimals.filter(animal => {
+    if (filter === 'all') return true;
+    return animal.species === filter;
+  });
+
   return (
     <>
       <PageTitle title="Adoção Responsável" icon={PawPrint} description="Encontre um novo amigo! Conheça os cães e gatos que esperam por um lar amoroso em Varginha." />
 
+      <div className="flex justify-center items-center gap-2 sm:gap-4 mb-8 flex-wrap">
+        <Button onClick={() => setFilter('all')} variant={filter === 'all' ? 'secondary' : 'outline'}>
+          <PawPrint className="mr-2 h-4 w-4" /> Ver Todos
+        </Button>
+        <Button onClick={() => setFilter('cao')} variant={filter === 'cao' ? 'secondary' : 'outline'}>
+          <Dog className="mr-2 h-4 w-4" /> Apenas Cães
+        </Button>
+        <Button onClick={() => setFilter('gato')} variant={filter === 'gato' ? 'secondary' : 'outline'}>
+          <Cat className="mr-2 h-4 w-4" /> Apenas Gatos
+        </Button>
+      </div>
+      
       <div className="mb-8 text-center">
           <Button size="lg" asChild>
               <Link href="/dashboard/citizen/requests/new?type=solicitacao_adocao_animal">
@@ -35,7 +57,7 @@ export default function AnimalAdoptionPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {mockAnimals.map((animal) => {
+        {filteredAnimals.map((animal) => {
           const AnimalIcon = getAnimalIcon(animal.species);
           return (
           <Card key={animal.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -71,11 +93,11 @@ export default function AnimalAdoptionPage() {
           );
       })}
       </div>
-      {mockAnimals.length === 0 && (
+      {filteredAnimals.length === 0 && (
           <div className="text-center py-12 col-span-full">
               <PawPrint className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Nenhum animal disponível para adoção no momento</h3>
-              <p className="text-muted-foreground">Por favor, verifique novamente mais tarde. Muitos anjinhos esperam por um lar!</p>
+              <h3 className="text-xl font-semibold mb-2">Nenhum animal encontrado</h3>
+              <p className="text-muted-foreground">Não há animais disponíveis para adoção com o filtro selecionado.</p>
           </div>
       )}
     </>
