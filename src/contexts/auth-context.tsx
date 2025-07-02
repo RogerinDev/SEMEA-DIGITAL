@@ -89,7 +89,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return appUser;
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Error logging in:", authError.code); // Log code for debugging
       
       let description = "Ocorreu um erro inesperado. Por favor, tente novamente.";
 
@@ -97,7 +96,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         description = "E-mail ou senha incorretos. Por favor, verifique seus dados e tente novamente.";
       } else if (authError.code === 'auth/too-many-requests') {
         description = "Acesso à conta temporariamente desativado devido a muitas tentativas de login. Tente novamente mais tarde.";
+      } else {
+        // For other, unexpected errors, it's still good to log them.
+        console.error("Unhandled login error:", authError);
       }
+
 
       toast({ title: "Erro no Login", description, variant: "destructive" });
       return authError.code;
