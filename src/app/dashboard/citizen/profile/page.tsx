@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,9 +25,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
 import { storage } from "@/lib/firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { updateProfile, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import {
   AlertDialog,
@@ -52,9 +50,8 @@ export default function EditProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [photoURL, setPhotoURL] = useState(currentUser?.photoURL || '');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [passwordToConfirm, setPasswordToConfirm] = useState("");
 
@@ -68,83 +65,93 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (currentUser) {
       form.setValue("displayName", currentUser.displayName || "");
-      setPhotoURL(currentUser.photoURL || '');
+      if (!selectedFile) { // Only update from currentUser if no file is staged
+          setPhotoURL(currentUser.photoURL || '');
+      }
     }
-  }, [currentUser, form]);
+  }, [currentUser, form, selectedFile]);
+
+  // Clean up blob URL to prevent memory leaks
+  useEffect(() => {
+      const currentPhotoURL = photoURL;
+      return () => {
+          if (currentPhotoURL && currentPhotoURL.startsWith('blob:')) {
+              URL.revokeObjectURL(currentPhotoURL);
+          }
+      };
+  }, [photoURL]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !currentUser) return;
+    if (!file) return;
 
     if (!file.type.startsWith("image/")) {
         toast({ title: "Arquivo Inválido", description: "Por favor, selecione um arquivo de imagem.", variant: "destructive" });
         return;
     }
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    const storageRef = ref(storage, `profile_pictures/${currentUser.uid}/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        console.error("Upload error", error);
-        toast({ title: "Erro no Upload", description: "Não foi possível enviar sua foto. Tente novamente.", variant: "destructive" });
-        setIsUploading(false);
-      },
-      async () => {
-        try {
-          if (!currentUser) throw new Error("Usuário não autenticado.");
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          await updateProfile(currentUser, { photoURL: downloadURL });
-          await currentUser.reload();
-          setPhotoURL(downloadURL);
-          toast({ title: "Sucesso!", description: "Sua foto de perfil foi atualizada." });
-        } catch (error) {
-          console.error("Profile update error", error);
-          toast({ title: "Erro", description: "Não foi possível atualizar sua foto de perfil.", variant: "destructive" });
-        } finally {
-          setIsUploading(false);
-        }
-      }
-    );
+    
+    // Revoke previous blob url if it exists to prevent memory leaks
+    if (photoURL && photoURL.startsWith('blob:')) {
+        URL.revokeObjectURL(photoURL);
+    }
+    
+    setSelectedFile(file);
+    setPhotoURL(URL.createObjectURL(file));
   };
   
   const handleSaveChangesClick = async () => {
     const { displayName } = form.getValues();
-    if (displayName === currentUser?.displayName) {
-      toast({ title: "Nenhuma Alteração", description: "Você não alterou seu nome." });
+    const isValid = await form.trigger("displayName");
+    if (!isValid) return;
+
+    const nameChanged = displayName !== currentUser?.displayName;
+    const photoChanged = selectedFile !== null;
+
+    if (!nameChanged && !photoChanged) {
+      toast({ title: "Nenhuma Alteração", description: "Você não alterou seu nome ou foto." });
       return;
     }
-
-    const isValid = await form.trigger("displayName");
-    if (isValid) {
-      setIsConfirming(true);
-    }
+    
+    setIsConfirming(true);
   };
 
   async function handleConfirmAndUpdate() {
     if (!currentUser || !currentUser.email || !passwordToConfirm) return;
 
     const { displayName } = form.getValues();
+    const nameChanged = displayName !== currentUser.displayName;
+    const photoChanged = selectedFile !== null;
+
+    if (!nameChanged && !photoChanged) {
+        setIsConfirming(false);
+        setPasswordToConfirm("");
+        return;
+    }
+    
     setIsSubmitting(true);
     
     try {
         const credential = EmailAuthProvider.credential(currentUser.email, passwordToConfirm);
         await reauthenticateWithCredential(currentUser, credential);
         
-        await updateProfile(currentUser, { displayName });
-        await currentUser.reload();
+        let newPhotoURL = currentUser.photoURL;
+        
+        if (photoChanged && selectedFile) {
+            const storageRef = ref(storage, `profile_pictures/${currentUser.uid}/${selectedFile.name}`);
+            const uploadResult = await uploadBytes(storageRef, selectedFile);
+            newPhotoURL = await getDownloadURL(uploadResult.ref);
+        }
 
-        toast({ title: "Sucesso!", description: "Seu nome foi atualizado." });
+        await updateProfile(currentUser, { 
+            displayName: nameChanged ? displayName : currentUser.displayName,
+            photoURL: photoChanged ? newPhotoURL : currentUser.photoURL,
+         });
+        await currentUser.reload();
+        toast({ title: "Sucesso!", description: "Seu perfil foi atualizado." });
+
         setPasswordToConfirm("");
         setIsConfirming(false);
+        setSelectedFile(null);
 
     } catch (error: any) {
         console.error("Error updating profile:", error);
@@ -180,11 +187,10 @@ export default function EditProfilePage() {
         <CardContent>
           <div className="flex flex-col items-center mb-8 gap-4">
               <Avatar className="w-32 h-32 border-4 border-muted">
-                <AvatarImage src={photoURL} alt={currentUser?.displayName || 'Usuário'} />
+                <AvatarImage src={photoURL || undefined} alt={currentUser?.displayName || 'Usuário'} />
                 <AvatarFallback className="text-4xl">{currentUser?.displayName?.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
-              <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+              <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
                 Trocar Foto
               </Button>
               <input
@@ -194,12 +200,6 @@ export default function EditProfilePage() {
                 accept="image/png, image/jpeg, image/gif"
                 className="hidden"
               />
-              {isUploading && (
-                <div className="w-full max-w-xs text-center">
-                    <Progress value={uploadProgress} className="w-full" />
-                    <p className="text-sm text-muted-foreground mt-2">Enviando... {Math.round(uploadProgress)}%</p>
-                </div>
-              )}
           </div>
           <Separator className="my-6"/>
           <Form {...form}>
