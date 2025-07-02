@@ -89,8 +89,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return appUser;
     } catch (error) {
       const authError = error as AuthError;
-      console.error("Error logging in:", authError);
-      toast({ title: "Erro no Login", description: authError.message, variant: "destructive" });
+      console.error("Error logging in:", authError.code); // Log code for debugging
+      
+      let description = "Ocorreu um erro inesperado. Por favor, tente novamente.";
+
+      if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/wrong-password' || authError.code === 'auth/user-not-found') {
+        description = "E-mail ou senha incorretos. Por favor, verifique seus dados e tente novamente.";
+      } else if (authError.code === 'auth/too-many-requests') {
+        description = "Acesso à conta temporariamente desativado devido a muitas tentativas de login. Tente novamente mais tarde.";
+      }
+
+      toast({ title: "Erro no Login", description, variant: "destructive" });
       return authError.code;
     } finally {
       setLoading(false);
