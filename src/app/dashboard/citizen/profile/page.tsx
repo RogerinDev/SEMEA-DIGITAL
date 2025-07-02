@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from 'next/link';
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -31,28 +30,38 @@ import { Progress } from "@/components/ui/progress";
 import { storage } from "@/lib/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { updateProfile, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   displayName: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
-  currentPassword: z.string().min(1, "Sua senha atual é obrigatória para salvar."),
 });
 
 export default function EditProfilePage() {
   const { currentUser, loading: authLoading } = useAuth();
   const { toast } = useToast();
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [photoURL, setPhotoURL] = useState(currentUser?.photoURL || '');
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [passwordToConfirm, setPasswordToConfirm] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       displayName: "",
-      currentPassword: "",
     },
   });
 
@@ -94,8 +103,8 @@ export default function EditProfilePage() {
           if (!currentUser) throw new Error("Usuário não autenticado.");
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           await updateProfile(currentUser, { photoURL: downloadURL });
-          await currentUser.reload(); // Recarrega os dados do usuário para atualizar o estado global
-          setPhotoURL(downloadURL); // Atualiza a UI imediatamente
+          await currentUser.reload();
+          setPhotoURL(downloadURL);
           toast({ title: "Sucesso!", description: "Sua foto de perfil foi atualizada." });
         } catch (error) {
           console.error("Profile update error", error);
@@ -107,28 +116,35 @@ export default function EditProfilePage() {
     );
   };
   
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!currentUser || !currentUser.email) return;
-
-    const nameHasChanged = values.displayName !== currentUser.displayName;
-
-    if (!nameHasChanged) {
-        toast({ title: "Nenhuma Alteração", description: "Você não alterou seu nome."});
-        return;
+  const handleSaveChangesClick = async () => {
+    const { displayName } = form.getValues();
+    if (displayName === currentUser?.displayName) {
+      toast({ title: "Nenhuma Alteração", description: "Você não alterou seu nome." });
+      return;
     }
 
+    const isValid = await form.trigger("displayName");
+    if (isValid) {
+      setIsConfirming(true);
+    }
+  };
+
+  async function handleConfirmAndUpdate() {
+    if (!currentUser || !currentUser.email || !passwordToConfirm) return;
+
+    const { displayName } = form.getValues();
     setIsSubmitting(true);
     
     try {
-        const credential = EmailAuthProvider.credential(currentUser.email, values.currentPassword);
+        const credential = EmailAuthProvider.credential(currentUser.email, passwordToConfirm);
         await reauthenticateWithCredential(currentUser, credential);
         
-        // Re-auth successful, now update profile
-        await updateProfile(currentUser, { displayName: values.displayName });
-        await currentUser.reload(); // Recarrega os dados do usuário para atualizar o estado global
+        await updateProfile(currentUser, { displayName });
+        await currentUser.reload();
 
         toast({ title: "Sucesso!", description: "Seu nome foi atualizado." });
-        form.reset({ displayName: values.displayName, currentPassword: "" });
+        setPasswordToConfirm("");
+        setIsConfirming(false);
 
     } catch (error: any) {
         console.error("Error updating profile:", error);
@@ -187,7 +203,7 @@ export default function EditProfilePage() {
           </div>
           <Separator className="my-6"/>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
               <FormField
                 control={form.control}
                 name="displayName"
@@ -206,30 +222,11 @@ export default function EditProfilePage() {
                 <Input value={currentUser?.email || ''} disabled />
                 <FormDescription>Seu e-mail de login não pode ser alterado.</FormDescription>
               </FormItem>
-
-              <Separator className="my-6"/>
-              
-              <p className="text-sm text-muted-foreground">Para confirmar qualquer alteração, por favor, insira sua senha atual.</p>
-
-              <FormField
-                control={form.control}
-                name="currentPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha Atual</FormLabel>
-                    <FormControl>
-                      <Input type="password" {...field} disabled={isLoading} autoComplete="current-password" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" asChild>
                   <Link href="/dashboard/citizen">Cancelar</Link>
                 </Button>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="button" onClick={handleSaveChangesClick} disabled={isLoading}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   Salvar Alterações
                 </Button>
@@ -238,6 +235,36 @@ export default function EditProfilePage() {
           </Form>
         </CardContent>
       </Card>
+
+      <AlertDialog open={isConfirming} onOpenChange={setIsConfirming}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirme sua identidade</AlertDialogTitle>
+            <AlertDialogDescription>
+              Para salvar as alterações, por favor, insira sua senha atual.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Label htmlFor="password-confirm" className="sr-only">Senha Atual</Label>
+            <Input
+                id="password-confirm"
+                type="password"
+                placeholder="Sua senha atual"
+                value={passwordToConfirm}
+                onChange={(e) => setPasswordToConfirm(e.target.value)}
+                disabled={isSubmitting}
+                autoComplete="current-password"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPasswordToConfirm('')} disabled={isSubmitting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmAndUpdate} disabled={isSubmitting || !passwordToConfirm}>
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Confirmar e Salvar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
