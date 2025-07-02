@@ -18,15 +18,12 @@ const regionalFunctions = functions.region("southamerica-east1");
 export const setAdminRole = regionalFunctions.https.onCall(async (data, context) => {
   // --- Verificação de Segurança ---
   // Apenas um superAdmin pode promover outros.
-  // Bloco comentado temporariamente para permitir a criação do primeiro Super Admin.
-  /*
   if (context.auth?.token.role !== "superAdmin") {
     throw new functions.https.HttpsError(
       "permission-denied",
       "Apenas super-admins podem executar esta ação."
     );
   }
-  */
 
   const {email, department, role = "admin"} = data;
 

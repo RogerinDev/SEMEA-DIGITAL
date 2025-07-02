@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,9 +72,6 @@ export default function ManageUsersPage() {
         }
     }
 
-    // IMPORTANT: This check is temporarily disabled to allow the first superAdmin to be created.
-    // Re-enable this block for security after the first promotion.
-    /*
     if (currentUser?.role !== 'superAdmin') {
         return (
             <div className="flex flex-col items-center justify-center h-full text-center">
@@ -85,24 +81,11 @@ export default function ManageUsersPage() {
             </div>
         );
     }
-    */
     
     return (
         <>
             <PageTitle title="Gerenciar Usuários" icon={Users} description="Promova usuários a administradores de setores específicos."/>
             
-            <Card className="mb-6 border-amber-500 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-500/30">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-400">
-                        <AlertTriangle className="h-5 w-5" />
-                        Atenção: Modo de Configuração Inicial
-                    </CardTitle>
-                    <CardDescription className="text-amber-700 dark:text-amber-500">
-                        O acesso a esta página está temporariamente liberado para permitir a criação do primeiro usuário Super Admin. Após promover sua conta, por favor, me avise para que eu possa reativar a trava de segurança.
-                    </CardDescription>
-                </CardHeader>
-            </Card>
-
             <Card>
                 <CardHeader>
                     <CardTitle>Promover Usuário</CardTitle>
