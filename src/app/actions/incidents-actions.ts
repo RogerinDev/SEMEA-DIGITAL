@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference, updateDoc } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 
 function isValidIncidentType(type: any): type is IncidentType {
@@ -64,6 +64,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
       status: 'recebida',
       dateCreated: serverTimestamp(),
+      dateUpdated: serverTimestamp(),
     });
     return { success: true, protocol };
   } catch (error: any) {
@@ -120,12 +121,15 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
                 type: data.type,
                 status: data.status,
                 dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+                dateUpdated: (data.dateUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
                 description: data.description,
                 location: data.location,
                 department: data.department,
                 reportedBy: data.reportedBy,
                 isAnonymous: data.isAnonymous,
                 citizenId: data.citizenId,
+                notes: data.notes,
+                inspector: data.inspector,
             };
         } else {
             console.log("No such incident document!");
@@ -208,5 +212,33 @@ export async function getIncidentsCountAction({
   } catch (error) {
     console.error("Error getting incident count for admin: ", error);
     return 0;
+  }
+}
+
+interface UpdateIncidentData {
+    id: string;
+    status: IncidentStatus;
+    notes?: string;
+    inspector?: string;
+}
+
+export async function updateIncidentStatusAction(data: UpdateIncidentData): Promise<{ success: boolean; error?: string }> {
+  const { id, status, notes, inspector } = data;
+  if (!id || !status) {
+    return { success: false, error: "ID da denúncia e novo status são obrigatórios." };
+  }
+
+  try {
+    const incidentRef = doc(db, 'incidents', id);
+    await updateDoc(incidentRef, {
+      status,
+      notes: notes || "",
+      inspector: inspector || "",
+      dateUpdated: serverTimestamp(),
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating incident status: ", error);
+    return { success: false, error: "Não foi possível atualizar a denúncia." };
   }
 }

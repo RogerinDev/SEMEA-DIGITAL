@@ -1,27 +1,23 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import type { IncidentReport } from '@/types';
+import type { IncidentReport, IncidentStatus } from '@/types';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from 'next/image';
-
-// Mock data
-const mockIncident: IncidentReport = { 
-  id: '1', 
-  protocol: 'DEN2024001', 
-  type: 'descarte_irregular_residuo', 
-  reportedBy: 'Cidadão Anônimo', 
-  description: 'Grande quantidade de entulho e lixo doméstico descartado em um terreno baldio na esquina da Rua das Palmeiras com a Av. das Flores. O descarte ocorreu durante a noite e está atraindo vetores.', 
-  status: 'em_verificacao', 
-  dateCreated: new Date(2024, 6, 15, 10,0).toISOString(), 
-  location: 'Esquina da Rua das Palmeiras com Av. das Flores, Bairro Jardim Primavera'
-};
+import { getIncidentByIdAction, updateIncidentStatusAction } from '@/app/actions/incidents-actions';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const statusOptions: { value: IncidentReport['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'recebida', label: 'Recebida', icon: Clock },
@@ -43,9 +39,69 @@ function getStatusVariant(status: IncidentReport['status']): "default" | "second
     }
 }
 
-
 export default function AdminIncidentDetailPage({ params }: { params: { id: string } }) {
-  const incident = mockIncident; 
+  const [incident, setIncident] = useState<IncidentReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<IncidentStatus>();
+  const [notes, setNotes] = useState('');
+  const [inspector, setInspector] = useState('');
+
+  const router = useRouter();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchIncident() {
+      setLoading(true);
+      const fetchedIncident = await getIncidentByIdAction(params.id);
+      if (fetchedIncident) {
+        setIncident(fetchedIncident);
+        setSelectedStatus(fetchedIncident.status);
+        setNotes(fetchedIncident.notes || '');
+        setInspector(fetchedIncident.inspector || '');
+      }
+      setLoading(false);
+    }
+    fetchIncident();
+  }, [params.id]);
+
+  const handleUpdate = async () => {
+    if (!incident || !selectedStatus) return;
+
+    setIsUpdating(true);
+    const result = await updateIncidentStatusAction({
+      id: incident.id,
+      status: selectedStatus,
+      notes,
+      inspector,
+    });
+    setIsUpdating(false);
+
+    if (result.success) {
+      toast({ title: "Sucesso!", description: "A denúncia foi atualizada." });
+      router.refresh();
+    } else {
+      toast({ title: "Erro", description: result.error, variant: "destructive" });
+    }
+  };
+  
+  if (loading) {
+    return (
+        <div>
+            <Skeleton className="h-8 w-1/2 mb-6" />
+            <div className="grid md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-6">
+                    <Card><CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader><CardContent><Skeleton className="h-40 w-full" /></CardContent></Card>
+                    <Card><CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader><CardContent><Skeleton className="h-40 w-full" /></CardContent></Card>
+                </div>
+                <div className="md:col-span-1 space-y-6">
+                     <Card><CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader><CardContent><Skeleton className="h-40 w-full" /></CardContent></Card>
+                </div>
+            </div>
+        </div>
+    );
+  }
+
   if (!incident) return <p>Denúncia não encontrada.</p>;
 
   const currentStatusOption = statusOptions.find(s => s.value === incident.status);
@@ -127,7 +183,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
             <CardContent className="space-y-4">
                  <div>
                     <Label htmlFor="status">Alterar Status</Label>
-                    <Select defaultValue={incident.status}>
+                    <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as IncidentStatus)}>
                         <SelectTrigger id="status">
                             <SelectValue placeholder="Selecione um novo status" />
                         </SelectTrigger>
@@ -145,15 +201,29 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
                 </div>
                 <div>
                     <Label htmlFor="fiscal-notes">Relatório de Fiscalização / Ações Tomadas</Label>
-                    <Textarea id="fiscal-notes" placeholder="Descreva a visita ao local, contatos feitos, autos de infração, etc..." className="min-h-[100px]" />
+                    <Textarea 
+                      id="fiscal-notes" 
+                      placeholder="Descreva a visita ao local, contatos feitos, autos de infração, etc..." 
+                      className="min-h-[100px]"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                    />
                 </div>
                 <div>
                     <Label htmlFor="assigned-inspector">Fiscal Responsável (opcional)</Label>
-                    <Input id="assigned-inspector" placeholder="Nome do fiscal" />
+                    <Input 
+                      id="assigned-inspector" 
+                      placeholder="Nome do fiscal"
+                      value={inspector}
+                      onChange={(e) => setInspector(e.target.value)}
+                    />
                 </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-                <Button><Edit3 className="mr-2 h-4 w-4" /> Salvar Progresso</Button>
+                <Button onClick={handleUpdate} disabled={isUpdating}>
+                    {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Edit3 className="mr-2 h-4 w-4" />}
+                     Salvar Progresso
+                </Button>
             </CardFooter>
            </Card>
         </div>

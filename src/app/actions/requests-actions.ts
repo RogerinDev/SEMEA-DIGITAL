@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference, updateDoc } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department } from '@/types';
 
 // This is a type guard to ensure the service type is valid
@@ -116,6 +116,7 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
                 citizenName: data.citizenName,
                 address: data.address,
                 contactPhone: data.contactPhone,
+                notes: data.notes,
             };
         } else {
             console.log("No such document!");
@@ -203,5 +204,31 @@ export async function getRequestsCountAction({
   } catch (error) {
     console.error("Error getting request count for admin: ", error);
     return 0;
+  }
+}
+
+interface UpdateRequestData {
+    id: string;
+    status: ServiceRequestStatus;
+    notes?: string;
+}
+
+export async function updateRequestStatusAction(data: UpdateRequestData): Promise<{ success: boolean; error?: string }> {
+  const { id, status, notes } = data;
+  if (!id || !status) {
+    return { success: false, error: "ID da solicitação e novo status são obrigatórios." };
+  }
+
+  try {
+    const requestRef = doc(db, 'service_requests', id);
+    await updateDoc(requestRef, {
+      status: status,
+      notes: notes || "", // Salva como string vazia se for undefined
+      dateUpdated: serverTimestamp(),
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating request status: ", error);
+    return { success: false, error: "Não foi possível atualizar a solicitação." };
   }
 }

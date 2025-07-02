@@ -1,28 +1,22 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FileText, UserCircle, CalendarDays, Edit3, MessageSquare, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ArrowLeft, FileText, UserCircle, CalendarDays, Edit3, MessageSquare, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import type { ServiceRequest, ResolvedTicket } from '@/types';
+import type { ServiceRequest, ServiceRequestStatus, ResolvedTicket } from '@/types';
 import { SimilarTicketsSuggestions } from '@/components/ai/similar-tickets-suggestions';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Mock data - in a real app, this would be fetched based on params.id
-const mockRequest: ServiceRequest = { 
-  id: '1', 
-  protocol: '2024001', 
-  type: 'poda_arvore', 
-  citizenName: 'Maria Silva', 
-  description: 'Árvore muito alta na frente de casa, com galhos secos e longos tocando os fios de eletricidade. Apresenta risco de queda em dias de vento forte. A árvore é um flamboyant antigo e grande. Localizada na Rua das Acácias, 123, Bairro Florido.', 
-  status: 'em_analise', 
-  dateCreated: new Date(2024, 6, 10, 9, 30).toISOString(), 
-  dateUpdated: new Date(2024, 6, 11, 14, 0).toISOString(),
-  address: "Rua das Acácias, 123, Bairro Florido"
-};
+import { getRequestByIdAction, updateRequestStatusAction } from '@/app/actions/requests-actions';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Mock resolved tickets that could be passed to the AI component
 const mockAvailableResolvedTickets: ResolvedTicket[] = [
@@ -42,7 +36,6 @@ const statusOptions: { value: ServiceRequest['status'], label: string, icon?: Re
   { value: 'cancelado_pelo_usuario', label: 'Cancelado pelo Usuário', icon: XCircle },
 ];
 
-
 function getStatusVariant(status: ServiceRequest['status']): "default" | "secondary" | "destructive" | "outline" {
     switch (status) {
       case 'aprovado': case 'concluido': return 'default';
@@ -53,9 +46,68 @@ function getStatusVariant(status: ServiceRequest['status']): "default" | "second
 }
 
 export default function AdminRequestDetailPage({ params }: { params: { id: string } }) {
-  // In a real app, fetch request data using params.id
-  const request = mockRequest; 
-  if (!request) return <p>Solicitação não encontrada.</p>;
+  const [request, setRequest] = useState<ServiceRequest | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<ServiceRequestStatus>();
+  const [notes, setNotes] = useState('');
+  
+  const router = useRouter();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchRequest() {
+      setLoading(true);
+      const fetchedRequest = await getRequestByIdAction(params.id);
+      if (fetchedRequest) {
+        setRequest(fetchedRequest);
+        setSelectedStatus(fetchedRequest.status);
+        setNotes(fetchedRequest.notes || '');
+      }
+      setLoading(false);
+    }
+    fetchRequest();
+  }, [params.id]);
+  
+  const handleUpdate = async () => {
+    if (!request || !selectedStatus) return;
+    
+    setIsUpdating(true);
+    const result = await updateRequestStatusAction({
+        id: request.id,
+        status: selectedStatus,
+        notes: notes,
+    });
+    setIsUpdating(false);
+    
+    if (result.success) {
+        toast({ title: "Sucesso!", description: "A solicitação foi atualizada." });
+        router.refresh(); // Recarrega os dados da página
+    } else {
+        toast({ title: "Erro", description: result.error, variant: "destructive" });
+    }
+  };
+
+  if (loading) {
+    return (
+        <div>
+            <Skeleton className="h-8 w-1/2 mb-6" />
+            <div className="grid md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-6">
+                    <Card><CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader><CardContent><Skeleton className="h-40 w-full" /></CardContent></Card>
+                    <Card><CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader><CardContent><Skeleton className="h-40 w-full" /></CardContent></Card>
+                </div>
+                <div className="md:col-span-1 space-y-6">
+                     <Card><CardHeader><Skeleton className="h-6 w-1/4" /></CardHeader><CardContent><Skeleton className="h-40 w-full" /></CardContent></Card>
+                </div>
+            </div>
+        </div>
+    );
+  }
+
+  if (!request) {
+    return <p>Solicitação não encontrada.</p>;
+  }
 
   const currentStatusOption = statusOptions.find(s => s.value === request.status);
 
@@ -135,7 +187,7 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
             <CardContent className="space-y-4">
                  <div>
                     <Label htmlFor="status">Alterar Status</Label>
-                    <Select defaultValue={request.status}>
+                    <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as ServiceRequestStatus)}>
                         <SelectTrigger id="status">
                             <SelectValue placeholder="Selecione um novo status" />
                         </SelectTrigger>
@@ -153,11 +205,20 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
                 </div>
                 <div>
                     <Label htmlFor="notes">Parecer Técnico / Observações</Label>
-                    <Textarea id="notes" placeholder="Adicione notas sobre a vistoria, decisão, próximos passos..." className="min-h-[100px]" />
+                    <Textarea 
+                        id="notes" 
+                        placeholder="Adicione notas sobre a vistoria, decisão, próximos passos..." 
+                        className="min-h-[100px]" 
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                    />
                 </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-                <Button><Edit3 className="mr-2 h-4 w-4" /> Salvar Alterações</Button>
+                <Button onClick={handleUpdate} disabled={isUpdating}>
+                    {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Edit3 className="mr-2 h-4 w-4" />}
+                    Salvar Alterações
+                </Button>
             </CardFooter>
            </Card>
         </div>

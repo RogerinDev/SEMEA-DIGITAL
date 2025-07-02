@@ -36,6 +36,7 @@ export interface ServiceRequest {
   citizenName?: string; 
   address?: string;
   contactPhone?: string;
+  notes?: string;
 }
 
 export type ServiceCategory = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental';
@@ -90,12 +91,15 @@ export interface IncidentReport {
   protocol: string;
   status: IncidentStatus;
   dateCreated: string; // Store as ISO string
+  dateUpdated?: string;
   description: string;
   location: string;
   department: Department;
   citizenId?: string; // UID from Firebase Auth
   reportedBy?: string; // Optional, can be anonymous
   isAnonymous?: boolean;
+  notes?: string;
+  inspector?: string;
 }
 
 export interface IncidentTypeInfo {
