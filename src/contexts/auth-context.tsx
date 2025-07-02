@@ -14,6 +14,7 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
@@ -27,6 +28,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUserProfile: (name: string, photoURL?: string | null) => Promise<boolean>;
   changeUserPassword: (currentPass: string, newPass: string) => Promise<boolean>;
+  resetPassword: (email: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -189,6 +191,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false);
     }
   };
+  
+  const resetPassword = async (email: string): Promise<boolean> => {
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast({ title: "Link Enviado!", description: "Verifique sua caixa de entrada para o link de redefinição de senha." });
+      return true;
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Error sending password reset email:", authError);
+      let description = "Não foi possível enviar o email. Verifique se o email está correto e tente novamente.";
+      if (authError.code === 'auth/user-not-found') {
+        description = "Nenhuma conta encontrada com este endereço de e-mail.";
+      }
+      toast({ title: "Erro ao Redefinir Senha", description, variant: "destructive" });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const value = {
     currentUser,
@@ -198,6 +221,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     updateUserProfile,
     changeUserPassword,
+    resetPassword,
   };
 
   return (

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -13,13 +14,26 @@ import { LogIn, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, loading: authLoading } = useAuth();
+  const { login, resetPassword, loading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAdminDevLoggingIn, setIsAdminDevLoggingIn] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+
   const router = useRouter();
   const { toast } = useToast();
 
@@ -37,33 +51,21 @@ export default function LoginPage() {
     }
     setIsSubmitting(false);
   };
-  
-  const handleAdminDevLogin = async () => {
-    setIsAdminDevLoggingIn(true);
-    // IMPORTANTE: Use credenciais de um usuário admin de teste REAL que exista no seu Firebase Auth.
-    // Estas são apenas credenciais de EXEMPLO.
-    const adminDevEmail = "admin.dev@semea.example.com";
-    const adminDevPassword = "adminpassword"; // Lembre-se de criar esta conta!
 
-    const result = await login(adminDevEmail, adminDevPassword);
-    if (typeof result !== 'string') {
-      router.push('/dashboard/admin');
-    } else {
-      // The generic toast is already shown by AuthContext for general errors.
-      // Let's add a more specific one for this button's common failure case.
-      if (result.includes('auth/invalid-credential')) {
-        toast({
-            title: "Conta de Admin Dev não encontrada",
-            description: "Por favor, crie o usuário 'admin.dev@semea.example.com' no seu painel do Firebase Authentication.",
-            variant: "destructive",
-            duration: 9000,
-        });
-      }
+  const handlePasswordReset = async () => {
+    if (!resetEmail) {
+      toast({ title: "Email obrigatório", description: "Por favor, insira um email para redefinir a senha.", variant: "destructive" });
+      return;
     }
-    setIsAdminDevLoggingIn(false);
+    setIsResetting(true);
+    const success = await resetPassword(resetEmail);
+    if (success) {
+      setResetEmail('');
+    }
+    setIsResetting(false);
   };
-
-  const isLoading = authLoading || isSubmitting || isAdminDevLoggingIn;
+  
+  const isLoading = authLoading || isSubmitting;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -94,9 +96,37 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Senha</Label>
-                  <Link href="#" className="text-sm text-primary hover:underline">
-                    Esqueceu a senha?
-                  </Link>
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                         <Button variant="link" type="button" className="text-sm p-0 h-auto">Esqueceu a senha?</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>Redefinir Senha</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                  Insira seu e-mail abaixo. Se houver uma conta associada, enviaremos um link para você redefinir sua senha.
+                              </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <div className="py-2">
+                              <Label htmlFor="reset-email" className="sr-only">Email</Label>
+                              <Input 
+                                id="reset-email" 
+                                type="email" 
+                                placeholder="seu@email.com" 
+                                value={resetEmail} 
+                                onChange={(e) => setResetEmail(e.target.value)}
+                                disabled={isResetting}
+                              />
+                          </div>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={handlePasswordReset} disabled={isResetting}>
+                                  {isResetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                                  Enviar Link
+                              </AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
                 </div>
                 <Input 
                   id="password" 
@@ -117,12 +147,6 @@ export default function LoginPage() {
               <Link href="/register" className="text-primary hover:underline font-medium">
                 Registre-se
               </Link>
-            </div>
-             <div className="mt-4 text-center text-sm">
-              <Button variant="link" onClick={handleAdminDevLogin} className="text-primary" disabled={isLoading || isAdminDevLoggingIn}>
-                {isAdminDevLoggingIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Acesso Rápido Admin (Dev)
-              </Button>
             </div>
           </CardContent>
         </Card>
