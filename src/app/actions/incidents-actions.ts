@@ -3,7 +3,7 @@
 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference } from 'firebase/firestore';
-import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department } from '@/types';
+import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 
 function isValidIncidentType(type: any): type is IncidentType {
   const validTypes: IncidentType[] = [
@@ -183,5 +183,30 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
   } catch (error) {
     console.error("Error fetching incidents for admin: ", error);
     return [];
+  }
+}
+
+export async function getIncidentsCountAction({
+  department,
+  status,
+}: {
+  department?: Department;
+  status?: IncidentStatus;
+}): Promise<number> {
+  try {
+    const queryConstraints: any[] = [];
+    if (department) {
+      queryConstraints.push(where("department", "==", department));
+    }
+    if (status) {
+      queryConstraints.push(where("status", "==", status));
+    }
+
+    const q = query(collection(db, "incidents"), ...queryConstraints);
+    const snapshot = await getCountFromServer(q);
+    return snapshot.data().count;
+  } catch (error) {
+    console.error("Error getting incident count for admin: ", error);
+    return 0;
   }
 }

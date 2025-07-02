@@ -3,7 +3,7 @@
 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference } from 'firebase/firestore';
-import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type Department } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department } from '@/types';
 
 // This is a type guard to ensure the service type is valid
 function isValidServiceRequestType(type: any): type is ServiceRequestType {
@@ -173,5 +173,35 @@ export async function getRequestsForAdminAction(department?: Department): Promis
   } catch (error) {
     console.error("Error fetching requests for admin: ", error);
     return [];
+  }
+}
+
+export async function getRequestsCountAction({
+  department,
+  status,
+  fromDate,
+}: {
+  department?: Department;
+  status?: ServiceRequestStatus;
+  fromDate?: Date;
+}): Promise<number> {
+  try {
+    const queryConstraints: any[] = [];
+    if (department) {
+      queryConstraints.push(where("department", "==", department));
+    }
+    if (status) {
+      queryConstraints.push(where("status", "==", status));
+    }
+    if (fromDate) {
+      queryConstraints.push(where("dateUpdated", ">=", Timestamp.fromDate(fromDate)));
+    }
+
+    const q = query(collection(db, "service_requests"), ...queryConstraints);
+    const snapshot = await getCountFromServer(q);
+    return snapshot.data().count;
+  } catch (error) {
+    console.error("Error getting request count for admin: ", error);
+    return 0;
   }
 }

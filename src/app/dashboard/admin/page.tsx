@@ -1,15 +1,60 @@
+
+"use client";
+
+import { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, AlertTriangle, Users, CheckSquare, Clock, ArrowRight, LayoutDashboard } from 'lucide-react';
+import { FileText, AlertTriangle, CheckSquare, Clock, ArrowRight, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import { getRequestsCountAction } from '@/app/actions/requests-actions';
+import { getIncidentsCountAction } from '@/app/actions/incidents-actions';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 export default function AdminDashboardPage() {
+  const { currentUser } = useAuth();
+  const [counts, setCounts] = useState({
+    pendingRequests: 0,
+    newIncidents: 0,
+    completedThisMonth: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCounts() {
+      if (!currentUser) return;
+
+      setLoading(true);
+      
+      const department = currentUser.role === 'admin' ? currentUser.department : undefined;
+      
+      const date = new Date();
+      const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
+      const [pendingRequestsCount, newIncidentsCount, completedThisMonthCount] = await Promise.all([
+        getRequestsCountAction({ department, status: 'pendente' }),
+        getIncidentsCountAction({ department, status: 'recebida' }),
+        getRequestsCountAction({ department, status: 'concluido', fromDate: firstDayOfMonth }),
+      ]);
+      
+      setCounts({
+        pendingRequests: pendingRequestsCount,
+        newIncidents: newIncidentsCount,
+        completedThisMonth: completedThisMonthCount,
+      });
+      
+      setLoading(false);
+    }
+    
+    fetchCounts();
+  }, [currentUser]);
+
   const overviewCards = [
-    { title: 'Solicitações Pendentes', value: '12', icon: Clock, color: 'text-yellow-500', link: '/dashboard/admin/requests?status=pendente' },
-    { title: 'Denúncias Novas', value: '5', icon: AlertTriangle, color: 'text-red-500', link: '/dashboard/admin/incidents?status=novo' },
-    { title: 'Serviços Concluídos (Mês)', value: '47', icon: CheckSquare, color: 'text-green-500', link: '/dashboard/admin/requests?status=concluido' },
-    // { title: 'Usuários Ativos', value: '125', icon: Users, color: 'text-blue-500', link: '#' },
+    { title: 'Solicitações Pendentes', value: counts.pendingRequests, icon: Clock, color: 'text-yellow-500', link: '/dashboard/admin/requests?status=pendente', loading },
+    { title: 'Denúncias Novas', value: counts.newIncidents, icon: AlertTriangle, color: 'text-red-500', link: '/dashboard/admin/incidents?status=recebida', loading },
+    { title: 'Serviços Concluídos (Mês)', value: counts.completedThisMonth, icon: CheckSquare, color: 'text-green-500', link: '/dashboard/admin/requests?status=concluido', loading },
   ];
 
   return (
@@ -24,7 +69,11 @@ export default function AdminDashboardPage() {
               <card.icon className={`h-5 w-5 ${card.color || 'text-muted-foreground'}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{card.value}</div>
+              {card.loading ? (
+                <Skeleton className="h-8 w-1/4 mt-1" />
+              ) : (
+                <div className="text-3xl font-bold">{card.value}</div>
+              )}
                <Button variant="link" asChild className="px-0 text-sm text-muted-foreground">
                 <Link href={card.link}>
                   <span className="flex items-center">
