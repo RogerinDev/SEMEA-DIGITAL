@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, AlertTriangle, CheckSquare, Clock, ArrowRight, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
