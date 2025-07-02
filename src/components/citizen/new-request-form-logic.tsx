@@ -27,9 +27,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";
 import { addRequestAction } from "@/app/actions/requests-actions";
 
+// Create an array of valid request type values for Zod enum
+const validRequestTypes = SERVICE_REQUEST_TYPES.map(t => t.value) as [string, ...string[]];
+
 const formSchema = z.object({
-  requestType: z.custom<ServiceRequestType>(val => SERVICE_REQUEST_TYPES.map(srt => srt.value).includes(val as ServiceRequestType), {
-    message: "Por favor, selecione um serviço específico.",
+  requestType: z.enum(validRequestTypes, {
+    required_error: "Por favor, selecione um serviço específico.",
   }),
   description: z.string().min(10, {
     message: "A descrição deve ter pelo menos 10 caracteres.",

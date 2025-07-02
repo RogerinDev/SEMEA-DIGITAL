@@ -3,18 +3,18 @@
 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference, updateDoc } from 'firebase/firestore';
-import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
+
+const validServiceRequestTypes = SERVICE_REQUEST_TYPES.map(t => t.value);
 
 // This is a type guard to ensure the service type is valid
 function isValidServiceRequestType(type: any): type is ServiceRequestType {
-  const validTypes: ServiceRequestType[] = [
-    "castracao_animal", "corte_arvore_risco", "poda_arvore", 
-    "plantio_arvore_area_publica", "coleta_especial_residuos", 
-    "recolhimento_animal_errante_doente_ferido", "agendamento_uso_area_parque", 
-    "solicitacao_adocao_animal", "licenca_ambiental_simplificada", 
-    "solicitacao_projeto_educacao_ambiental", "outros_servicos_gerais"
-  ];
-  return validTypes.includes(type);
+  return validServiceRequestTypes.includes(type);
+}
+
+// Added for consistency and robustness, similar to incidents-actions
+function mapServiceCategoryToDepartment(category: ServiceCategory): Department {
+    return category;
 }
 
 interface NewRequestData {
@@ -38,7 +38,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
   if (!serviceTypeInfo) {
     return { success: false, error: "Categoria de serviço não encontrada." };
   }
-  const department: Department = serviceTypeInfo.category;
+  const department = mapServiceCategoryToDepartment(serviceTypeInfo.category);
 
   try {
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
