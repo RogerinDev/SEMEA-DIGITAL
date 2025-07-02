@@ -38,7 +38,7 @@ const formSchema = z.object({
 });
 
 export default function EditProfilePage() {
-  const { currentUser, updateUserProfile, loading: authLoading } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,10 +91,11 @@ export default function EditProfilePage() {
       },
       async () => {
         try {
+          if (!currentUser) throw new Error("Usuário não autenticado.");
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           await updateProfile(currentUser, { photoURL: downloadURL });
-          await updateUserProfile(currentUser.displayName || '', downloadURL); // Update context
-          setPhotoURL(downloadURL);
+          await currentUser.reload(); // Recarrega os dados do usuário para atualizar o estado global
+          setPhotoURL(downloadURL); // Atualiza a UI imediatamente
           toast({ title: "Sucesso!", description: "Sua foto de perfil foi atualizada." });
         } catch (error) {
           console.error("Profile update error", error);
@@ -124,7 +125,7 @@ export default function EditProfilePage() {
         
         // Re-auth successful, now update profile
         await updateProfile(currentUser, { displayName: values.displayName });
-        await updateUserProfile(values.displayName, currentUser.photoURL);
+        await currentUser.reload(); // Recarrega os dados do usuário para atualizar o estado global
 
         toast({ title: "Sucesso!", description: "Seu nome foi atualizado." });
         form.reset({ displayName: values.displayName, currentPassword: "" });

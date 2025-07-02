@@ -26,7 +26,6 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<AppUser | string>;
   register: (name: string, email: string, pass:string) => Promise<UserCredential | string>;
   logout: () => Promise<void>;
-  updateUserProfile: (name: string, photoURL?: string | null) => Promise<boolean>;
   changeUserPassword: (currentPass: string, newPass: string) => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
 }
@@ -56,18 +55,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (user) {
         const idTokenResult = await user.getIdTokenResult();
         const claims = idTokenResult.claims;
-        const appUser: AppUser = {
-          ...user,
-          // We need to provide the methods manually as they are not part of the plain user object
-          getIdToken: user.getIdToken.bind(user),
-          getIdTokenResult: user.getIdTokenResult.bind(user),
-          reload: user.reload.bind(user),
-          toJSON: user.toJSON.bind(user),
-          delete: user.delete.bind(user),
-          // Custom claims
-          role: claims.role as AppUser['role'],
-          department: claims.department as AppUser['department'],
-        };
+        
+        // This is a safe way to add properties to the user object without breaking its prototype chain
+        const appUser = user as AppUser;
+        appUser.role = claims.role as AppUser['role'];
+        appUser.department = claims.department as AppUser['department'];
+        
         setCurrentUser(appUser);
       } else {
         setCurrentUser(null);
@@ -86,18 +79,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Force refresh to get latest claims. Important after promotion.
       const idTokenResult = await user.getIdTokenResult(true); 
       const claims = idTokenResult.claims;
-      const appUser: AppUser = {
-        ...user,
-        // We need to provide the methods manually as they are not part of the plain user object
-        getIdToken: user.getIdToken.bind(user),
-        getIdTokenResult: user.getIdTokenResult.bind(user),
-        reload: user.reload.bind(user),
-        toJSON: user.toJSON.bind(user),
-        delete: user.delete.bind(user),
-        // Custom claims
-        role: claims.role as AppUser['role'],
-        department: claims.department as AppUser['department'],
-      };
+      const appUser = user as AppUser;
+      appUser.role = claims.role as AppUser['role'];
+      appUser.department = claims.department as AppUser['department'];
 
       setCurrentUser(appUser); // Update context state immediately
       
@@ -119,17 +103,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(userCredential.user, { displayName: name });
       
-      const appUser: AppUser = {
-        ...userCredential.user,
-        // We need to provide the methods manually as they are not part of the plain user object
-        getIdToken: userCredential.user.getIdToken.bind(userCredential.user),
-        getIdTokenResult: userCredential.user.getIdTokenResult.bind(userCredential.user),
-        reload: userCredential.user.reload.bind(userCredential.user),
-        toJSON: userCredential.user.toJSON.bind(userCredential.user),
-        delete: userCredential.user.delete.bind(userCredential.user),
-        // New user will be a 'citizen'
-        role: 'citizen',
-      };
+      const appUser = userCredential.user as AppUser;
+      appUser.role = 'citizen';
+
       setCurrentUser(appUser);
 
       toast({ title: "Cadastro realizado com sucesso!" });
@@ -158,16 +134,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       setLoading(false);
     }
-  };
-  
-  const updateUserProfile = async (name: string, photoURL?: string | null): Promise<boolean> => {
-    if (!currentUser) return false;
-    setCurrentUser({ 
-        ...currentUser, 
-        displayName: name, 
-        photoURL: photoURL !== undefined ? photoURL : currentUser.photoURL 
-    });
-    return true;
   };
 
   const changeUserPassword = async (currentPass: string, newPass: string): Promise<boolean> => {
@@ -219,7 +185,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
-    updateUserProfile,
     changeUserPassword,
     resetPassword,
   };
