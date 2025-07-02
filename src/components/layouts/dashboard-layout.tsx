@@ -45,7 +45,7 @@ interface DashboardLayoutProps {
   userRole?: string; 
 }
 
-export default function DashboardLayout({ children, navItems, sidebarActions, userName: defaultUserName = "Usuário", userRole: defaultUserRole = "Cidadão" }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, navItems, sidebarActions, userName = "Usuário", userRole = "Cidadão" }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { currentUser, logout, loading: authLoading } = useAuth();
@@ -69,10 +69,8 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
   }
 
   if (currentUser) {
-    const displayUserName = defaultUserName;
-    const displayUserRole = defaultUserRole; 
     const userInitials = (currentUser?.displayName || currentUser?.email || 'U').charAt(0).toUpperCase();
-    const profileBaseUrl = displayUserRole.toLowerCase().includes('admin') ? '/dashboard/admin/profile' : '/dashboard/citizen/profile';
+    const profileBaseUrl = userRole.toLowerCase().includes('admin') ? '/dashboard/admin/profile' : '/dashboard/citizen/profile';
 
     return (
       <SidebarProvider defaultOpen>
@@ -111,17 +109,17 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                   <div className="flex justify-between items-center w-full">
                       <div className="flex items-center gap-2 overflow-hidden">
                           <Avatar className="h-9 w-9">
-                              <AvatarImage src={currentUser?.photoURL || undefined} alt={displayUserName} />
+                              <AvatarImage src={currentUser?.photoURL || undefined} alt={userName} />
                               <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground font-semibold">
                                   {userInitials}
                               </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col items-start overflow-hidden">
-                              <span className="text-sm font-medium text-sidebar-foreground truncate" title={displayUserName}>
-                                  {displayUserName}
+                              <span className="text-sm font-medium text-sidebar-foreground truncate" title={userName}>
+                                  {userName}
                               </span>
                               <span className="text-xs text-sidebar-foreground/70">
-                                  {displayUserRole}
+                                  {userRole}
                               </span>
                           </div>
                       </div>

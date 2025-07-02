@@ -55,10 +55,18 @@ export default function CitizenDashboardLayout({
   children: React.ReactNode;
 }) {
   const { currentUser } = useAuth();
+  
+  const getRoleName = (role?: string) => {
+    if (role === 'superAdmin') return 'Super Administrador';
+    if (role === 'admin') return 'Administrador';
+    return 'Cidadão';
+  }
+
   const userName = currentUser?.displayName || currentUser?.email || 'Cidadão';
+  const userRole = getRoleName(currentUser?.role);
 
   return (
-    <DashboardLayout navItems={citizenNavItems} sidebarActions={<SidebarActions />} userName={userName} userRole="Cidadão">
+    <DashboardLayout navItems={citizenNavItems} sidebarActions={<SidebarActions />} userName={userName} userRole={userRole}>
       {children}
     </DashboardLayout>
   );

@@ -18,8 +18,13 @@ export default function AdminDashboardLayout({
 }) {
   const { currentUser } = useAuth();
   
-  // Determina o papel e nome a ser exibido com base no usuário logado
-  const userRole = currentUser?.role === 'superAdmin' ? 'Super Administrador' : 'Administrador';
+  const getRoleName = (role?: string) => {
+    if (role === 'superAdmin') return 'Super Administrador';
+    if (role === 'admin') return 'Administrador';
+    return 'Admin'; // Fallback
+  }
+
+  const userRole = getRoleName(currentUser?.role);
   const userName = currentUser?.displayName || currentUser?.email || 'Admin';
 
   return (
