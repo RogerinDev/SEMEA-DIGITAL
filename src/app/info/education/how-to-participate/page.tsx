@@ -7,7 +7,7 @@ import * as z from "zod";
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Send, Mail, Phone, Info } from 'lucide-react';
+import { Users, Send, Mail, Phone, Info, Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from "@/hooks/use-toast";
 import { educationalProjects, thematicLectures } from "@/lib/education-data";
 import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { addRequestAction } from "@/app/actions/requests-actions";
+import { useRouter } from "next/navigation";
 
 const participationFormSchema = z.object({
   institutionName: z.string().min(3, "Nome da instituição é obrigatório."),
@@ -35,6 +39,10 @@ type ParticipationFormValues = z.infer<typeof participationFormSchema>;
 
 export default function HowToParticipatePage() {
   const { toast } = useToast();
+  const { currentUser } = useAuth();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<ParticipationFormValues>({
     resolver: zodResolver(participationFormSchema),
     defaultValues: {
@@ -52,15 +60,55 @@ export default function HowToParticipatePage() {
     },
   });
 
-  function onSubmit(data: ParticipationFormValues) {
-    console.log("Formulário de Participação Enviado:", data);
-    // Simulate sending data to email or backend
-    toast({
-      title: "Solicitação Enviada com Sucesso!",
-      description: "Sua manifestação de interesse foi registrada. Entraremos em contato em breve.",
-      variant: "default",
+  async function onSubmit(data: ParticipationFormValues) {
+    if (!currentUser) {
+      toast({
+        title: "Login Necessário",
+        description: "Você precisa estar logado para enviar uma solicitação. Redirecionando...",
+        variant: "destructive",
+      });
+      router.push('/login');
+      return;
+    }
+    setIsSubmitting(true);
+
+    const description = `
+Solicitação de Ação de Educação Ambiental:
+- Instituição: ${data.institutionName}
+- Responsável: ${data.responsibleName}
+- Contato: ${data.contactPhone} / ${data.contactEmail}
+- Projetos de Interesse: ${data.projectsOfInterest?.join(', ') || 'Nenhum'}
+- Palestras de Interesse: ${data.lecturesOfInterest?.join(', ') || 'Nenhuma'}
+- Outros Interesses: ${data.otherInterests || 'Nenhum'}
+- Público-Alvo: ${data.targetAudienceDescription}
+- Nº Estimado de Participantes: ${data.estimatedParticipants}
+- Datas Sugeridas: ${data.suggestedDates || 'Nenhuma'}
+- Observações: ${data.additionalObservations || 'Nenhuma'}
+    `.trim();
+
+    const result = await addRequestAction({
+      requestType: 'solicitacao_projeto_educacao_ambiental',
+      description,
+      contactPhone: data.contactPhone,
+      citizenId: currentUser.uid,
+      citizenName: data.responsibleName,
     });
-    form.reset();
+
+    if (result.success) {
+      toast({
+        title: "Solicitação Enviada com Sucesso!",
+        description: `Sua manifestação de interesse (Protocolo: ${result.protocol}) foi registrada. Entraremos em contato em breve.`,
+        variant: "default",
+      });
+      form.reset();
+    } else {
+      toast({
+        title: "Erro ao Enviar",
+        description: result.error || "Não foi possível enviar a solicitação.",
+        variant: "destructive",
+      });
+    }
+    setIsSubmitting(false);
   }
 
   const projectOptions = educationalProjects.map(p => ({ id: p.slug, label: p.title }));
@@ -82,7 +130,7 @@ export default function HowToParticipatePage() {
               <CardTitle>Manifeste seu Interesse</CardTitle>
               <CardDescription>
                 Instituições interessadas em receber um projeto de educação ambiental ou palestra devem preencher o formulário abaixo. 
-                Caso deseje mais informações sobre os projetos antes de agendar, pode solicitar uma reunião de apresentação através dos contatos ao lado.
+                Caso deseje mais informações sobre os projetos antes de agendar, pode solicitar uma reunião de apresentação através dos contatos ao lado. É necessário estar logado para enviar.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -240,8 +288,9 @@ export default function HowToParticipatePage() {
                   )} />
 
                   <div className="flex justify-end">
-                    <Button type="submit">
-                      <Send className="mr-2 h-4 w-4" /> Enviar Solicitação
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2 h-4 w-4" />}
+                      Enviar Solicitação
                     </Button>
                   </div>
                 </form>

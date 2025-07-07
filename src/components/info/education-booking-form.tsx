@@ -4,7 +4,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,13 +21,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { educationalProjects, thematicLectures } from "@/lib/education-data";
+import { useAuth } from "@/contexts/auth-context";
+import { addRequestAction } from "@/app/actions/requests-actions";
 
 const projectEnumValues = educationalProjects.map(p => p.title);
 const ageEnumValues = ["Crianças (3 a 10 anos)", "Adolescentes (11 a 15 anos)", "Jovens (16 a 24 anos)"];
@@ -57,6 +60,9 @@ interface EducationBookingFormProps {
 
 export function EducationBookingForm({ preselectedProject }: EducationBookingFormProps) {
   const { toast } = useToast();
+  const { currentUser } = useAuth();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const initialProjectOfInterest = (preselectedProject && safeProjectTitles.includes(preselectedProject) 
                                       ? preselectedProject 
@@ -90,30 +96,70 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
     }
   }, [preselectedProject, form, safeProjectTitles]);
 
-  function onSubmit(data: BookingFormValues) {
-    console.log("Solicitação de Agendamento Enviada:", data);
-    toast({
-      title: "Solicitação de Agendamento Enviada!",
-      description: `Obrigado, ${data.responsibleName}. Sua solicitação para o projeto "${data.projectOfInterest}" foi registrada. Entraremos em contato em breve.`,
-      variant: "default",
+  async function onSubmit(data: BookingFormValues) {
+    if (!currentUser) {
+      toast({
+        title: "Login Necessário",
+        description: "Você precisa estar logado para enviar uma solicitação. Redirecionando...",
+        variant: "destructive",
+      });
+      router.push('/login');
+      return;
+    }
+    setIsSubmitting(true);
+    
+    const description = `
+Solicitação de Ação de Educação Ambiental (Formulário Simplificado):
+- Instituição: ${data.institutionName}
+- Responsável: ${data.responsibleName}
+- Contato: ${data.contactPhone}
+- Projeto de Interesse: ${data.projectOfInterest}
+- Palestras Selecionadas: ${data.selectedLectures?.join(', ') || 'Nenhuma'}
+- Data e Hora Pretendida: ${format(data.requestedDate, 'PPP', { locale: ptBR })} - ${data.requestedTime}
+- Público Estimado: ${data.estimatedAudience} pessoas
+- Faixa Etária: ${data.audienceAgeRange}
+- Informações Adicionais: ${data.additionalInfo || 'Nenhuma'}
+    `.trim();
+
+    const result = await addRequestAction({
+      requestType: 'solicitacao_projeto_educacao_ambiental',
+      description,
+      contactPhone: data.contactPhone,
+      citizenId: currentUser.uid,
+      citizenName: data.responsibleName,
     });
     
-    const resetProjectOfInterest = (preselectedProject && safeProjectTitles.includes(preselectedProject)
-                                  ? preselectedProject
-                                  : (safeProjectTitles[0] || undefined)) as (typeof safeProjectTitles)[number] | undefined;
-    
-    form.reset({
-        responsibleName: "",
-        contactPhone: "",
-        institutionName: "",
-        projectOfInterest: resetProjectOfInterest,
-        selectedLectures: [],
-        requestedDate: undefined,
-        requestedTime: "",
-        estimatedAudience: undefined,
-        audienceAgeRange: (safeAgeRanges[0] || undefined) as typeof safeAgeRanges[number] | undefined,
-        additionalInfo: "",
-    });
+    if (result.success) {
+      toast({
+        title: "Solicitação de Agendamento Enviada!",
+        description: `Obrigado, ${data.responsibleName}. Sua solicitação (Protocolo: ${result.protocol}) foi registrada. Entraremos em contato em breve.`,
+        variant: "default",
+      });
+      
+      const resetProjectOfInterest = (preselectedProject && safeProjectTitles.includes(preselectedProject)
+                                    ? preselectedProject
+                                    : (safeProjectTitles[0] || undefined)) as (typeof safeProjectTitles)[number] | undefined;
+      
+      form.reset({
+          responsibleName: "",
+          contactPhone: "",
+          institutionName: "",
+          projectOfInterest: resetProjectOfInterest,
+          selectedLectures: [],
+          requestedDate: undefined,
+          requestedTime: "",
+          estimatedAudience: undefined,
+          audienceAgeRange: (safeAgeRanges[0] || undefined) as typeof safeAgeRanges[number] | undefined,
+          additionalInfo: "",
+      });
+    } else {
+        toast({
+            title: "Erro ao Enviar",
+            description: result.error || "Não foi possível enviar o agendamento.",
+            variant: "destructive",
+        });
+    }
+    setIsSubmitting(false);
   }
   
   const watchedProject = form.watch("projectOfInterest");
@@ -279,7 +325,10 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
         )} />
 
         <div className="flex justify-end">
-          <Button type="submit">Enviar Solicitação de Agendamento</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Enviar Solicitação de Agendamento
+          </Button>
         </div>
       </form>
     </Form>

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,9 +13,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Stethoscope, Clock, User, PawPrint, Phone } from 'lucide-react';
+import { Stethoscope, Clock, User, PawPrint, Phone, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useAuth } from '@/contexts/auth-context';
+import { addRequestAction } from '@/app/actions/requests-actions';
+import { SERVICE_REQUEST_TYPES } from '@/types';
 
 const appointmentFormSchema = z.object({
   tutorName: z.string().min(3, "Nome do tutor é obrigatório."),
@@ -30,26 +34,61 @@ const availableTimes = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 export default function AppointmentPage() {
     const [date, setDate] = useState<Date | undefined>();
     const [time, setTime] = useState<string | undefined>();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
+    const { currentUser } = useAuth();
 
     const form = useForm<z.infer<typeof appointmentFormSchema>>({
         resolver: zodResolver(appointmentFormSchema),
         defaultValues: {
-            tutorName: "",
+            tutorName: currentUser?.displayName || "",
             animalName: "",
             contactPhone: "",
         },
     });
 
-    function onSubmit(values: z.infer<typeof appointmentFormSchema>) {
-        console.log(values);
-        toast({
-            title: "Agendamento Enviado!",
-            description: `Sua consulta para ${values.animalName} no dia ${format(values.selectedDate, 'dd/MM/yyyy')} às ${values.selectedTime} foi pré-agendada. Aguarde a confirmação por parte da nossa equipe.`,
+    async function onSubmit(values: z.infer<typeof appointmentFormSchema>) {
+        if (!currentUser) {
+            toast({ title: "Acesso Negado", description: "Você precisa estar logado para agendar uma consulta.", variant: "destructive" });
+            router.push('/login');
+            return;
+        }
+        setIsSubmitting(true);
+        
+        const description = `
+Pré-agendamento de consulta veterinária.
+Tutor: ${values.tutorName}
+Animal: ${values.animalName}
+Data Desejada: ${format(values.selectedDate, 'dd/MM/yyyy', { locale: ptBR })}
+Horário Desejado: ${values.selectedTime}
+Contato: ${values.contactPhone}
+        `.trim();
+
+        const requestTypeInfo = SERVICE_REQUEST_TYPES.find(t => t.value === "agendamento_consulta_veterinaria");
+
+        const result = await addRequestAction({
+            requestType: "agendamento_consulta_veterinaria",
+            description,
+            contactPhone: values.contactPhone,
+            citizenId: currentUser.uid,
+            citizenName: values.tutorName,
         });
-        form.reset();
-        setDate(undefined);
-        setTime(undefined);
+
+        if (result.success) {
+            toast({
+                title: "Solicitação Enviada!",
+                description: `Sua solicitação de agendamento (Protocolo: ${result.protocol}) foi enviada. Aguarde a confirmação da nossa equipe.`,
+            });
+            router.push('/dashboard/citizen/requests');
+        } else {
+            toast({
+                title: "Erro ao Enviar",
+                description: result.error || "Não foi possível enviar a solicitação.",
+                variant: "destructive",
+            });
+        }
+        setIsSubmitting(false);
     }
     
     const handleDateSelect = (selectedDate: Date | undefined) => {
@@ -66,7 +105,7 @@ export default function AppointmentPage() {
 
     return (
         <>
-            <PageTitle title="Agendamento de Consulta Veterinária" icon={Stethoscope} description="Agende uma consulta básica para seu animal. Os horários são limitados e sujeitos a confirmação." />
+            <PageTitle title="Agendamento de Consulta Veterinária" icon={Stethoscope} description="Agende uma consulta básica para seu animal. Os horários são limitados e sujeitos a confirmação. É necessário estar logado." />
             
             <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card className="shadow-lg">
@@ -132,8 +171,8 @@ export default function AppointmentPage() {
                                     </FormItem>
                                 )}/>
 
-                                <Button type="submit" className="w-full" disabled={!date || !time || form.formState.isSubmitting}>
-                                    {form.formState.isSubmitting ? "Enviando..." : "Confirmar Pré-Agendamento"}
+                                <Button type="submit" className="w-full" disabled={!date || !time || isSubmitting}>
+                                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : "Confirmar Pré-Agendamento"}
                                 </Button>
                                 {(!date || !time) && <p className="text-center text-sm text-destructive font-medium mt-2">Por favor, selecione uma data e um horário para continuar.</p>}
                             </form>

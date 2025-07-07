@@ -1,3 +1,4 @@
+
 import type { User as FirebaseUser } from 'firebase/auth';
 
 export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin' | 'superAdmin';
@@ -21,6 +22,7 @@ export type ServiceRequestType =
   | "solicitacao_adocao_animal"
   | "licenca_ambiental_simplificada"
   | "solicitacao_projeto_educacao_ambiental"
+  | "agendamento_consulta_veterinaria"
   | "outros_servicos_gerais";
 
 export interface ServiceRequest {
@@ -61,6 +63,7 @@ export const SERVICE_REQUEST_TYPES: ServiceRequestTypeInfo[] = [
   { value: "castracao_animal", label: "Castração de Animal", category: 'bem_estar_animal' },
   { value: "recolhimento_animal_errante_doente_ferido", label: "Recolhimento de Animal Errante/Doente/Ferido", category: 'bem_estar_animal' },
   { value: "solicitacao_adocao_animal", label: "Solicitação de Adoção de Animal", category: 'bem_estar_animal' },
+  { value: "agendamento_consulta_veterinaria", label: "Agendamento de Consulta Veterinária", category: 'bem_estar_animal' },
 
   // Educação Ambiental & Outros
   { value: "solicitacao_projeto_educacao_ambiental", label: "Solicitação de Projeto/Palestra de Educação Ambiental", category: 'educacao_ambiental' },
