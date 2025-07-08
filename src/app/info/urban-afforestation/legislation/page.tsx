@@ -1,4 +1,4 @@
-import PublicLayout from '@/components/layouts/public-layout';
+
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,33 +40,31 @@ const documents = [
 
 export default function ArborizationLegislationPage() {
   return (
-    <PublicLayout>
-      <div className="container mx-auto py-12 px-4">
-        <PageTitle
-          title="Legislação e Documentos de Arborização"
-          icon={FileText}
-          description="Acesse as principais normas, leis e formulários que regem a arborização urbana em Varginha."
-        />
+    <>
+      <PageTitle
+        title="Legislação e Documentos de Arborização"
+        icon={FileText}
+        description="Acesse as principais normas, leis e formulários que regem a arborização urbana em Varginha."
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {documents.map((doc, index) => (
-            <Card key={index} className="shadow-lg">
-              <CardHeader>
-                <CardTitle>{doc.title}</CardTitle>
-                <CardDescription>{doc.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild disabled={doc.link === "#"}>
-                  <Link href={doc.link} target="_blank" rel="noopener noreferrer">
-                    <Download className="mr-2 h-4 w-4" />
-                    {doc.linkText}
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {documents.map((doc, index) => (
+          <Card key={index} className="shadow-lg">
+            <CardHeader>
+              <CardTitle>{doc.title}</CardTitle>
+              <CardDescription>{doc.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild disabled={doc.link === "#"}>
+                <Link href={doc.link} target="_blank" rel="noopener noreferrer">
+                  <Download className="mr-2 h-4 w-4" />
+                  {doc.linkText}
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    </PublicLayout>
+    </>
   );
 }
