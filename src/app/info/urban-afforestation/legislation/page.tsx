@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { FileText, Download } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 
 const documents = [
   {

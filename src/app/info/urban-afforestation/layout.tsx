@@ -1,5 +1,6 @@
 
 import PublicLayout from '@/components/layouts/public-layout';
+import React from 'react';
 
 export default function UrbanAfforestationLayout({
   children,

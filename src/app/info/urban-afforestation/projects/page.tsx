@@ -6,6 +6,7 @@ import { Award, ArrowRight, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { arborizationProjects } from '@/lib/arborization-data';
 import { Separator } from '@/components/ui/separator';
+import React from 'react';
 
 export default function ArborizationProjectsPage() {
   return (

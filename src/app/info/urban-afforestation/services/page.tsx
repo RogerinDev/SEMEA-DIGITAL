@@ -1,3 +1,4 @@
+"use client";
 
 import { PageTitle } from '@/components/page-title';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -5,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, ClipboardList, CheckCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
+import React from 'react';
 
 function FormSkeleton() {
   return (

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { TreePine, Sprout, ArrowRight, CheckCircle, ClipboardList, FileText, Phone, Award } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import React from 'react';
 
 export default function UrbanAfforestationPage() {
   const benefits = [
