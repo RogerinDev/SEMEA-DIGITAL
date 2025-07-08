@@ -42,19 +42,22 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
 
   try {
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
-    await addDoc(collection(db, 'service_requests'), {
+    
+    const newRequest = {
       protocol: protocol,
       type: data.requestType,
       description: data.description,
       department: department,
-      address: data.address || '',
-      contactPhone: data.contactPhone || '',
+      address: data.address ?? "",
+      contactPhone: data.contactPhone ?? "",
       citizenId: data.citizenId,
       citizenName: data.citizenName,
-      status: 'pendente',
+      status: 'pendente' as ServiceRequestStatus,
       dateCreated: serverTimestamp(),
       dateUpdated: serverTimestamp(),
-    });
+    };
+
+    await addDoc(collection(db, 'service_requests'), newRequest);
     return { success: true, protocol };
   } catch (error: any) {
     console.error("Error adding document: ", error);

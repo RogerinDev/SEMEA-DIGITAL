@@ -36,7 +36,7 @@ interface NewIncidentData {
   description: string;
   location: string;
   isAnonymous: boolean;
-  citizenId?: string;
+  citizenId: string;
   citizenName: string;
 }
 
@@ -53,7 +53,8 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
 
   try {
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
-    await addDoc(collection(db, 'incidents'), {
+    
+    const newIncident = {
       protocol,
       type: data.incidentType,
       description: data.description,
@@ -62,10 +63,12 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       isAnonymous: data.isAnonymous,
       citizenId: data.isAnonymous ? null : data.citizenId,
       reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
-      status: 'recebida',
+      status: 'recebida' as IncidentStatus,
       dateCreated: serverTimestamp(),
       dateUpdated: serverTimestamp(),
-    });
+    };
+
+    await addDoc(collection(db, 'incidents'), newIncident);
     return { success: true, protocol };
   } catch (error: any) {
     console.error("Error adding incident: ", error);
