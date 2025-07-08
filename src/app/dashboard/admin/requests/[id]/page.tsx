@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -17,6 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getRequestByIdAction, updateRequestStatusAction } from '@/app/actions/requests-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+
+export const dynamic = 'force-dynamic';
 
 // Mock resolved tickets that could be passed to the AI component
 const mockAvailableResolvedTickets: ResolvedTicket[] = [
@@ -82,7 +85,10 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
     
     if (result.success) {
         toast({ title: "Sucesso!", description: "A solicitação foi atualizada." });
-        router.refresh(); // Recarrega os dados da página
+        const fetchedRequest = await getRequestByIdAction(params.id);
+        if (fetchedRequest) {
+            setRequest(fetchedRequest);
+        }
     } else {
         toast({ title: "Erro", description: result.error, variant: "destructive" });
     }

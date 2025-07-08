@@ -11,6 +11,8 @@ import { ArrowLeft, FileText, CalendarDays, MapPin } from 'lucide-react';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest } from '@/types';
 import { getRequestByIdAction } from '@/app/actions/requests-actions';
 
+export const dynamic = 'force-dynamic';
+
 const statusTranslations: Record<ServiceRequest['status'], string> = {
   pendente: "Pendente",
   em_analise: "Em Análise",

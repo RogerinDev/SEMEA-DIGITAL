@@ -4,6 +4,7 @@
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, where, orderBy, Timestamp, serverTimestamp } from 'firebase/firestore';
 import type { LostFoundAnimal } from '@/types';
+import { revalidatePath } from 'next/cache';
 
 interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'dateExpiration'> {
   date: string; // The form sends a string
@@ -21,10 +22,13 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
     await addDoc(collection(db, 'lost_found_posts'), {
       ...data,
       date: new Date(data.date).toISOString(), // Ensure date is stored consistently
-      dateCreated: serverTimestamp(),
+      dateCreated: new Date(),
       dateExpiration: Timestamp.fromDate(expirationDate), // Store as Firestore Timestamp
       status: 'ativo',
     });
+    
+    revalidatePath('/animal-welfare/lost-found');
+
     return { success: true };
   } catch (error: any) {
     console.error("Error adding lost/found post: ", error);

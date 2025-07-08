@@ -4,6 +4,7 @@
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference, updateDoc } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
+import { revalidatePath } from 'next/cache';
 
 const validServiceRequestTypes = SERVICE_REQUEST_TYPES.map(t => t.value);
 
@@ -53,11 +54,15 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       citizenId: data.citizenId,
       citizenName: data.citizenName,
       status: 'pendente' as ServiceRequestStatus,
-      dateCreated: serverTimestamp(),
-      dateUpdated: serverTimestamp(),
+      dateCreated: new Date(),
+      dateUpdated: new Date(),
     };
 
     await addDoc(collection(db, 'service_requests'), newRequest);
+
+    revalidatePath('/dashboard/citizen/requests');
+    revalidatePath('/dashboard/admin/requests');
+
     return { success: true, protocol };
   } catch (error: any) {
     console.error("Error adding document: ", error);
@@ -227,8 +232,13 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     await updateDoc(requestRef, {
       status: status,
       notes: notes || "", // Salva como string vazia se for undefined
-      dateUpdated: serverTimestamp(),
+      dateUpdated: new Date(),
     });
+
+    revalidatePath(`/dashboard/admin/requests/${id}`);
+    revalidatePath(`/dashboard/citizen/requests/${id}`);
+    revalidatePath('/dashboard/admin/requests');
+
     return { success: true };
   } catch (error: any) {
     console.error("Error updating request status: ", error);

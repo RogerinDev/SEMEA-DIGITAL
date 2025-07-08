@@ -4,6 +4,7 @@
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference, updateDoc } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
+import { revalidatePath } from 'next/cache';
 
 function isValidIncidentType(type: any): type is IncidentType {
   const validTypes: IncidentType[] = [
@@ -61,14 +62,18 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       location: data.location,
       department: department,
       isAnonymous: data.isAnonymous,
-      citizenId: data.isAnonymous ? null : (data.citizenId || null),
-      reportedBy: data.isAnonymous ? 'Anônimo' : (data.citizenName || 'Cidadão'),
+      citizenId: data.isAnonymous ? null : data.citizenId,
+      reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
       status: 'recebida' as IncidentStatus,
-      dateCreated: serverTimestamp(),
-      dateUpdated: serverTimestamp(),
+      dateCreated: new Date(),
+      dateUpdated: new Date(),
     };
 
     await addDoc(collection(db, 'incidents'), newIncident);
+    
+    revalidatePath('/dashboard/citizen/incidents');
+    revalidatePath('/dashboard/admin/incidents');
+    
     return { success: true, protocol };
   } catch (error: any) {
     console.error("Error adding incident: ", error);
@@ -237,8 +242,13 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
       status,
       notes: notes || "",
       inspector: inspector || "",
-      dateUpdated: serverTimestamp(),
+      dateUpdated: new Date(),
     });
+    
+    revalidatePath(`/dashboard/admin/incidents/${id}`);
+    revalidatePath(`/dashboard/citizen/incidents/${id}`);
+    revalidatePath('/dashboard/admin/incidents');
+
     return { success: true };
   } catch (error: any) {
     console.error("Error updating incident status: ", error);

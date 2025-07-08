@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -18,6 +19,8 @@ import Image from 'next/image';
 import { getIncidentByIdAction, updateIncidentStatusAction } from '@/app/actions/incidents-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+
+export const dynamic = 'force-dynamic';
 
 const statusOptions: { value: IncidentReport['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'recebida', label: 'Recebida', icon: Clock },
@@ -79,7 +82,10 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
 
     if (result.success) {
       toast({ title: "Sucesso!", description: "A denúncia foi atualizada." });
-      router.refresh();
+       const fetchedIncident = await getIncidentByIdAction(params.id);
+        if (fetchedIncident) {
+            setIncident(fetchedIncident);
+        }
     } else {
       toast({ title: "Erro", description: result.error, variant: "destructive" });
     }
