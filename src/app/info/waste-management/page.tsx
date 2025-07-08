@@ -1,13 +1,35 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Recycle, Search, MapPin, Clock, Trash2, Building, PhoneIcon, Info } from 'lucide-react';
+import { 
+    Recycle, 
+    Search, 
+    MapPin, 
+    Clock, 
+    Trash2, 
+    Building, 
+    PhoneIcon, 
+    Info,
+    Lightbulb,
+    MonitorSmartphone,
+    Battery,
+    Droplets,
+    Pill,
+    Hammer,
+    CircleDot,
+    Construction,
+    Leaf,
+    Sofa,
+    Container,
+    Unplug,
+    Sparkles
+} from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Ecoponto {
@@ -200,6 +222,25 @@ export default function WasteManagementPage() {
   const [searchTermEcopontos, setSearchTermEcopontos] = useState('');
   const [searchTermBairro, setSearchTermBairro] = useState('');
   
+  const getMaterialIcon = (material: string): React.ElementType => {
+    const lowerMaterial = material.toLowerCase();
+    if (lowerMaterial.includes('esponja')) return Sparkles;
+    if (lowerMaterial.includes('lâmpada')) return Lightbulb;
+    if (lowerMaterial.includes('eletrônico')) return MonitorSmartphone;
+    if (lowerMaterial.includes('pilha') || lowerMaterial.includes('bateria')) return Battery;
+    if (lowerMaterial.includes('óleo')) return Droplets;
+    if (lowerMaterial.includes('medicamento') || lowerMaterial.includes('remédio')) return Pill;
+    if (lowerMaterial.includes('ferro-velho')) return Hammer;
+    if (lowerMaterial.includes('pneu')) return CircleDot;
+    if (lowerMaterial.includes('construção')) return Construction;
+    if (lowerMaterial.includes('corte de árvore') || lowerMaterial.includes('capim')) return Leaf;
+    if (lowerMaterial.includes('móveis') || lowerMaterial.includes('sofá')) return Sofa;
+    if (lowerMaterial.includes('cosmético')) return Container;
+    if (lowerMaterial.includes('lacre')) return Unplug;
+    if (lowerMaterial.includes('papel') || lowerMaterial.includes('plástico') || lowerMaterial.includes('tampinha')) return Recycle;
+    return Recycle; // Default icon
+  };
+
   const filteredEcopontos = useMemo(() => {
     if (!searchTermEcopontos) {
       return ecopontosData;
@@ -262,15 +303,23 @@ export default function WasteManagementPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredEcopontos.length > 0 ? (
-                    filteredEcopontos.map((ecoponto, index) => (
+                    filteredEcopontos.map((ecoponto, index) => {
+                      const Icon = getMaterialIcon(ecoponto.MATERIAL);
+                      return (
                       <TableRow key={index}>
-                        <TableCell className="font-medium">{ecoponto.MATERIAL}</TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <Icon className="h-5 w-5 text-muted-foreground shrink-0" />
+                            <span>{ecoponto.MATERIAL}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>{ecoponto.ECOPONTO}</TableCell>
                         <TableCell>{ecoponto.ENDEREÇO}</TableCell>
                         <TableCell>{ecoponto.TELEFONE}</TableCell>
                         <TableCell>{ecoponto.OBSERVAÇÃO || '-'}</TableCell>
                       </TableRow>
-                    ))
+                      )
+                    })
                   ) : (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
