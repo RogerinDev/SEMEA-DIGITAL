@@ -55,7 +55,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   try {
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
     
-    const newIncident = {
+    const newIncident: Omit<IncidentReport, 'id'> = {
       protocol,
       type: data.incidentType,
       description: data.description,
@@ -65,14 +65,18 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       citizenId: data.isAnonymous ? null : data.citizenId,
       reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
       status: 'recebida' as IncidentStatus,
-      dateCreated: new Date(),
-      dateUpdated: new Date(),
+      dateCreated: new Date().toISOString(),
+      dateUpdated: new Date().toISOString(),
+      notes: "",
+      inspector: "",
     };
 
     await addDoc(collection(db, 'incidents'), newIncident);
     
     revalidatePath('/dashboard/citizen/incidents');
     revalidatePath('/dashboard/admin/incidents');
+    revalidatePath('/dashboard/citizen');
+    revalidatePath('/dashboard/admin');
     
     return { success: true, protocol };
   } catch (error: any) {

@@ -44,7 +44,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
   try {
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
     
-    const newRequest = {
+    const newRequest: Omit<ServiceRequest, 'id'> = {
       protocol: protocol,
       type: data.requestType,
       description: data.description,
@@ -54,14 +54,17 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       citizenId: data.citizenId,
       citizenName: data.citizenName,
       status: 'pendente' as ServiceRequestStatus,
-      dateCreated: new Date(),
-      dateUpdated: new Date(),
+      dateCreated: new Date().toISOString(),
+      dateUpdated: new Date().toISOString(),
+      notes: "",
     };
 
     await addDoc(collection(db, 'service_requests'), newRequest);
 
     revalidatePath('/dashboard/citizen/requests');
     revalidatePath('/dashboard/admin/requests');
+    revalidatePath('/dashboard/citizen');
+    revalidatePath('/dashboard/admin');
 
     return { success: true, protocol };
   } catch (error: any) {

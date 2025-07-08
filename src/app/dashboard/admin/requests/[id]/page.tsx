@@ -19,8 +19,6 @@ import { getRequestByIdAction, updateRequestStatusAction } from '@/app/actions/r
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export const dynamic = 'force-dynamic';
-
 // Mock resolved tickets that could be passed to the AI component
 const mockAvailableResolvedTickets: ResolvedTicket[] = [
   { ticketId: "R001", description: "Árvore grande na calçada com galhos secos e risco de queda sobre pedestres. Espécie flamboyant.", resolution: "Realizada vistoria, constatado risco. Poda de segurança efetuada e galhos removidos." },
