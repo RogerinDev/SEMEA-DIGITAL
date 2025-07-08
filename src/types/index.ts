@@ -1,4 +1,3 @@
-
 import type { User as FirebaseUser } from 'firebase/auth';
 
 export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin' | 'superAdmin';
@@ -23,6 +22,7 @@ export type ServiceRequestType =
   | "licenca_ambiental_simplificada"
   | "solicitacao_projeto_educacao_ambiental"
   | "agendamento_consulta_veterinaria"
+  | "requerimento_corte_poda"
   | "outros_servicos_gerais";
 
 export interface ServiceRequest {
@@ -54,6 +54,7 @@ export const SERVICE_REQUEST_TYPES: ServiceRequestTypeInfo[] = [
   { value: "poda_arvore", label: "Poda de Árvore", category: 'arborizacao' },
   { value: "corte_arvore_risco", label: "Corte de Árvore em Risco", category: 'arborizacao' },
   { value: "plantio_arvore_area_publica", label: "Plantio de Árvore em Área Pública", category: 'arborizacao' },
+  { value: "requerimento_corte_poda", label: "Requerimento de Corte/Poda de Árvore", category: 'arborizacao' },
   { value: "licenca_ambiental_simplificada", label: "Licença Ambiental Simplificada", category: 'arborizacao' },
 
   // Resíduos
@@ -201,3 +202,18 @@ export interface ThematicLecture {
 }
 
 export const GENERAL_SEMEA_FOCUS_NOTE = "Além dos projetos específicos, a SEMEA foca em fomentar a destinação adequada de resíduos sólidos, prevenção a queimadas, preparo para emergência climática (proteção de APPs, áreas verdes, arborização urbana) e bem-estar animal.";
+
+// Types for Urban Arborization Section
+export interface ArborizationProject {
+  id: string;
+  slug: string;
+  title: string;
+  objective: string;
+  howToParticipate?: string;
+  cta?: {
+    text: string;
+    link: string;
+    type: 'whatsapp' | 'internal' | 'external' | 'info';
+  };
+  detailsPage: boolean; 
+}
