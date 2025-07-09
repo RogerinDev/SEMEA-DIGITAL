@@ -49,8 +49,8 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       type: data.requestType,
       description: data.description,
       department: department,
-      address: data.address || "",
-      contactPhone: data.contactPhone || "",
+      address: data.address ?? "",
+      contactPhone: data.contactPhone ?? "",
       citizenId: data.citizenId,
       citizenName: data.citizenName,
       status: 'pendente' as ServiceRequestStatus,
@@ -234,7 +234,7 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     const requestRef = doc(db, 'service_requests', id);
     await updateDoc(requestRef, {
       status: status,
-      notes: notes || "", // Salva como string vazia se for undefined
+      notes: notes ?? "",
       dateUpdated: new Date().toISOString(),
     });
 

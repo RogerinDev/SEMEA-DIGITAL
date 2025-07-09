@@ -244,8 +244,8 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
     const incidentRef = doc(db, 'incidents', id);
     await updateDoc(incidentRef, {
       status,
-      notes: notes || "",
-      inspector: inspector || "",
+      notes: notes ?? "",
+      inspector: inspector ?? "",
       dateUpdated: new Date().toISOString(),
     });
     
