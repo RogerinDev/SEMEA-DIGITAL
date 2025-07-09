@@ -20,6 +20,8 @@ import { getIncidentByIdAction, updateIncidentStatusAction } from '@/app/actions
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
+export const dynamic = 'force-dynamic';
+
 const statusOptions: { value: IncidentReport['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'recebida', label: 'Recebida', icon: Clock },
   { value: 'em_verificacao', label: 'Em Verificação', icon: Edit3 },

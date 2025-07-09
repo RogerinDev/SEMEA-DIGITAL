@@ -44,7 +44,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
   try {
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
     
-    const newRequest: Omit<ServiceRequest, 'id'> = {
+    const newRequest = {
       protocol: protocol,
       type: data.requestType,
       description: data.description,
@@ -91,14 +91,14 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
             protocol: data.protocol,
             type: data.type,
             status: data.status,
-            dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-            dateUpdated: (data.dateUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+            dateCreated: data.dateCreated,
+            dateUpdated: data.dateUpdated,
             description: data.description,
             department: data.department,
             citizenName: data.citizenName,
             address: data.address,
             contactPhone: data.contactPhone,
-        });
+        } as ServiceRequest);
     });
     return requests;
   } catch (error) {
@@ -120,15 +120,15 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
                 protocol: data.protocol,
                 type: data.type,
                 status: data.status,
-                dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-                dateUpdated: (data.dateUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+                dateCreated: data.dateCreated,
+                dateUpdated: data.dateUpdated,
                 description: data.description,
                 department: data.department,
                 citizenName: data.citizenName,
                 address: data.address,
                 contactPhone: data.contactPhone,
                 notes: data.notes,
-            };
+            } as ServiceRequest;
         } else {
             console.log("No such document!");
             return null;
@@ -155,7 +155,7 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
 export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
   try {
     let q;
-    const requestsCollection = collection(db, "service_requests") as CollectionReference<ServiceRequest>;
+    const requestsCollection = collection(db, "service_requests");
     
     if (department) {
       q = query(requestsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
@@ -172,14 +172,14 @@ export async function getRequestsForAdminAction(department?: Department): Promis
             protocol: data.protocol,
             type: data.type,
             status: data.status,
-            dateCreated: (data.dateCreated as any)?.toDate().toISOString() || new Date().toISOString(),
-            dateUpdated: (data.dateUpdated as any)?.toDate().toISOString() || new Date().toISOString(),
+            dateCreated: data.dateCreated,
+            dateUpdated: data.dateUpdated,
             description: data.description,
             department: data.department,
             citizenName: data.citizenName,
             address: data.address,
             contactPhone: data.contactPhone,
-        });
+        } as ServiceRequest);
     });
     return requests;
   } catch (error) {
@@ -235,7 +235,7 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     await updateDoc(requestRef, {
       status: status,
       notes: notes || "", // Salva como string vazia se for undefined
-      dateUpdated: new Date(),
+      dateUpdated: new Date().toISOString(),
     });
 
     revalidatePath(`/dashboard/admin/requests/${id}`);

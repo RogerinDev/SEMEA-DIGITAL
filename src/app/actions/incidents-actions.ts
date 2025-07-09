@@ -55,7 +55,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   try {
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
     
-    const newIncident: Omit<IncidentReport, 'id'> = {
+    const newIncident = {
       protocol,
       type: data.incidentType,
       description: data.description,
@@ -103,14 +103,14 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
         protocol: data.protocol,
         type: data.type,
         status: data.status,
-        dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        dateCreated: data.dateCreated,
         description: data.description,
         location: data.location,
         department: data.department,
         reportedBy: data.reportedBy,
         isAnonymous: data.isAnonymous,
         citizenId: data.citizenId,
-      });
+      } as IncidentReport);
     });
     return incidents;
   } catch (error) {
@@ -132,8 +132,8 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
                 protocol: data.protocol,
                 type: data.type,
                 status: data.status,
-                dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-                dateUpdated: (data.dateUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+                dateCreated: data.dateCreated,
+                dateUpdated: data.dateUpdated,
                 description: data.description,
                 location: data.location,
                 department: data.department,
@@ -142,7 +142,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
                 citizenId: data.citizenId,
                 notes: data.notes,
                 inspector: data.inspector,
-            };
+            } as IncidentReport;
         } else {
             console.log("No such incident document!");
             return null;
@@ -169,7 +169,7 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
 export async function getIncidentsForAdminAction(department?: Department): Promise<IncidentReport[]> {
   try {
     let q;
-    const incidentsCollection = collection(db, "incidents") as CollectionReference<IncidentReport>;
+    const incidentsCollection = collection(db, "incidents");
 
     if (department) {
       q = query(incidentsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
@@ -186,14 +186,14 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
         protocol: data.protocol,
         type: data.type,
         status: data.status,
-        dateCreated: (data.dateCreated as any)?.toDate().toISOString() || new Date().toISOString(),
+        dateCreated: data.dateCreated,
         description: data.description,
         location: data.location,
         department: data.department,
         reportedBy: data.reportedBy,
         isAnonymous: data.isAnonymous,
         citizenId: data.citizenId,
-      });
+      } as IncidentReport);
     });
     return incidents;
   } catch (error) {
@@ -246,7 +246,7 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
       status,
       notes: notes || "",
       inspector: inspector || "",
-      dateUpdated: new Date(),
+      dateUpdated: new Date().toISOString(),
     });
     
     revalidatePath(`/dashboard/admin/incidents/${id}`);
