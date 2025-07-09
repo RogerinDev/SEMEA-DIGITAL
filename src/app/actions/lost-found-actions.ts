@@ -22,7 +22,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
     const newPost = {
         type: data.type,
         species: data.species,
-        breed: data.breed ?? "",
+        breed: data.breed || "",
         description: data.description,
         lastSeenLocation: data.lastSeenLocation,
         contactName: data.contactName,

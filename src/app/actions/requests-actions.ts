@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, updateDoc, Timestamp } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -49,8 +49,8 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       type: data.requestType,
       description: data.description,
       department: department,
-      address: data.address ?? "",
-      contactPhone: data.contactPhone ?? "",
+      address: data.address || "",
+      contactPhone: data.contactPhone || "",
       citizenId: data.citizenId,
       citizenName: data.citizenName,
       status: 'pendente' as ServiceRequestStatus,
@@ -206,7 +206,7 @@ export async function getRequestsCountAction({
       queryConstraints.push(where("status", "==", status));
     }
     if (fromDate) {
-      queryConstraints.push(where("dateUpdated", ">=", Timestamp.fromDate(fromDate)));
+      queryConstraints.push(where("dateCreated", ">=", fromDate.toISOString()));
     }
 
     const q = query(collection(db, "service_requests"), ...queryConstraints);
@@ -241,6 +241,10 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     revalidatePath(`/dashboard/admin/requests/${id}`);
     revalidatePath(`/dashboard/citizen/requests/${id}`);
     revalidatePath('/dashboard/admin/requests');
+    revalidatePath('/dashboard/citizen/requests');
+    revalidatePath('/dashboard/admin');
+    revalidatePath('/dashboard/citizen');
+
 
     return { success: true };
   } catch (error: any) {

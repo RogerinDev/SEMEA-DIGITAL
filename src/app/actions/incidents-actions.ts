@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, serverTimestamp, orderBy, Timestamp, getCountFromServer, CollectionReference, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, updateDoc } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -44,6 +44,9 @@ interface NewIncidentData {
 export async function addIncidentAction(data: NewIncidentData): Promise<{ success: boolean; protocol?: string; error?: string }> {
   if (!isValidIncidentType(data.incidentType)) {
     return { success: false, error: "Tipo de denúncia inválido." };
+  }
+  if (!data.citizenId && !data.isAnonymous) {
+      return { success: false, error: "Usuário não autenticado."};
   }
 
   const incidentTypeInfo = INCIDENT_TYPES.find(t => t.value === data.incidentType);
@@ -252,6 +255,10 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
     revalidatePath(`/dashboard/admin/incidents/${id}`);
     revalidatePath(`/dashboard/citizen/incidents/${id}`);
     revalidatePath('/dashboard/admin/incidents');
+    revalidatePath('/dashboard/citizen/incidents');
+    revalidatePath('/dashboard/admin');
+    revalidatePath('/dashboard/citizen');
+
 
     return { success: true };
   } catch (error: any) {
