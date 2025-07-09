@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, where, orderBy, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -19,13 +19,23 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 30);
 
-    await addDoc(collection(db, 'lost_found_posts'), {
-      ...data,
-      date: new Date(data.date).toISOString(), // Ensure date is stored consistently
-      dateCreated: new Date(),
-      dateExpiration: Timestamp.fromDate(expirationDate), // Store as Firestore Timestamp
-      status: 'ativo',
-    });
+    const newPost = {
+        type: data.type,
+        species: data.species,
+        breed: data.breed || "",
+        description: data.description,
+        lastSeenLocation: data.lastSeenLocation,
+        contactName: data.contactName,
+        contactPhone: data.contactPhone,
+        photoUrl: data.photoUrl,
+        status: 'ativo' as const,
+        citizenId: data.citizenId,
+        date: new Date(data.date).toISOString(),
+        dateCreated: new Date().toISOString(),
+        dateExpiration: expirationDate.toISOString(),
+    };
+
+    await addDoc(collection(db, 'lost_found_posts'), newPost);
     
     revalidatePath('/animal-welfare/lost-found');
 
@@ -41,8 +51,8 @@ export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]
     const q = query(
       collection(db, "lost_found_posts"),
       where("status", "==", "ativo"),
-      where("dateExpiration", ">=", new Date()), // Only fetch non-expired posts
-      orderBy("dateExpiration", "asc"), // Show posts closer to expiration first
+      where("dateExpiration", ">=", new Date().toISOString()), // Only fetch non-expired posts
+      orderBy("dateExpiration", "asc"),
       orderBy("dateCreated", "desc")
     );
 
@@ -63,9 +73,9 @@ export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]
         photoUrl: data.photoUrl,
         status: data.status,
         citizenId: data.citizenId,
-        dateCreated: (data.dateCreated as Timestamp)?.toDate().toISOString(),
-        dateExpiration: (data.dateExpiration as Timestamp)?.toDate().toISOString(),
-      });
+        dateCreated: data.dateCreated,
+        dateExpiration: data.dateExpiration,
+      } as LostFoundAnimal);
     });
     return posts;
   } catch (error) {
