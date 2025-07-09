@@ -19,10 +19,10 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 30);
 
-    const newPost = {
+    const newPost: Omit<LostFoundAnimal, 'id'> = {
         type: data.type,
         species: data.species,
-        breed: data.breed || "",
+        breed: data.breed || "", // Guard against undefined
         description: data.description,
         lastSeenLocation: data.lastSeenLocation,
         contactName: data.contactName,
@@ -42,7 +42,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
     return { success: true };
   } catch (error: any) {
     console.error("Error adding lost/found post: ", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "Não foi possível salvar o registro: " + error.message };
   }
 }
 

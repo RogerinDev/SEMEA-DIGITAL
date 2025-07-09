@@ -44,16 +44,16 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
   try {
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
     
-    const newRequest = {
+    const newRequest: Omit<ServiceRequest, 'id'> = {
       protocol: protocol,
       type: data.requestType,
       description: data.description,
       department: department,
-      address: data.address || "",
-      contactPhone: data.contactPhone || "",
+      address: data.address || "", // Guard against undefined
+      contactPhone: data.contactPhone || "", // Guard against undefined
       citizenId: data.citizenId,
       citizenName: data.citizenName,
-      status: 'pendente' as ServiceRequestStatus,
+      status: 'pendente',
       dateCreated: new Date().toISOString(),
       dateUpdated: new Date().toISOString(),
       notes: "",
@@ -69,7 +69,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
     return { success: true, protocol };
   } catch (error: any) {
     console.error("Error adding document: ", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "Não foi possível salvar a solicitação: " + error.message };
   }
 }
 

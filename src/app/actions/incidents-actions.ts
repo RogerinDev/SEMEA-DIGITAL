@@ -58,7 +58,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   try {
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
     
-    const newIncident = {
+    const newIncident: Omit<IncidentReport, 'id'> = {
       protocol,
       type: data.incidentType,
       description: data.description,
@@ -67,7 +67,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       isAnonymous: data.isAnonymous,
       citizenId: data.isAnonymous ? null : data.citizenId,
       reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
-      status: 'recebida' as IncidentStatus,
+      status: 'recebida',
       dateCreated: new Date().toISOString(),
       dateUpdated: new Date().toISOString(),
       notes: "",
@@ -84,7 +84,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
     return { success: true, protocol };
   } catch (error: any) {
     console.error("Error adding incident: ", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "Não foi possível salvar a denúncia: " + error.message };
   }
 }
 
