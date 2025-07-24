@@ -1,8 +1,7 @@
 
 'use server';
 
-import { dbAdmin } from '@/lib/firebase-admin';
-import { db } from '@/lib/firebase';
+import { dbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -79,7 +78,7 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
 
   try {
     const q = query(
-        collection(db, "service_requests"), 
+        collection(dbAdmin, "service_requests"), 
         where("citizenId", "==", citizenId),
         orderBy("dateCreated", "desc")
     );
@@ -111,7 +110,7 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
 export async function getRequestByIdAction(id: string): Promise<ServiceRequest | null> {
     if (!id) return null;
     try {
-        const docRef = doc(db, 'service_requests', id);
+        const docRef = doc(dbAdmin, 'service_requests', id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -143,7 +142,7 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
 export async function getRequestCountByCitizenAction(citizenId: string): Promise<number> {
     if (!citizenId) return 0;
     try {
-        const q = query(collection(db, "service_requests"), where("citizenId", "==", citizenId));
+        const q = query(collection(dbAdmin, "service_requests"), where("citizenId", "==", citizenId));
         const snapshot = await getCountFromServer(q);
         return snapshot.data().count;
     } catch (error) {
@@ -156,7 +155,7 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
 export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
   try {
     let q;
-    const requestsCollection = collection(db, "service_requests");
+    const requestsCollection = collection(dbAdmin, "service_requests");
     
     if (department) {
       q = query(requestsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
@@ -210,7 +209,7 @@ export async function getRequestsCountAction({
       queryConstraints.push(where("dateCreated", ">=", fromDate.toISOString()));
     }
 
-    const q = query(collection(db, "service_requests"), ...queryConstraints);
+    const q = query(collection(dbAdmin, "service_requests"), ...queryConstraints);
     const snapshot = await getCountFromServer(q);
     return snapshot.data().count;
   } catch (error) {

@@ -25,7 +25,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { storage } from "@/lib/firebase";
+import { storage } from "@/lib/firebase/client";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { updateProfile, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import {

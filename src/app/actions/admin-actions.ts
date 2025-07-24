@@ -2,7 +2,7 @@
 
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { type Department, type UserRole } from "@/types";
-import { app, FIREBASE_REGION } from "@/lib/firebase";
+import { app, FIREBASE_REGION } from "@/lib/firebase/client";
 
 // Initialize functions, specifying the region
 const functions = getFunctions(app, FIREBASE_REGION);

@@ -1,6 +1,6 @@
-// src/lib/firebase-admin.ts
+// src/lib/firebase/admin.ts
 import { config } from 'dotenv';
-config(); // Carrega as variáveis de ambiente do arquivo .env.local
+config(); // Carrega as variáveis de ambiente do arquivo .env
 
 import * as admin from 'firebase-admin';
 
@@ -26,11 +26,10 @@ if (!admin.apps.length) {
   } else {
     // Adiciona um log de erro mais claro se as credenciais não forem encontradas
     console.error(
-      'CRITICAL: Firebase Admin SDK credentials not found. Ensure FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and NEXT_PUBLIC_FIREBASE_PROJECT_ID are set in your .env.local file.'
+      'CRITICAL: Firebase Admin SDK credentials not found. Ensure FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, and NEXT_PUBLIC_FIREBASE_PROJECT_ID are set in your .env file.'
     );
   }
 }
 
-const dbAdmin = admin.firestore();
-
-export { admin, dbAdmin };
+export const dbAdmin = admin.firestore();
+export { admin };
