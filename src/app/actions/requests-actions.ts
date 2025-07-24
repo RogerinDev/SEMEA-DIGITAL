@@ -2,7 +2,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, updateDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, updateDoc } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -49,8 +49,8 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       type: data.requestType,
       description: data.description,
       department: department,
-      address: data.address ?? "", // Ensure empty string instead of undefined
-      contactPhone: data.contactPhone ?? "", // Ensure empty string instead of undefined
+      address: data.address ?? "", 
+      contactPhone: data.contactPhone ?? "", 
       citizenId: data.citizenId,
       citizenName: data.citizenName,
       status: 'pendente',
@@ -61,11 +61,10 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
 
     await addDoc(collection(db, 'service_requests'), newRequest);
 
-    // Revalidation is often better handled by navigating and letting Next.js fetch fresh data
-    // revalidatePath('/dashboard/citizen/requests');
-    // revalidatePath('/dashboard/admin/requests');
-    // revalidatePath('/dashboard/citizen');
-    // revalidatePath('/dashboard/admin');
+    revalidatePath('/dashboard/citizen/requests');
+    revalidatePath('/dashboard/admin/requests');
+    revalidatePath('/dashboard/citizen');
+    revalidatePath('/dashboard/admin');
 
     return { success: true, protocol };
   } catch (error: any) {
