@@ -17,17 +17,14 @@ const firebaseConfigValues: FirebaseOptions = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Opcional
 };
 
-// This is the most important check. If the API key is missing, Firebase cannot work.
+// This is a critical check for the client-side Firebase configuration.
 if (!firebaseConfigValues.apiKey || !firebaseConfigValues.projectId) {
-  const errorMessage = "CRITICAL FIREBASE CONFIG ERROR: Required environment variables (e.g., NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_PROJECT_ID) are missing.\n" +
-    "This means your '.env.local' file is likely missing, misconfigured, or you haven't restarted your Next.js development server.\n" +
-    "Please ensure you have a '.env.local' file in your project root with your real Firebase credentials, and that all variable names start with 'NEXT_PUBLIC_'.\n" +
-    "After creating/updating the '.env.local' file, YOU MUST RESTART your Next.js development server.";
+  const errorMessage = "CRITICAL FIREBASE CONFIG ERROR: Required public environment variables (e.g., NEXT_PUBLIC_FIREBASE_API_KEY) are missing.\n" +
+    "Please ensure you have a '.env.local' file in your project root with your Firebase web app credentials.\n" +
+    "After creating/updating the file, YOU MUST RESTART your Next.js development server.";
   
-  // Log to both server and client consoles
   console.error(errorMessage);
   
-  // Throw an error to stop the application from loading further with a broken configuration.
   throw new Error(errorMessage);
 }
 
@@ -42,9 +39,8 @@ try {
     app = getApp();
   }
 } catch (e: any) {
-  console.error("Firebase critical initialization error caught:", e.message);
-  // Re-throw to ensure the application does not proceed with a misconfigured Firebase instance.
-  throw new Error(`Firebase initialization failed: ${e.message}. Review console logs for details.`);
+  console.error("Firebase client initialization error caught:", e.message);
+  throw new Error(`Firebase client initialization failed: ${e.message}. Review console logs for details.`);
 }
 
 // Initialize Firebase services after ensuring the app is initialized.
