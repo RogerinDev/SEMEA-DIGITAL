@@ -11,7 +11,7 @@ import { ArrowLeft, AlertTriangle, CalendarDays, MapPin } from 'lucide-react';
 import { INCIDENT_TYPES, type IncidentReport } from '@/types';
 import { getIncidentByIdAction } from '@/app/actions/incidents-actions';
 
-// export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 const statusTranslations: Record<IncidentReport['status'], string> = {
   recebida: "Recebida",

@@ -76,10 +76,11 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
 
     await addDoc(collection(db, 'incidents'), newIncident);
     
-    revalidatePath('/dashboard/citizen/incidents');
-    revalidatePath('/dashboard/admin/incidents');
-    revalidatePath('/dashboard/citizen');
-    revalidatePath('/dashboard/admin');
+    // Revalidation is often better handled by navigating and letting Next.js fetch fresh data
+    // revalidatePath('/dashboard/citizen/incidents');
+    // revalidatePath('/dashboard/admin/incidents');
+    // revalidatePath('/dashboard/citizen');
+    // revalidatePath('/dashboard/admin');
     
     return { success: true, protocol };
   } catch (error: any) {

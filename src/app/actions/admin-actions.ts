@@ -2,13 +2,13 @@
 
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { type Department, type UserRole } from "@/types";
-import { app } from "@/lib/firebase";
+import { app, FIREBASE_REGION } from "@/lib/firebase";
 
 // Initialize functions, specifying the region
-const functions = getFunctions(app, 'southamerica-east1');
+const functions = getFunctions(app, FIREBASE_REGION);
 
 // Create a callable function reference
-const setAdminRole = httpsCallable<{ email: string; department: Department; role: UserRole }, { message: string }>(functions, 'setAdminRole');
+const setAdminRoleCallable = httpsCallable<{ email: string; department: Department; role: UserRole }, { message: string }>(functions, 'setAdminRole');
 
 interface SetAdminRoleData {
     email: string;
@@ -22,7 +22,7 @@ export async function setAdminRoleAction(data: SetAdminRoleData): Promise<{ succ
   }
 
   try {
-    const result = await setAdminRole(data);
+    const result = await setAdminRoleCallable(data);
     return { success: true, message: result.data.message };
   } catch (error: any) {
     console.error("Error calling setAdminRole function:", error);

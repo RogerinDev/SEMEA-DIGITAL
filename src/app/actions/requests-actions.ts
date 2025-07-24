@@ -49,8 +49,8 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       type: data.requestType,
       description: data.description,
       department: department,
-      address: data.address || "", // Guard against undefined
-      contactPhone: data.contactPhone || "", // Guard against undefined
+      address: data.address ?? "", // Ensure empty string instead of undefined
+      contactPhone: data.contactPhone ?? "", // Ensure empty string instead of undefined
       citizenId: data.citizenId,
       citizenName: data.citizenName,
       status: 'pendente',
@@ -61,10 +61,11 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
 
     await addDoc(collection(db, 'service_requests'), newRequest);
 
-    revalidatePath('/dashboard/citizen/requests');
-    revalidatePath('/dashboard/admin/requests');
-    revalidatePath('/dashboard/citizen');
-    revalidatePath('/dashboard/admin');
+    // Revalidation is often better handled by navigating and letting Next.js fetch fresh data
+    // revalidatePath('/dashboard/citizen/requests');
+    // revalidatePath('/dashboard/admin/requests');
+    // revalidatePath('/dashboard/citizen');
+    // revalidatePath('/dashboard/admin');
 
     return { success: true, protocol };
   } catch (error: any) {
