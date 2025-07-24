@@ -1,7 +1,7 @@
 
 'use server';
 
-import { dbAdmin } from '@/lib/firebase/admin';
+import { getDbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -56,6 +56,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   const department = mapIncidentCategoryToDepartment(incidentTypeInfo.category);
 
   try {
+    const dbAdmin = getDbAdmin();
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
     
     const newIncident: Omit<IncidentReport, 'id'> = {
@@ -64,7 +65,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       description: data.description,
       location: data.location,
       department: department,
-      isAnonymous: data.isAnonymous,
+      isAnonymous: data.isAnonymous ?? false,
       citizenId: data.isAnonymous ? null : data.citizenId,
       reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
       status: 'recebida',
@@ -78,8 +79,6 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
     
     revalidatePath('/dashboard/citizen/incidents');
     revalidatePath('/dashboard/admin/incidents');
-    revalidatePath('/dashboard/citizen');
-    revalidatePath('/dashboard/admin');
     
     return { success: true, protocol };
   } catch (error: any) {
@@ -92,6 +91,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
   if (!citizenId) return [];
 
   try {
+    const dbAdmin = getDbAdmin();
     const q = query(
         collection(dbAdmin, "incidents"), 
         where("citizenId", "==", citizenId),
@@ -125,6 +125,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
 export async function getIncidentByIdAction(id: string): Promise<IncidentReport | null> {
     if(!id) return null;
     try {
+        const dbAdmin = getDbAdmin();
         const docRef = doc(dbAdmin, 'incidents', id);
         const docSnap = await getDoc(docRef);
 
@@ -159,6 +160,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
 export async function getIncidentCountByCitizenAction(citizenId: string): Promise<number> {
     if (!citizenId) return 0;
     try {
+        const dbAdmin = getDbAdmin();
         const q = query(collection(dbAdmin, "incidents"), where("citizenId", "==", citizenId));
         const snapshot = await getCountFromServer(q);
         return snapshot.data().count;
@@ -171,6 +173,7 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
 
 export async function getIncidentsForAdminAction(department?: Department): Promise<IncidentReport[]> {
   try {
+    const dbAdmin = getDbAdmin();
     let q;
     const incidentsCollection = collection(dbAdmin, "incidents");
 
@@ -213,6 +216,7 @@ export async function getIncidentsCountAction({
   status?: IncidentStatus;
 }): Promise<number> {
   try {
+    const dbAdmin = getDbAdmin();
     const queryConstraints: any[] = [];
     if (department) {
       queryConstraints.push(where("department", "==", department));
@@ -244,6 +248,7 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
   }
 
   try {
+    const dbAdmin = getDbAdmin();
     const incidentRef = dbAdmin.collection('incidents').doc(id);
     await incidentRef.update({
       status,
@@ -256,9 +261,6 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
     revalidatePath(`/dashboard/citizen/incidents/${id}`);
     revalidatePath('/dashboard/admin/incidents');
     revalidatePath('/dashboard/citizen/incidents');
-    revalidatePath('/dashboard/admin');
-    revalidatePath('/dashboard/citizen');
-
 
     return { success: true };
   } catch (error: any) {

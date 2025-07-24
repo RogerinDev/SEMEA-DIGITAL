@@ -1,7 +1,7 @@
 
 'use server';
 
-import { dbAdmin } from '@/lib/firebase/admin';
+import { getDbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -16,6 +16,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
   }
 
   try {
+    const dbAdmin = getDbAdmin();
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 30);
 
@@ -27,7 +28,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
         lastSeenLocation: data.lastSeenLocation,
         contactName: data.contactName,
         contactPhone: data.contactPhone,
-        photoUrl: data.photoUrl,
+        photoUrl: data.photoUrl ?? "",
         status: 'ativo' as const,
         citizenId: data.citizenId,
         date: new Date(data.date).toISOString(),
@@ -48,6 +49,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
 
 export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]> {
   try {
+    const dbAdmin = getDbAdmin();
     const q = query(
       collection(dbAdmin, "lost_found_posts"),
       where("status", "==", "ativo"),
