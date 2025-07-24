@@ -1,8 +1,9 @@
 
 'use server';
 
+import { dbAdmin } from '@/lib/firebase-admin';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -35,7 +36,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
         dateExpiration: expirationDate.toISOString(),
     };
 
-    await addDoc(collection(db, 'lost_found_posts'), newPost);
+    await dbAdmin.collection('lost_found_posts').add(newPost);
     
     revalidatePath('/animal-welfare/lost-found');
 
