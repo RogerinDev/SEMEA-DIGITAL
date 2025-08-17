@@ -2,7 +2,7 @@
 'use server';
 
 import { getDbAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -60,7 +60,8 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       notes: "",
     };
 
-    await dbAdmin.collection('service_requests').add(newRequest);
+    const requestsCollection = collection(dbAdmin, 'service_requests');
+    await addDoc(requestsCollection, newRequest);
 
     revalidatePath('/dashboard/citizen/requests');
     revalidatePath('/dashboard/admin/requests');
@@ -236,8 +237,8 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
 
   try {
     const dbAdmin = getDbAdmin();
-    const requestRef = dbAdmin.collection('service_requests').doc(id);
-    await requestRef.update({
+    const requestRef = doc(dbAdmin, 'service_requests', id);
+    await updateDoc(requestRef, {
       status: status,
       notes: notes ?? "",
       dateUpdated: new Date().toISOString(),

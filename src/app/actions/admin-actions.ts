@@ -26,10 +26,17 @@ export async function setAdminRoleAction(data: SetAdminRoleData): Promise<{ succ
     return { success: true, message: result.data.message };
   } catch (error: any) {
     console.error("Error calling setAdminRole function:", error);
+    // Provide more specific error feedback based on the error code from Firebase Functions
+    if (error.code === 'functions/permission-denied') {
+        return { success: false, error: "Permissão negada. Apenas Super Admins podem executar esta ação." };
+    }
+     if (error.code === 'functions/invalid-argument') {
+        return { success: false, error: "Argumentos inválidos. Verifique o e-mail e o departamento." };
+    }
     if (error.code === 'functions/not-found') {
         return { success: false, error: "A função de administração não foi encontrada (not-found). Verifique se a Cloud Function 'setAdminRole' foi implantada corretamente no Firebase." };
     }
-    // Firebase callable function errors have a 'message' property
+    // Firebase callable function errors often have a 'message' property with user-friendly text
     return { success: false, error: error.message || "Ocorreu um erro desconhecido ao chamar a função." };
   }
 }

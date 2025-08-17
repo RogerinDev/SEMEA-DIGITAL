@@ -5,22 +5,21 @@ let dbAdmin: Firestore;
 
 /**
  * Initializes the Firebase Admin SDK if not already initialized.
- * This function is designed to be safe to call multiple times.
- * It relies on the GOOGLE_APPLICATION_CREDENTIALS environment variable 
- * being set in the deployment environment.
+ * This function is designed to be safe to call multiple times in a serverless environment.
  */
 function initializeAdminApp() {
+  // Check if the app is already initialized to prevent errors
   if (admin.apps.length > 0) {
     return;
   }
+  
+  // The SDK will automatically use the GOOGLE_APPLICATION_CREDENTIALS env var
+  // in environments like Firebase Hosting, Cloud Run, etc.
   try {
-    // initializeApp() without arguments will use the GOOGLE_APPLICATION_CREDENTIALS
-    // environment variable, which is the standard way in Google Cloud environments.
     admin.initializeApp();
   } catch (error: any) {
-    console.error('Firebase Admin Initialization Error:', error.stack);
-    // In a server environment, this is a critical error.
-    // We throw to prevent the application from continuing in a broken state.
+    console.error('Firebase Admin Initialization Error:', error);
+    // This is a critical error in a server environment.
     throw new Error(`Firebase Admin SDK initialization failed: ${error.message}`);
   }
 }
@@ -49,4 +48,5 @@ export function getAuthAdmin() {
   return admin.auth();
 }
 
+// Export the admin instance itself if needed for other purposes.
 export { admin };

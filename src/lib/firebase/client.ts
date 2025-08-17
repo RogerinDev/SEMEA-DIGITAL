@@ -23,8 +23,8 @@ if (!firebaseConfigValues.apiKey || !firebaseConfigValues.projectId) {
     "Please ensure you have a '.env.local' file in your project root with your Firebase web app credentials.\n" +
     "After creating/updating the file, YOU MUST RESTART your Next.js development server.";
   
-  console.error(errorMessage);
-  
+  // This error will be thrown during the build process on the server if variables are missing,
+  // or in the browser console.
   throw new Error(errorMessage);
 }
 

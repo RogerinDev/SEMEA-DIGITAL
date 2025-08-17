@@ -2,7 +2,7 @@
 'use server';
 
 import { getDbAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -75,7 +75,8 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       inspector: "",
     };
 
-    await dbAdmin.collection('incidents').add(newIncident);
+    const incidentsCollection = collection(dbAdmin, 'incidents');
+    await addDoc(incidentsCollection, newIncident);
     
     revalidatePath('/dashboard/citizen/incidents');
     revalidatePath('/dashboard/admin/incidents');
@@ -249,8 +250,8 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
 
   try {
     const dbAdmin = getDbAdmin();
-    const incidentRef = dbAdmin.collection('incidents').doc(id);
-    await incidentRef.update({
+    const incidentRef = doc(dbAdmin, 'incidents', id);
+    await updateDoc(incidentRef, {
       status,
       notes: notes ?? "",
       inspector: inspector ?? "",
