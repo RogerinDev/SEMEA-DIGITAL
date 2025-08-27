@@ -2,36 +2,32 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, Send, Mail, Phone, Info, Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { educationalProjects, thematicLectures } from "@/lib/education-data";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { addRequestAction } from "@/app/actions/requests-actions";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const participationFormSchema = z.object({
   institutionName: z.string().min(3, "Nome da instituição é obrigatório."),
   responsibleName: z.string().min(3, "Nome do responsável é obrigatório."),
   contactPhone: z.string().min(10, "Telefone inválido. Inclua o DDD."),
   contactEmail: z.string().email("E-mail inválido."),
-  projectsOfInterest: z.array(z.string()).optional(),
-  lecturesOfInterest: z.array(z.string()).optional(),
-  otherInterests: z.string().optional(),
+  interestType: z.enum(["projeto", "palestra", "ambos", "outro"], { required_error: "Selecione o tipo de interesse." }),
+  interestDetails: z.string().min(10, "Descreva o interesse com no mínimo 10 caracteres."),
   targetAudienceDescription: z.string().min(10, "Descreva o público-alvo (mín. 10 caracteres)."),
-  estimatedParticipants: z.string().min(1, "Número estimado é obrigatório."),
-  suggestedDates: z.string().optional(),
+  estimatedParticipants: z.coerce.number().min(1, "Número estimado é obrigatório."),
   additionalObservations: z.string().optional(),
 });
 
@@ -50,12 +46,8 @@ export default function HowToParticipatePage() {
       responsibleName: "",
       contactPhone: "",
       contactEmail: "",
-      projectsOfInterest: [],
-      lecturesOfInterest: [],
-      otherInterests: "",
+      interestDetails: "",
       targetAudienceDescription: "",
-      estimatedParticipants: "",
-      suggestedDates: "",
       additionalObservations: "",
     },
   });
@@ -77,12 +69,10 @@ Solicitação de Ação de Educação Ambiental:
 - Instituição: ${data.institutionName}
 - Responsável: ${data.responsibleName}
 - Contato: ${data.contactPhone} / ${data.contactEmail}
-- Projetos de Interesse: ${data.projectsOfInterest?.join(', ') || 'Nenhum'}
-- Palestras de Interesse: ${data.lecturesOfInterest?.join(', ') || 'Nenhuma'}
-- Outros Interesses: ${data.otherInterests || 'Nenhum'}
+- Tipo de Interesse: ${data.interestType}
+- Detalhes do Interesse: ${data.interestDetails}
 - Público-Alvo: ${data.targetAudienceDescription}
 - Nº Estimado de Participantes: ${data.estimatedParticipants}
-- Datas Sugeridas: ${data.suggestedDates || 'Nenhuma'}
 - Observações: ${data.additionalObservations || 'Nenhuma'}
     `.trim();
 
@@ -111,10 +101,6 @@ Solicitação de Ação de Educação Ambiental:
     setIsSubmitting(false);
   }
 
-  const projectOptions = educationalProjects.map(p => ({ id: p.slug, label: p.title }));
-  const lectureOptions = thematicLectures.map(l => ({ id: l.id, label: l.title }));
-
-
   return (
     <>
       <PageTitle
@@ -127,10 +113,9 @@ Solicitação de Ação de Educação Ambiental:
         <div className="md:col-span-2">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Manifeste seu Interesse</CardTitle>
+              <CardTitle>Formulário de Solicitação</CardTitle>
               <CardDescription>
-                Instituições interessadas em receber um projeto de educação ambiental ou palestra devem preencher o formulário abaixo. 
-                Caso deseje mais informações sobre os projetos antes de agendar, pode solicitar uma reunião de apresentação através dos contatos ao lado. É necessário estar logado para enviar.
+                Preencha o formulário para solicitar uma ação de educação ambiental. Nossa equipe analisará a solicitação e entrará em contato para alinhar os detalhes. É necessário estar logado para enviar.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -171,95 +156,43 @@ Solicitação de Ação de Educação Ambiental:
 
                   <Separator />
 
-                  <FormItem>
-                    <FormLabel className="text-base font-semibold">Projetos de Interesse (opcional)</FormLabel>
-                    <FormDescription>Marque os projetos que sua instituição tem interesse.</FormDescription>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mt-2">
-                        {projectOptions.map((project) => (
-                        <FormField
-                            key={project.id}
-                            control={form.control}
-                            name="projectsOfInterest"
-                            render={({ field }) => {
-                            return (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                    <Checkbox
-                                    checked={field.value?.includes(project.id)}
-                                    onCheckedChange={(checked) => {
-                                        return checked
-                                        ? field.onChange([...(field.value || []), project.id])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                            (value) => value !== project.id
-                                            )
-                                        );
-                                    }}
-                                    />
-                                </FormControl>
-                                <FormLabel className="text-sm font-normal">
-                                    {project.label}
-                                </FormLabel>
-                                </FormItem>
-                            );
-                            }}
-                        />
-                        ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-
-                  <FormItem>
-                    <FormLabel className="text-base font-semibold">Palestras de Interesse (opcional)</FormLabel>
-                    <FormDescription>Selecione as palestras desejadas.</FormDescription>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mt-2">
-                        {lectureOptions.map((lecture) => (
-                        <FormField
-                            key={lecture.id}
-                            control={form.control}
-                            name="lecturesOfInterest"
-                            render={({ field }) => {
-                            return (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                    <Checkbox
-                                    checked={field.value?.includes(lecture.id)}
-                                    onCheckedChange={(checked) => {
-                                        return checked
-                                        ? field.onChange([...(field.value || []), lecture.id])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                            (value) => value !== lecture.id
-                                            )
-                                        );
-                                    }}
-                                    />
-                                </FormControl>
-                                <FormLabel className="text-sm font-normal">
-                                    {lecture.label}
-                                </FormLabel>
-                                </FormItem>
-                            );
-                            }}
-                        />
-                        ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                  
-                  <FormField control={form.control} name="otherInterests" render={({ field }) => (
+                  <FormField
+                    control={form.control}
+                    name="interestType"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Outros Interesses/Temas</FormLabel>
-                        <FormControl><Input {...field} placeholder="Caso tenha interesse em um tema não listado" /></FormControl>
+                        <FormLabel>Tipo de Interesse</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o tipo de ação desejada" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="projeto">Projeto Educacional</SelectItem>
+                            <SelectItem value="palestra">Palestra Temática</SelectItem>
+                            <SelectItem value="ambos">Projeto e Palestra</SelectItem>
+                            <SelectItem value="outro">Outro tipo de ação</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
-                    )} />
+                    )}
+                  />
+
+                  <FormField control={form.control} name="interestDetails" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Detalhes do Interesse</FormLabel>
+                      <FormControl><Textarea {...field} placeholder="Cite o nome do projeto ou palestra de interesse. Se for 'outro', descreva a ação desejada." /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
                   <Separator />
 
                   <FormField control={form.control} name="targetAudienceDescription" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Público-Alvo da Instituição</FormLabel>
+                      <FormLabel>Público-Alvo da Ação</FormLabel>
                       <FormControl><Textarea {...field} placeholder="Descreva o público que participará (ex: alunos do 5º ano, professores, comunidade local)" /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -267,22 +200,15 @@ Solicitação de Ação de Educação Ambiental:
                   <FormField control={form.control} name="estimatedParticipants" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Número Estimado de Participantes</FormLabel>
-                      <FormControl><Input type="number" {...field} placeholder="Ex: 50" /></FormControl>
+                      <FormControl><Input type="number" {...field} placeholder="Ex: 50" onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={form.control} name="suggestedDates" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sugestão de Datas/Período (opcional)</FormLabel>
-                      <FormControl><Input {...field} placeholder="Ex: Segunda quinzena de Maio, Terças pela manhã" /></FormControl>
-                      <FormDescription>Informe algumas datas ou períodos de preferência para a realização da atividade.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
+                  
                   <FormField control={form.control} name="additionalObservations" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Observações Adicionais (opcional)</FormLabel>
-                      <FormControl><Textarea {...field} placeholder="Espaço para informações adicionais, necessidades específicas, etc." /></FormControl>
+                      <FormControl><Textarea {...field} placeholder="Espaço para informações adicionais, necessidades específicas, sugestão de datas, etc." /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -316,7 +242,7 @@ Solicitação de Ação de Educação Ambiental:
                 <span>(35) 3690-2529</span>
               </div>
                <p className="text-sm text-muted-foreground pt-2">
-                Sinta-se à vontade para entrar em contato para tirar dúvidas ou solicitar uma reunião de apresentação dos nossos projetos.
+                Sinta-se à vontade para entrar em contato para tirar dúvidas antes de preencher o formulário.
               </p>
             </CardContent>
           </Card>

@@ -266,7 +266,7 @@ export default function LostFoundPage() {
 
   return (
     <>
-      <PageTitle title="Animais Perdidos e Encontrados" icon={Search} description="Ajude a reunir pets com seus donos. Anúncios ativos são removidos após 30 dias." />
+      <PageTitle title="Animais Perdidos e Encontrados" icon={Search} description="Ajude a reunir pets com seus donos. Os anúncios são públicos por 30 dias." />
       
       <Tabs defaultValue="perdidos" className="w-full mb-12">
         <TabsList className="grid w-full grid-cols-2 md:w-1/2 mx-auto">

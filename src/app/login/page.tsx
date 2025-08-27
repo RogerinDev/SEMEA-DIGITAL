@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PublicHeader } from '@/components/navigation/public-header';
-import { Footer } from '@/components/navigation/footer';
 import { LogIn, Loader2 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useAuth } from '@/contexts/auth-context';
@@ -25,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import PublicLayout from '@/components/layouts/public-layout';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -68,9 +67,8 @@ export default function LoginPage() {
   const isLoading = authLoading || isSubmitting;
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <PublicHeader />
-      <main className="flex-grow flex items-center justify-center py-12 px-4">
+    <PublicLayout>
+      <div className="flex flex-grow items-center justify-center py-12 px-4">
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -150,8 +148,7 @@ export default function LoginPage() {
             </div>
           </CardContent>
         </Card>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </PublicLayout>
   );
 }

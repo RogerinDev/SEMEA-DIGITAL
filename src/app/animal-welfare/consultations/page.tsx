@@ -57,12 +57,13 @@ export default function AppointmentPage() {
         setIsSubmitting(true);
         
         const description = `
-Pré-agendamento de consulta veterinária.
+Solicitação de pré-agendamento de consulta veterinária.
 Tutor: ${values.tutorName}
 Animal: ${values.animalName}
 Data Desejada: ${format(values.selectedDate, 'dd/MM/yyyy', { locale: ptBR })}
 Horário Desejado: ${values.selectedTime}
 Contato: ${values.contactPhone}
+Aguardando confirmação do setor de Bem-Estar Animal.
         `.trim();
 
         const requestTypeInfo = SERVICE_REQUEST_TYPES.find(t => t.value === "agendamento_consulta_veterinaria");
@@ -105,7 +106,7 @@ Contato: ${values.contactPhone}
 
     return (
         <>
-            <PageTitle title="Agendamento de Consulta Veterinária" icon={Stethoscope} description="Agende uma consulta básica para seu animal. Os horários são limitados e sujeitos a confirmação. É necessário estar logado." />
+            <PageTitle title="Solicitar Agendamento de Consulta" icon={Stethoscope} description="Solicite um horário para consulta veterinária básica. As solicitações estão sujeitas à disponibilidade e confirmação." />
             
             <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card className="shadow-lg">
@@ -123,7 +124,7 @@ Contato: ${values.contactPhone}
                         />
                         {date && (
                              <div className="mt-6 w-full">
-                                <h3 className="text-lg font-medium text-center mb-4">Horários para {format(date, 'PPP', { locale: ptBR })}:</h3>
+                                <h3 className="text-lg font-medium text-center mb-4">Horários Sugeridos para {format(date, 'PPP', { locale: ptBR })}:</h3>
                                 <div className="grid grid-cols-3 gap-2">
                                     {availableTimes.map((availableTime) => (
                                         <Button
@@ -143,8 +144,8 @@ Contato: ${values.contactPhone}
 
                  <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="text-xl">2. Preencha seus Dados</CardTitle>
-                        <CardDescription>Preencha os dados abaixo para concluir o pré-agendamento.</CardDescription>
+                        <CardTitle className="text-xl">2. Preencha os Dados</CardTitle>
+                        <CardDescription>Preencha os dados abaixo para enviar sua solicitação de agendamento.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Form {...form}>
@@ -172,7 +173,7 @@ Contato: ${values.contactPhone}
                                 )}/>
 
                                 <Button type="submit" className="w-full" disabled={!date || !time || isSubmitting}>
-                                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : "Confirmar Pré-Agendamento"}
+                                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : "Enviar Solicitação de Agendamento"}
                                 </Button>
                                 {(!date || !time) && <p className="text-center text-sm text-destructive font-medium mt-2">Por favor, selecione uma data e um horário para continuar.</p>}
                             </form>
