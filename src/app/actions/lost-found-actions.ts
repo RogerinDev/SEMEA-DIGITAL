@@ -28,7 +28,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
         lastSeenLocation: data.lastSeenLocation,
         contactName: data.contactName,
         contactPhone: data.contactPhone,
-        photoUrl: data.photoUrl ?? "",
+        photoUrl: data.photoUrl ?? "", // Ensure photoUrl is handled, even if empty
         status: 'ativo' as const,
         citizenId: data.citizenId,
         date: new Date(data.date).toISOString(),

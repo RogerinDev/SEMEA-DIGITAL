@@ -4,7 +4,7 @@
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PawPrint, Search, MapPin, CalendarDays, PlusCircle, BadgeHelp, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
+import { PawPrint, Search, MapPin, CalendarDays, PlusCircle, BadgeHelp, AlertTriangle, CheckCircle2, Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,14 +20,19 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Badge } from '@/components/ui/badge';
 import type { LostFoundAnimal } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { addLostFoundPostAction, getActiveLostFoundPostsAction } from '@/app/actions/lost-found-actions';
+import { storage } from '@/lib/firebase/client';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { cn } from '@/lib/utils';
 
 
-function LostFoundForm() {
+function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
   const { toast } = useToast();
   const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const reportFormSchema = z.object({
     reportType: z.enum(["perdido", "encontrado"], { required_error: "Selecione o tipo de registro."}),
@@ -38,6 +43,7 @@ function LostFoundForm() {
     date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data inválida."}),
     contactName: z.string().min(1, "Nome para contato é obrigatório."),
     contactPhone: z.string().min(10, "Telefone para contato é obrigatório."),
+    photoFile: z.instanceof(File).optional().refine(file => !file || file.size <= 2 * 1024 * 1024, 'A imagem deve ter no máximo 2MB.'),
   });
 
   const form = useForm<z.infer<typeof reportFormSchema>>({
@@ -57,7 +63,32 @@ function LostFoundForm() {
     if(currentUser?.displayName) {
         form.setValue('contactName', currentUser.displayName);
     }
-  }, [currentUser, form])
+  }, [currentUser, form]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+          toast({ title: "Imagem muito grande", description: "Por favor, selecione uma imagem com até 2MB.", variant: "destructive" });
+          return;
+      }
+      form.setValue('photoFile', file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setPreviewImage(null);
+    form.setValue('photoFile', undefined);
+    if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
+  };
+
 
   async function onSubmit(values: z.infer<typeof reportFormSchema>) {
     if (!currentUser) {
@@ -66,35 +97,49 @@ function LostFoundForm() {
     }
     setIsSubmitting(true);
     
-    // NOTE: File upload logic is not fully implemented.
-    // We are passing an empty string for photoUrl. The action and card component should handle this gracefully.
-    const photoUrl = '';
+    let photoUrl = '';
+    
+    try {
+      if (values.photoFile) {
+          toast({ title: "Enviando Imagem...", description: "Aguarde enquanto sua foto é enviada." });
+          const storageRef = ref(storage, `lost_found_images/${currentUser.uid}-${Date.now()}-${values.photoFile.name}`);
+          const uploadResult = await uploadBytes(storageRef, values.photoFile);
+          photoUrl = await getDownloadURL(uploadResult.ref);
+          toast({ title: "Imagem Enviada!", description: "Sua foto foi enviada com sucesso." });
+      }
 
-    const result = await addLostFoundPostAction({
-      type: values.reportType,
-      species: values.species,
-      breed: values.breed,
-      description: values.description,
-      lastSeenLocation: values.lastSeenLocation,
-      date: values.date,
-      contactName: values.contactName,
-      contactPhone: values.contactPhone,
-      photoUrl, // Pass the (currently empty) photoUrl
-      status: 'ativo',
-      citizenId: currentUser.uid,
-    });
-
-    if(result.success) {
-      toast({
-        title: "Registro Enviado!",
-        description: `Seu registro de animal ${values.reportType === 'perdido' ? 'perdido' : 'encontrado'} foi criado com sucesso.`,
+      const result = await addLostFoundPostAction({
+        type: values.reportType,
+        species: values.species,
+        breed: values.breed,
+        description: values.description,
+        lastSeenLocation: values.lastSeenLocation,
+        date: values.date,
+        contactName: values.contactName,
+        contactPhone: values.contactPhone,
+        photoUrl,
+        status: 'ativo',
+        citizenId: currentUser.uid,
       });
-      form.reset();
-      // Ideally, trigger a refresh of the posts list here.
-    } else {
-       toast({ title: "Erro", description: result.error || "Não foi possível criar o registro.", variant: "destructive"});
+
+      if(result.success) {
+        toast({
+          title: "Registro Enviado!",
+          description: `Seu registro de animal ${values.reportType === 'perdido' ? 'perdido' : 'encontrado'} foi criado com sucesso.`,
+        });
+        form.reset();
+        removeImage();
+        onPostCreated(); // Trigger a refresh of the posts list
+      } else {
+         toast({ title: "Erro", description: result.error || "Não foi possível criar o registro.", variant: "destructive"});
+      }
+
+    } catch (error) {
+      console.error("Error during submission:", error);
+      toast({ title: "Erro no Upload", description: "Não foi possível enviar a imagem. Tente novamente.", variant: "destructive"});
+    } finally {
+        setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   }
   
   return (
@@ -106,6 +151,41 @@ function LostFoundForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                 <FormField
+                  control={form.control}
+                  name="photoFile"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Foto do Animal</FormLabel>
+                      <FormControl>
+                          <div className={cn("w-full border-2 border-dashed rounded-lg p-4 text-center", previewImage && 'border-solid')}>
+                              {previewImage ? (
+                                  <div className="relative group w-48 h-48 mx-auto">
+                                      <Image src={previewImage} alt="Pré-visualização da imagem" layout="fill" objectFit="cover" className="rounded-md"/>
+                                      <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" onClick={removeImage}>
+                                          <X className="h-4 w-4"/>
+                                      </Button>
+                                  </div>
+                              ) : (
+                                  <div className="flex flex-col items-center space-y-2 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                      <Upload className="h-10 w-10 text-muted-foreground"/>
+                                      <p className="text-sm text-muted-foreground">Clique para enviar uma foto (Max 2MB)</p>
+                                  </div>
+                              )}
+                              <Input
+                                  type="file"
+                                  accept="image/png, image/jpeg, image/gif"
+                                  className="hidden"
+                                  ref={fileInputRef}
+                                  onChange={handleFileChange}
+                              />
+                          </div>
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+                />
+
                 <div className="grid md:grid-cols-2 gap-6">
                     <FormField name="reportType" control={form.control} render={({ field }) => (
                         <FormItem>
@@ -190,10 +270,6 @@ function LostFoundForm() {
                         </FormItem>
                     )} />
                 </div>
-                {/* <FormItem>
-                    <Label>Foto do Animal (opcional)</Label>
-                    <Input type="file" accept="image/*" />
-                </FormItem> */}
                 <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
                     {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : null}
                     Enviar Registro
@@ -251,19 +327,22 @@ function AnimalCard({ animal }: { animal: LostFoundAnimal }) {
 export default function LostFoundPage() {
   const [posts, setPosts] = useState<LostFoundAnimal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const fetchPosts = async () => {
+      setLoading(true);
+      const fetchedPosts = await getActiveLostFoundPostsAction();
+      setPosts(fetchedPosts);
+      setLoading(false);
+  }
 
   useEffect(() => {
-    async function fetchPosts() {
-        setLoading(true);
-        const fetchedPosts = await getActiveLostFoundPostsAction();
-        // In a real scenario with a cron job, we wouldn't need to filter by status === 'resolvido' here
-        // but for now, we add them to the list to show all relevant posts.
-        const allPostsToShow = fetchedPosts; // Simplified for now.
-        setPosts(allPostsToShow);
-        setLoading(false);
-    }
     fetchPosts();
-  }, []);
+  }, [refreshKey]);
+  
+  const handlePostCreated = () => {
+      setRefreshKey(prevKey => prevKey + 1);
+  };
   
   const animaisPerdidos = posts.filter(a => a.type === 'perdido');
   const animaisEncontrados = posts.filter(a => a.type === 'encontrado');
@@ -297,7 +376,7 @@ export default function LostFoundPage() {
         )}
       </Tabs>
 
-      <LostFoundForm />
+      <LostFoundForm onPostCreated={handlePostCreated} />
     </>
   );
 }
