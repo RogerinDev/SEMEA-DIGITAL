@@ -1,4 +1,3 @@
-
 "use client";
 
 import { PageTitle } from '@/components/page-title';
@@ -16,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from '@/components/ui/badge';
 import type { LostFoundAnimal } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
@@ -189,7 +188,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                 <div className="grid md:grid-cols-2 gap-6">
                     <FormField name="reportType" control={form.control} render={({ field }) => (
                         <FormItem>
-                            <Label>Tipo de Registro</Label>
+                            <FormLabel>Tipo de Registro</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger><SelectValue placeholder="Perdido ou Encontrado?" /></SelectTrigger>
@@ -204,7 +203,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                     )} />
                      <FormField name="species" control={form.control} render={({ field }) => (
                         <FormItem>
-                            <Label>Espécie</Label>
+                            <FormLabel>Espécie</FormLabel>
                             <FormControl>
                               <Input placeholder="Cachorro, Gato, Pássaro..." {...field} />
                             </FormControl>
@@ -214,7 +213,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                 </div>
                  <FormField name="breed" control={form.control} render={({ field }) => (
                     <FormItem>
-                        <Label>Raça (opcional)</Label>
+                        <FormLabel>Raça (opcional)</FormLabel>
                          <FormControl>
                           <Input placeholder="SRD, Poodle, Siamês..." {...field} />
                         </FormControl>
@@ -223,7 +222,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                 )} />
                  <FormField name="description" control={form.control} render={({ field }) => (
                     <FormItem>
-                        <Label>Descrição do Animal</Label>
+                        <FormLabel>Descrição do Animal</FormLabel>
                         <FormControl>
                           <Textarea placeholder="Cores, marcas, tamanho, comportamento, coleira..." {...field} />
                         </FormControl>
@@ -233,7 +232,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                 <div className="grid md:grid-cols-2 gap-6">
                     <FormField name="lastSeenLocation" control={form.control} render={({ field }) => (
                         <FormItem>
-                            <Label>Última Localização Visto/Encontrado</Label>
+                            <FormLabel>Última Localização Visto/Encontrado</FormLabel>
                             <FormControl>
                               <Input placeholder="Rua, Bairro, Ponto de Referência" {...field} />
                             </FormControl>
@@ -242,7 +241,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                     )} />
                     <FormField name="date" control={form.control} render={({ field }) => (
                         <FormItem>
-                            <Label>Data da Ocorrência</Label>
+                            <FormLabel>Data da Ocorrência</FormLabel>
                             <FormControl>
                              <Input type="date" {...field} />
                             </FormControl>
@@ -253,7 +252,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                  <div className="grid md:grid-cols-2 gap-6">
                     <FormField name="contactName" control={form.control} render={({ field }) => (
                         <FormItem>
-                            <Label>Seu Nome para Contato</Label>
+                            <FormLabel>Seu Nome para Contato</FormLabel>
                             <FormControl>
                               <Input {...field} />
                             </FormControl>
@@ -262,7 +261,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
                     )} />
                     <FormField name="contactPhone" control={form.control} render={({ field }) => (
                         <FormItem>
-                            <Label>Seu Telefone para Contato</Label>
+                            <FormLabel>Seu Telefone para Contato</FormLabel>
                              <FormControl>
                               <Input type="tel" placeholder="(XX) XXXXX-XXXX" {...field} />
                             </FormControl>
