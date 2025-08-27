@@ -67,7 +67,7 @@ export default function CitizenIncidentsPage() {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <PageTitle title="Minhas Denúncias Registradas" icon={AlertTriangle} className="mb-0" />
         <Button asChild>
           <Link href="/dashboard/citizen/incidents/new">
@@ -107,8 +107,8 @@ export default function CitizenIncidentsPage() {
             <CardTitle>Histórico de Denúncias</CardTitle>
             <CardDescription>Acompanhe o status das suas denúncias.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
+          <CardContent className="overflow-x-auto">
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Protocolo</TableHead>
@@ -147,3 +147,5 @@ export default function CitizenIncidentsPage() {
     </>
   );
 }
+
+    

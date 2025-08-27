@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -52,38 +53,40 @@ function RequestTable({ requests }: { requests: ServiceRequest[] }) {
     return <p className="text-muted-foreground text-center py-8">Nenhuma solicitação encontrada para este filtro.</p>;
   }
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Protocolo</TableHead>
-          <TableHead>Tipo</TableHead>
-          <TableHead>Solicitante</TableHead>
-          <TableHead>Data</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Ações</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {requests.map((request) => (
-          <TableRow key={request.id}>
-            <TableCell className="font-medium">{request.protocol}</TableCell>
-            <TableCell>{request.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
-            <TableCell>{request.citizenName || 'N/A'}</TableCell>
-            <TableCell>{new Date(request.dateCreated).toLocaleDateString()}</TableCell>
-            <TableCell>
-              <Badge variant={getStatusVariant(request.status)}>{statusTranslations[request.status]}</Badge>
-            </TableCell>
-            <TableCell className="text-right space-x-2">
-              <Button variant="outline" size="icon" asChild title="Ver Detalhes">
-                <Link href={`/dashboard/admin/requests/${request.id}`}> 
-                  <span><Eye className="h-4 w-4" /></span>
-                </Link>
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="overflow-x-auto">
+        <Table className="min-w-[700px]">
+        <TableHeader>
+            <TableRow>
+            <TableHead>Protocolo</TableHead>
+            <TableHead>Tipo</TableHead>
+            <TableHead>Solicitante</TableHead>
+            <TableHead>Data</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            {requests.map((request) => (
+            <TableRow key={request.id}>
+                <TableCell className="font-medium">{request.protocol}</TableCell>
+                <TableCell>{request.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
+                <TableCell>{request.citizenName || 'N/A'}</TableCell>
+                <TableCell>{new Date(request.dateCreated).toLocaleDateString()}</TableCell>
+                <TableCell>
+                <Badge variant={getStatusVariant(request.status)}>{statusTranslations[request.status]}</Badge>
+                </TableCell>
+                <TableCell className="text-right space-x-2">
+                <Button variant="outline" size="icon" asChild title="Ver Detalhes">
+                    <Link href={`/dashboard/admin/requests/${request.id}`}> 
+                    <span><Eye className="h-4 w-4" /></span>
+                    </Link>
+                </Button>
+                </TableCell>
+            </TableRow>
+            ))}
+        </TableBody>
+        </Table>
+    </div>
   );
 }
 
@@ -118,9 +121,9 @@ export default function AdminRequestsPage() {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <PageTitle title="Gerenciar Solicitações" icon={FileText} className="mb-0" description={`Departamento: ${currentUser.role === 'superAdmin' ? 'Todos' : currentUser.department}`} />
-        <Button variant="outline">
+        <Button variant="outline" className="self-start sm:self-auto">
           <Filter className="mr-2 h-4 w-4" /> Filtrar
         </Button>
       </div>
@@ -150,3 +153,5 @@ export default function AdminRequestsPage() {
     </>
   );
 }
+
+    

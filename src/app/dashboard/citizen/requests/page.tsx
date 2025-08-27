@@ -64,7 +64,7 @@ export default function CitizenRequestsPage() {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <PageTitle title="Minhas Solicitações de Serviço" icon={FileText} className="mb-0" />
         <Button asChild>
           <Link href="/dashboard/citizen/requests/new">
@@ -104,8 +104,8 @@ export default function CitizenRequestsPage() {
             <CardTitle>Histórico de Solicitações</CardTitle>
             <CardDescription>Acompanhe o status de suas solicitações de serviço.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
+          <CardContent className="overflow-x-auto">
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Protocolo</TableHead>
@@ -144,3 +144,5 @@ export default function CitizenRequestsPage() {
     </>
   );
 }
+
+    

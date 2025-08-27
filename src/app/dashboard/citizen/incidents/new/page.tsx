@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -183,7 +184,7 @@ export default function NewIncidentReportPage() {
                                     <SelectItem key={type.value} value={type.value}>
                                       {type.label}
                                     </SelectItem>
-                                ))}
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -275,3 +276,5 @@ export default function NewIncidentReportPage() {
     </>
   );
 }
+
+    

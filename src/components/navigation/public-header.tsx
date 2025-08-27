@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon, Edit, Lock, LogOut } from 'lucide-react';
+import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon, Edit, Lock, LogOut, Menu } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/theme-context';
@@ -17,25 +17,54 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import React from 'react';
 
-export function PublicHeader() {
-  const { theme, toggleTheme } = useTheme();
-  const { currentUser, logout } = useAuth();
-
-  const navItems = [
+const navItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
     { href: '/info/education', label: 'Educação Ambiental', icon: GraduationCap },
     { href: '/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
     { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase },
-  ];
+];
 
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-3 md:px-4 md:relative md:justify-start">
-          <Logo iconSize={22} textSize="text-base md:text-lg" className="flex-shrink-0" />
-          
-          <nav className="flex flex-shrink-0 items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:flex-shrink md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:space-x-2 lg:space-x-3">
+function MobileNav() {
+    return (
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="h-6 w-6"/>
+                    <span className="sr-only">Abrir menu</span>
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[280px]">
+                <div className="flex flex-col h-full">
+                    <div className="p-4 border-b">
+                        <Logo iconSize={24} textSize="text-lg" />
+                    </div>
+                    <nav className="flex-grow p-4">
+                        <ul className="space-y-2">
+                            {navItems.map((item) => (
+                                <li key={item.label}>
+                                    <SheetClose asChild>
+                                        <Link href={item.href} className="flex items-center gap-3 rounded-md p-3 text-lg font-medium text-foreground/80 hover:bg-accent hover:text-accent-foreground">
+                                            <item.icon className="h-5 w-5" />
+                                            {item.label}
+                                        </Link>
+                                    </SheetClose>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
+}
+
+function DesktopNav() {
+     return (
+        <nav className="hidden md:flex flex-shrink-0 items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:flex-shrink md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:space-x-2 lg:space-x-3">
             {navItems.map((item) => (
               <Tooltip key={item.label} delayDuration={100}>
                 <TooltipTrigger asChild>
@@ -52,9 +81,26 @@ export function PublicHeader() {
                 </TooltipContent>
               </Tooltip>
             ))}
-          </nav>
+        </nav>
+     )
+}
 
-          <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2 md:ml-auto">
+
+export function PublicHeader() {
+  const { theme, toggleTheme } = useTheme();
+  const { currentUser, logout } = useAuth();
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between px-3 md:px-4">
+          <div className="flex items-center gap-2">
+            <MobileNav />
+            <Logo iconSize={22} textSize="text-base md:text-lg" className="flex-shrink-0" />
+          </div>
+          
+          <DesktopNav />
+
+          <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2">
             {currentUser ? (
               <DropdownMenu>
                 <Tooltip>
@@ -94,14 +140,30 @@ export function PublicHeader() {
               </DropdownMenu>
             ) : (
               <>
+                 <Link
+                    href="/login"
+                    passHref
+                    className={cn(buttonVariants({ variant: "secondary" }), "hidden sm:inline-flex")}
+                >
+                    Entrar
+                </Link>
+                <Link
+                    href="/register"
+                    passHref
+                    className={cn(buttonVariants({ variant: "default" }), "hidden sm:inline-flex")}
+                >
+                    Registrar
+                </Link>
+
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Link
                       href="/login"
                       passHref
-                      className={cn(buttonVariants({ variant: "secondary", size: "icon" }))}
+                      className={cn(buttonVariants({ variant: "secondary", size: "icon" }), "sm:hidden")}
                     >
                       <LogIn className="h-4 w-4" />
+                       <span className="sr-only">Entrar</span>
                     </Link>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -114,9 +176,10 @@ export function PublicHeader() {
                     <Link
                       href="/register"
                       passHref
-                      className={cn(buttonVariants({ variant: "default", size: "icon" }))}
+                      className={cn(buttonVariants({ variant: "default", size: "icon" }), "sm:hidden")}
                     >
                       <UserPlus className="h-4 w-4" />
+                       <span className="sr-only">Registrar</span>
                     </Link>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -141,3 +204,5 @@ export function PublicHeader() {
     </header>
   );
 }
+
+    

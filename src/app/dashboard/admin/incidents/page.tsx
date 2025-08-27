@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -43,38 +44,40 @@ function IncidentTable({ incidents }: { incidents: IncidentReport[] }) {
     return <p className="text-muted-foreground text-center py-8">Nenhuma denúncia encontrada para este filtro.</p>;
   }
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Protocolo</TableHead>
-          <TableHead>Tipo</TableHead>
-          <TableHead>Reportado Por</TableHead>
-          <TableHead>Data</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Ações</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {incidents.map((incident) => (
-          <TableRow key={incident.id}>
-            <TableCell className="font-medium">{incident.protocol}</TableCell>
-            <TableCell>{incident.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
-            <TableCell>{incident.reportedBy || 'Anônimo'}</TableCell>
-            <TableCell>{new Date(incident.dateCreated).toLocaleDateString()}</TableCell>
-            <TableCell>
-              <Badge variant={getStatusVariant(incident.status)}>{statusTranslations[incident.status]}</Badge>
-            </TableCell>
-            <TableCell className="text-right">
-              <Button variant="outline" size="icon" asChild title="Ver Detalhes">
-                <Link href={`/dashboard/admin/incidents/${incident.id}`}>
-                  <span><Eye className="h-4 w-4" /></span>
-                </Link>
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="overflow-x-auto">
+        <Table className="min-w-[700px]">
+        <TableHeader>
+            <TableRow>
+            <TableHead>Protocolo</TableHead>
+            <TableHead>Tipo</TableHead>
+            <TableHead>Reportado Por</TableHead>
+            <TableHead>Data</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            {incidents.map((incident) => (
+            <TableRow key={incident.id}>
+                <TableCell className="font-medium">{incident.protocol}</TableCell>
+                <TableCell>{incident.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
+                <TableCell>{incident.reportedBy || 'Anônimo'}</TableCell>
+                <TableCell>{new Date(incident.dateCreated).toLocaleDateString()}</TableCell>
+                <TableCell>
+                <Badge variant={getStatusVariant(incident.status)}>{statusTranslations[incident.status]}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                <Button variant="outline" size="icon" asChild title="Ver Detalhes">
+                    <Link href={`/dashboard/admin/incidents/${incident.id}`}>
+                    <span><Eye className="h-4 w-4" /></span>
+                    </Link>
+                </Button>
+                </TableCell>
+            </TableRow>
+            ))}
+        </TableBody>
+        </Table>
+    </div>
   );
 }
 
@@ -109,9 +112,9 @@ export default function AdminIncidentsPage() {
   
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <PageTitle title="Gerenciar Denúncias" icon={AlertTriangle} className="mb-0" description={`Departamento: ${currentUser.role === 'superAdmin' ? 'Todos' : currentUser.department}`} />
-         <Button variant="outline">
+         <Button variant="outline" className="self-start sm:self-auto">
           <Filter className="mr-2 h-4 w-4" /> Filtrar
         </Button>
       </div>
@@ -140,3 +143,5 @@ export default function AdminIncidentsPage() {
     </>
   );
 }
+
+    
