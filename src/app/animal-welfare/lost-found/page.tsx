@@ -66,9 +66,9 @@ function LostFoundForm() {
     }
     setIsSubmitting(true);
     
-    // In a real app, you would handle file upload to Firebase Storage here and get a URL.
-    // For now, we'll use a placeholder.
-    const photoUrl = 'https://placehold.co/400x300.png';
+    // NOTE: File upload logic is not fully implemented.
+    // We are passing an empty string for photoUrl. The action and card component should handle this gracefully.
+    const photoUrl = '';
 
     const result = await addLostFoundPostAction({
       type: values.reportType,
@@ -79,7 +79,7 @@ function LostFoundForm() {
       date: values.date,
       contactName: values.contactName,
       contactPhone: values.contactPhone,
-      photoUrl,
+      photoUrl, // Pass the (currently empty) photoUrl
       status: 'ativo',
       citizenId: currentUser.uid,
     });
@@ -210,8 +210,12 @@ function AnimalCard({ animal }: { animal: LostFoundAnimal }) {
   const AnimalIcon = animal.species.toLowerCase() === 'cachorro' ? PawPrint : (animal.species.toLowerCase() === 'gato' ? PawPrint : PawPrint);
   return (
     <Card className="flex flex-col overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <Image src={animal.photoUrl || 'https://placehold.co/400x300.png'} alt={`${animal.type} - ${animal.species}`} layout="fill" objectFit="cover" data-ai-hint={`${animal.species} animal`}/>
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted flex items-center justify-center">
+        {animal.photoUrl ? (
+          <Image src={animal.photoUrl} alt={`${animal.type} - ${animal.species}`} layout="fill" objectFit="cover" data-ai-hint={`${animal.species} animal`}/>
+        ) : (
+          <PawPrint className="w-16 h-16 text-muted-foreground" />
+        )}
         <Badge variant={animal.type === 'perdido' ? 'destructive' : 'secondary'} className="absolute top-2 left-2 capitalize">
           {animal.type === 'perdido' ? <AlertTriangle className="h-3 w-3 mr-1"/> : <BadgeHelp className="h-3 w-3 mr-1"/>}
           {animal.type}

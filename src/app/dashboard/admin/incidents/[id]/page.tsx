@@ -7,7 +7,7 @@ import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2 } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2, CameraOff } from 'lucide-react';
 import Link from 'next/link';
 import type { IncidentReport, IncidentStatus } from '@/types';
 import { Separator } from '@/components/ui/separator';
@@ -15,7 +15,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Image from 'next/image';
 import { getIncidentByIdAction, updateIncidentStatusAction } from '@/app/actions/incidents-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -170,12 +169,13 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
               {/* Placeholder for photos/videos */}
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Evidências (Fotos/Vídeos)</p>
-                <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {/* Example images - replace with actual data if available */}
-                    <Image src="https://placehold.co/300x200.png" data-ai-hint="garbage waste" alt="Evidência 1" width={300} height={200} className="rounded-md object-cover aspect-[3/2]" />
-                    <Image src="https://placehold.co/300x200.png" data-ai-hint="pollution environment" alt="Evidência 2" width={300} height={200} className="rounded-md object-cover aspect-[3/2]" />
+                <div className="mt-2 flex items-center justify-center text-center text-muted-foreground bg-muted/50 rounded-md p-6 min-h-[100px]">
+                    <div className="space-y-1">
+                        <CameraOff className="h-8 w-8 mx-auto" />
+                        <p className="text-sm">Nenhuma evidência foi anexada a esta denúncia.</p>
+                        <p className="text-xs">(Funcionalidade de upload em desenvolvimento)</p>
+                    </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Nenhuma evidência anexada (placeholder).</p>
               </div>
             </CardContent>
           </Card>
@@ -231,25 +231,19 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
             </CardFooter>
            </Card>
         </div>
-        <div className="md:col-span-1">
-          {/* Placeholder for Mapa da Ocorrência */}
+        <div className="md:col-span-1 space-y-6">
           <Card>
-            <CardHeader>
-                <CardTitle>Mapa da Ocorrência</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Image src="https://placehold.co/400x300.png" data-ai-hint="city map" alt="Mapa da ocorrência" width={400} height={300} className="rounded-md w-full object-cover" />
-                <p className="text-xs text-muted-foreground mt-2">Localização aproximada (placeholder).</p>
-            </CardContent>
-          </Card>
-
-          {/* Placeholder for Histórico de Ações */}
-          <Card className="mt-6">
             <CardHeader>
                 <CardTitle>Histórico de Ações</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-sm text-muted-foreground">O histórico de ações e mudanças de status apareceria aqui.</p>
+                <p className="text-sm text-muted-foreground">O histórico de ações e mudanças de status aparecerá aqui.</p>
+                 {/* Example:
+                <ul className="space-y-2 text-sm">
+                    <li className="text-sm"><strong>Em Verificação</strong> - 18/08/2024 por Admin - Denúncia encaminhada para o fiscal.</li>
+                    <li className="text-sm"><strong>Recebida</strong> - 17/08/2024 - Sistema registrou a denúncia.</li>
+                </ul>
+                 */}
             </CardContent>
           </Card>
         </div>
