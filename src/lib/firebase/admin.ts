@@ -16,7 +16,9 @@ function initializeAdminApp() {
   // The SDK will automatically use the GOOGLE_APPLICATION_CREDENTIALS env var
   // in environments like Firebase Hosting, Cloud Run, etc.
   try {
-    admin.initializeApp();
+     admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+    });
   } catch (error: any) {
     console.error('Firebase Admin Initialization Error:', error);
     // This is a critical error in a server environment.
