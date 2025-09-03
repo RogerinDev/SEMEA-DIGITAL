@@ -1,43 +1,35 @@
 
 import * as admin from 'firebase-admin';
 import type { Firestore } from 'firebase-admin/firestore';
+import type { Auth } from 'firebase-admin/auth';
 
 let dbAdmin: Firestore;
+let authAdmin: Auth;
 
 /**
  * Initializes the Firebase Admin SDK if not already initialized.
- * This function is designed to be safe to call multiple times in a serverless environment.
+ * This function is designed to be safe to call multiple times.
  */
 function initializeAdminApp() {
   // Check if the app is already initialized to prevent errors
-  if (admin.apps.length > 0) {
-    // If the app is initialized, but dbAdmin is not, get the instance.
-    if (!dbAdmin) {
-      dbAdmin = admin.firestore();
-    }
-    return;
+  if (admin.apps.length === 0) {
+    // When deployed to Firebase/Google Cloud, the SDK automatically finds the default credentials.
+    // No need to pass any config object.
+    admin.initializeApp();
   }
   
-  // The SDK will automatically use the GOOGLE_APPLICATION_CREDENTIALS env var
-  // in environments like Firebase Hosting, Cloud Run, etc.
-  try {
-     admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-      databaseURL: "https://semeabd.firebaseio.com",
-    });
-    // Assign the firestore instance right after initialization
+  // Assign the firestore and auth instances after initialization
+  // This ensures they are available for subsequent calls
+  if (!dbAdmin) {
     dbAdmin = admin.firestore();
-  } catch (error: any) {
-    console.error('Firebase Admin Initialization Error:', error);
-    // This is a critical error in a server environment.
-    throw new Error(`Firebase Admin SDK initialization failed: ${error.message}`);
+  }
+  if (!authAdmin) {
+    authAdmin = admin.auth();
   }
 }
 
 /**
  * Gets the Firestore admin instance, initializing the app if necessary.
- * This lazy-initialization approach prevents race conditions and ensures
- * the app is initialized before any Firestore operations are attempted.
  * @returns The Firestore admin instance.
  */
 export function getDbAdmin(): Firestore {
@@ -49,10 +41,7 @@ export function getDbAdmin(): Firestore {
  * Gets the Auth admin instance, initializing the app if necessary.
  * @returns The Auth admin instance.
  */
-export function getAuthAdmin() {
+export function getAuthAdmin(): Auth {
   initializeAdminApp();
-  return admin.auth();
+  return authAdmin;
 }
-
-// Export the admin instance itself if needed for other purposes.
-export { admin };
