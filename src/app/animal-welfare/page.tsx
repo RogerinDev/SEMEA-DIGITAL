@@ -35,13 +35,13 @@ export default function AnimalWelfareInfoPage() {
       />
 
       <div className="grid md:grid-cols-2 gap-8 mb-12 items-center">
-          <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
+          <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl bg-muted">
               <Image
                   src="/logo_bem_estar.png"
                   alt="Cão feliz sendo cuidado"
                   width={600}
                   height={450}
-                  className="object-cover"
+                  className="object-contain"
                   data-ai-hint="happy dog"
                   priority
               />
