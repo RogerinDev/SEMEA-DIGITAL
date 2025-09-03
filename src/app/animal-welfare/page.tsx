@@ -37,7 +37,7 @@ export default function AnimalWelfareInfoPage() {
       <div className="grid md:grid-cols-2 gap-8 mb-12 items-center">
           <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
               <Image
-                  src="https://picsum.photos/600/450"
+                  src="/logo_bem_estar.png"
                   alt="Cão feliz sendo cuidado"
                   width={600}
                   height={450}
