@@ -1,30 +1,59 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PawPrint, Dog, Cat, Heart, Info, Construction } from 'lucide-react';
+import { PawPrint, Dog, Cat, Heart, Info, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { Animal } from '@/types';
+import type { AnimalForAdoption, AnimalSpecies } from '@/types';
 import { Badge } from '@/components/ui/badge';
+import { getAnimalsForAdoptionAction } from '@/app/actions/adoption-actions';
+import { cn } from '@/lib/utils';
 
-// Mock data has been removed. The component will now display a "work in progress" message.
-// In a future implementation, this array would be populated by a server action fetching data from Firestore.
-const animalsForAdoption: Animal[] = [];
 
-const getAnimalIcon = (species: Animal['species']) => {
+const getAnimalIcon = (species: AnimalSpecies) => {
   if (species === 'cao') return Dog;
   if (species === 'gato') return Cat;
   return PawPrint;
 };
 
-export default function AnimalAdoptionPage() {
-  const [filter, setFilter] = useState<'all' | 'cao' | 'gato'>('all');
+const statusTranslations: Record<AnimalForAdoption['status'], string> = {
+    disponivel: 'Disponível',
+    processo_adocao_em_andamento: 'Em Adoção',
+    adotado: 'Adotado'
+};
 
-  const filteredAnimals = animalsForAdoption.filter(animal => {
+const getStatusBadgeVariant = (status: AnimalForAdoption['status']): 'default' | 'secondary' | 'destructive' | 'outline' => {
+    switch (status) {
+        case 'disponivel':
+            return 'secondary';
+        case 'processo_adocao_em_andamento':
+            return 'outline';
+        case 'adotado':
+            return 'default';
+    }
+}
+
+export default function AnimalAdoptionPage() {
+  const [filter, setFilter] = useState<"all" | AnimalSpecies>('all');
+  const [animals, setAnimals] = useState<AnimalForAdoption[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAnimals() {
+        setLoading(true);
+        const fetchedAnimals = await getAnimalsForAdoptionAction();
+        setAnimals(fetchedAnimals);
+        setLoading(false);
+    }
+    fetchAnimals();
+  }, []);
+
+
+  const filteredAnimals = animals.filter(animal => {
     if (filter === 'all') return true;
     return animal.species === filter;
   });
@@ -53,19 +82,27 @@ export default function AnimalAdoptionPage() {
           </Button>
       </div>
 
-      {animalsForAdoption.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      ) : animals.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAnimals.map((animal) => {
             const AnimalIcon = getAnimalIcon(animal.species);
             return (
             <Card key={animal.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="relative aspect-[4/3] overflow-hidden">
-                <Image src={animal.photoUrl} alt={animal.name} layout="fill" objectFit="cover" className="transition-transform duration-300 hover:scale-105" data-ai-hint={`${animal.species} ${animal.breed}`}/>
-                {animal.statusAdocao !== 'disponivel' && (
-                    <Badge variant={animal.statusAdocao === 'adotado' ? 'default' : 'secondary'} className="absolute top-2 right-2">
-                    {animal.statusAdocao === 'adotado' ? 'Adotado!' : 'Em Adoção'}
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    {animal.photoUrl ? (
+                        <Image src={animal.photoUrl} alt={animal.name} layout="fill" objectFit="cover" className="transition-transform duration-300 hover:scale-105" data-ai-hint={`${animal.species} ${animal.breed}`}/>
+                    ) : (
+                        <div className="flex items-center justify-center h-full">
+                            <PawPrint className="w-16 h-16 text-muted-foreground" />
+                        </div>
+                    )}
+                    <Badge variant={getStatusBadgeVariant(animal.status)} className="absolute top-2 right-2">
+                      {statusTranslations[animal.status]}
                     </Badge>
-                )}
                 </div>
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -78,10 +115,10 @@ export default function AnimalAdoptionPage() {
                 <p className="text-sm text-muted-foreground line-clamp-3">{animal.description}</p>
                 </CardContent>
                 <CardFooter>
-                <Button asChild className="w-full" disabled={animal.statusAdocao !== 'disponivel'}>
-                    <Link href={animal.statusAdocao === 'disponivel' ? `/animal-welfare/adoption/${animal.id}` : '#'}>
+                <Button asChild className="w-full" disabled={animal.status !== 'disponivel'}>
+                    <Link href={animal.status === 'disponivel' ? `/dashboard/citizen/requests/new?type=solicitacao_adocao_animal&animal_name=${encodeURIComponent(animal.name)}` : '#'}>
                     <span className="flex items-center"> <Info className="mr-2 h-4 w-4" />
-                      {animal.statusAdocao === 'disponivel' ? 'Saber Mais / Adotar' : (animal.statusAdocao === 'adotado' ? 'Já Adotado' : 'Em Processo')}
+                      {animal.status === 'disponivel' ? 'Tenho Interesse' : 'Indisponível'}
                     </span>
                     </Link>
                 </Button>
@@ -92,11 +129,10 @@ export default function AnimalAdoptionPage() {
         </div>
       ) : (
           <div className="text-center py-16 col-span-full bg-muted rounded-lg">
-              <Construction className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Funcionalidade em Desenvolvimento</h3>
+              <PawPrint className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Nenhum Animal Disponível no Momento</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                  Estamos trabalhando para trazer o catálogo de animais para adoção diretamente para o site. 
-                  Por enquanto, entre em contato com o setor de Bem-Estar Animal para mais informações.
+                  No momento não temos animais cadastrados para adoção. Fique de olho em nossas redes sociais ou volte em breve!
               </p>
           </div>
       )}

@@ -1,3 +1,4 @@
+
 import type { User as FirebaseUser } from 'firebase/auth';
 
 export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin' | 'superAdmin';
@@ -131,16 +132,21 @@ export const INCIDENT_TYPES: IncidentTypeInfo[] = [
 ];
 
 
-export interface Animal {
-  id: string;
+export type AdoptionStatus = "disponivel" | "processo_adocao_em_andamento" | "adotado";
+export type AnimalSpecies = "cao" | "gato" | "outro";
+
+export interface AnimalForAdoption {
+  id: string; // Firestore document ID
   name: string;
-  species: "cao" | "gato" | "outro";
+  species: AnimalSpecies;
   breed: string;
   age: string;
-  photoUrl: string;
+  photoUrl: string; // URL from Firebase Storage
   description: string;
-  statusAdocao: "disponivel" | "processo_adocao_em_andamento" | "adotado";
+  status: AdoptionStatus;
+  dateAdded: string; // ISO string
 }
+
 
 export interface LostFoundAnimal {
   id: string; // Firestore document ID

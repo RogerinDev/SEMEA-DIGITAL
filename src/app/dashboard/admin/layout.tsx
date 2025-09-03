@@ -1,13 +1,15 @@
+
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
-import { LayoutDashboard, FileText, AlertTriangle, Users } from 'lucide-react';
+import { LayoutDashboard, FileText, AlertTriangle, Users, PawPrint } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 
 const adminNavItems: NavItem[] = [
   { href: '/dashboard/admin', label: 'Painel Geral', icon: LayoutDashboard, matchExact: true },
   { href: '/dashboard/admin/requests', label: 'Gerenciar Solicitações', icon: FileText },
   { href: '/dashboard/admin/incidents', label: 'Gerenciar Denúncias', icon: AlertTriangle },
+  { href: '/dashboard/admin/adoption', label: 'Gerenciar Adoções', icon: PawPrint },
   { href: '/dashboard/admin/users', label: 'Gerenciar Usuários', icon: Users },
 ];
 

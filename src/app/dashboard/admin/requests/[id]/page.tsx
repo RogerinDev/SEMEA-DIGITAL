@@ -20,11 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Mock resolved tickets that could be passed to the AI component
-const mockAvailableResolvedTickets: ResolvedTicket[] = [
-  { ticketId: "R001", description: "Árvore grande na calçada com galhos secos e risco de queda sobre pedestres. Espécie flamboyant.", resolution: "Realizada vistoria, constatado risco. Poda de segurança efetuada e galhos removidos." },
-  { ticketId: "R002", description: "Solicito corte de árvore morta na praça central. Está completamente seca.", resolution: "Equipe verificou, árvore realmente morta. Remoção completa realizada e plantio de nova muda no local agendado." },
-  { ticketId: "R003", description: "Poda de galhos baixos de uma mangueira na Rua das Acácias que estão atrapalhando a passagem de ônibus.", resolution: "Poda de levantamento de copa executada, liberando a via para tráfego de veículos altos." },
-];
+const mockAvailableResolvedTickets: ResolvedTicket[] = [];
+
 
 const statusOptions: { value: ServiceRequest['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'pendente', label: 'Pendente', icon: Clock },
