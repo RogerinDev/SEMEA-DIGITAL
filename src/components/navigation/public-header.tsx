@@ -26,10 +26,12 @@ const mainNavItems = [
     { href: '/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
 ];
 const servicesNavItem = { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase };
-const allNavItems = [...mainNavItems, servicesNavItem];
 
 
 function MobileNav() {
+    const { currentUser } = useAuth();
+    const navItems = currentUser ? [...mainNavItems, servicesNavItem] : mainNavItems;
+
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -45,7 +47,7 @@ function MobileNav() {
                     </div>
                     <nav className="flex-grow p-4">
                         <ul className="space-y-2">
-                            {allNavItems.map((item) => (
+                            {navItems.map((item) => (
                                 <li key={item.label}>
                                     <SheetClose asChild>
                                         <Link href={item.href} className="flex items-center gap-3 rounded-md p-3 text-lg font-medium text-foreground/80 hover:bg-accent hover:text-accent-foreground">
@@ -120,46 +122,48 @@ export function PublicHeader() {
           <DesktopNav />
 
           <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2">
-             <div className="hidden sm:flex">
-                <ServicesIcon />
-             </div>
             {currentUser ? (
-              <DropdownMenu>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DropdownMenuTrigger asChild>
-                       <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                        <Avatar className="h-10 w-10 border-2 border-primary/50">
-                          <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || 'User'} />
-                          <AvatarFallback>{currentUser.displayName?.charAt(0).toUpperCase() || currentUser.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Meu Perfil</p>
-                  </TooltipContent>
-                </Tooltip>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/citizen/profile">
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>Editar Informações</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/citizen/profile/change-password">
-                      <Lock className="mr-2 h-4 w-4" />
-                      <span>Trocar Senha</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sair</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <div className="hidden sm:flex">
+                  <ServicesIcon />
+                </div>
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                          <Avatar className="h-10 w-10 border-2 border-primary/50">
+                            <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || 'User'} />
+                            <AvatarFallback>{currentUser.displayName?.charAt(0).toUpperCase() || currentUser.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Meu Perfil</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/citizen/profile">
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Editar Informações</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/citizen/profile/change-password">
+                        <Lock className="mr-2 h-4 w-4" />
+                        <span>Trocar Senha</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sair</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <>
                  <Link
