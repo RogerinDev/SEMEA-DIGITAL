@@ -1,3 +1,4 @@
+
 import * as admin from 'firebase-admin';
 import type { Firestore } from 'firebase-admin/firestore';
 
@@ -10,6 +11,10 @@ let dbAdmin: Firestore;
 function initializeAdminApp() {
   // Check if the app is already initialized to prevent errors
   if (admin.apps.length > 0) {
+    // If the app is initialized, but dbAdmin is not, get the instance.
+    if (!dbAdmin) {
+      dbAdmin = admin.firestore();
+    }
     return;
   }
   
@@ -20,6 +25,8 @@ function initializeAdminApp() {
       credential: admin.credential.applicationDefault(),
       databaseURL: "https://semeabd.firebaseio.com",
     });
+    // Assign the firestore instance right after initialization
+    dbAdmin = admin.firestore();
   } catch (error: any) {
     console.error('Firebase Admin Initialization Error:', error);
     // This is a critical error in a server environment.
@@ -35,10 +42,6 @@ function initializeAdminApp() {
  */
 export function getDbAdmin(): Firestore {
   initializeAdminApp();
-  // We check for the dbAdmin instance after ensuring the app is initialized.
-  if (!dbAdmin) {
-    dbAdmin = admin.firestore();
-  }
   return dbAdmin;
 }
 
