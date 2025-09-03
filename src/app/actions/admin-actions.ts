@@ -1,8 +1,10 @@
+
 'use server';
 
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { type Department, type UserRole } from "@/types";
-import { app, FIREBASE_REGION } from "@/lib/firebase/client";
+import { app } from "@/lib/firebase/client";
+import { FIREBASE_REGION } from "@/config/firebase";
 
 // Initialize functions, specifying the region
 const functions = getFunctions(app, FIREBASE_REGION);
