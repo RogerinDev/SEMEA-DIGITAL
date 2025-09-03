@@ -3,9 +3,10 @@ import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Building2, Clock, Users, Mail, Phone, PawPrint, HeartHandshake, Stethoscope, UserCircle, CalendarDays } from 'lucide-react';
+import { Building2, Clock, Users, Mail, Phone, PawPrint, HeartHandshake, Stethoscope, UserCircle, CalendarDays, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
+import Image from 'next/image';
 
 const teamMembers = [
     { role: "Supervisora de Serviço de Bem Estar Animal", name: "Gabriela Pelegrini Batista", phone: "(35) 3690-2019 / (35) 3690-2276", email: "bemestaranimal@varginha.mg.gov.br" },
@@ -17,6 +18,13 @@ const teamMembers = [
     { role: "Oficial Administrativo", name: "Jaqueline Rosa" },
 ];
 
+const pillars = [
+    { title: "Cuidado e Saúde", description: "Oferecemos atendimento veterinário básico e acesso a programas de castração gratuita, garantindo a saúde e prevenindo o aumento de animais abandonados." },
+    { title: "Adoção Responsável", description: "Mantemos uma plataforma de adoção para conectar nossos animais resgatados a famílias que possam oferecer segurança, amor e um lar definitivo." },
+    { title: "Proteção e Resgate", description: "Atendemos a denúncias de maus-tratos e atuamos no resgate de animais em situação de risco, oferecendo-lhes uma segunda chance." },
+    { title: "Conscientização", description: "Promovemos a importância da posse responsável, da vacinação e do cuidado contínuo, educando a comunidade para construir um futuro melhor para os animais." },
+];
+
 export default function AnimalWelfareInfoPage() {
   return (
     <>
@@ -25,6 +33,45 @@ export default function AnimalWelfareInfoPage() {
         icon={PawPrint}
         description="Informações sobre o setor de Bem-Estar Animal da SEMEA, serviços oferecidos e como entrar em contato."
       />
+
+      <div className="grid md:grid-cols-2 gap-8 mb-12 items-center">
+          <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
+              <Image
+                  src="https://picsum.photos/600/450"
+                  alt="Cão feliz sendo cuidado"
+                  width={600}
+                  height={450}
+                  className="object-cover"
+                  data-ai-hint="happy dog"
+                  priority
+              />
+          </div>
+          <div className="space-y-4">
+              <h2 className="text-2xl font-semibold text-primary">Nossa Missão pelo Bem-Estar Animal</h2>
+              <p className="text-muted-foreground">
+                  O setor de Bem-Estar Animal da SEMEA é dedicado a proteger e promover a vida, a saúde e a dignidade dos animais em Varginha. Atuamos incansavelmente para resgatar, cuidar e encontrar lares amorosos para cães e gatos em situação de vulnerabilidade, além de promover a posse responsável e o controle populacional através de programas de castração. Acreditamos que o respeito aos animais constrói uma comunidade mais justa e compassiva para todos.
+              </p>
+          </div>
+      </div>
+
+      <Card className="mb-12 shadow-lg">
+          <CardHeader>
+              <CardTitle>Nossos Pilares</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {pillars.map((pillar, index) => (
+                  <div key={index} className="flex items-start gap-4">
+                      <ShieldCheck className="h-8 w-8 text-primary mt-1 shrink-0"/>
+                      <div>
+                          <h3 className="font-semibold text-lg">{pillar.title}</h3>
+                          <p className="text-sm text-muted-foreground">{pillar.description}</p>
+                      </div>
+                  </div>
+              ))}
+          </CardContent>
+      </Card>
+      
+      <Separator className="my-12" />
 
       <div className="grid md:grid-cols-2 gap-8 mb-8">
         <Card className="shadow-lg">
