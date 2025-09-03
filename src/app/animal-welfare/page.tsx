@@ -39,9 +39,8 @@ export default function AnimalWelfareInfoPage() {
               <Image
                   src="/logo_bem_estar.png"
                   alt="Cão feliz sendo cuidado"
-                  width={600}
-                  height={450}
-                  className="object-contain"
+                  layout="fill"
+                  className="object-cover"
                   data-ai-hint="happy dog"
                   priority
               />
