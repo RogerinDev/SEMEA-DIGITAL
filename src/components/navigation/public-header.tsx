@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -20,13 +19,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import React from 'react';
 
-const navItems = [
+const mainNavItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
     { href: '/info/education', label: 'Educação Ambiental', icon: GraduationCap },
     { href: '/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
-    { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase },
 ];
+const servicesNavItem = { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase };
+const allNavItems = [...mainNavItems, servicesNavItem];
+
 
 function MobileNav() {
     return (
@@ -44,7 +45,7 @@ function MobileNav() {
                     </div>
                     <nav className="flex-grow p-4">
                         <ul className="space-y-2">
-                            {navItems.map((item) => (
+                            {allNavItems.map((item) => (
                                 <li key={item.label}>
                                     <SheetClose asChild>
                                         <Link href={item.href} className="flex items-center gap-3 rounded-md p-3 text-lg font-medium text-foreground/80 hover:bg-accent hover:text-accent-foreground">
@@ -65,7 +66,7 @@ function MobileNav() {
 function DesktopNav() {
      return (
         <nav className="hidden md:flex flex-shrink-0 items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:flex-shrink md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:space-x-2 lg:space-x-3">
-            {navItems.map((item) => (
+            {mainNavItems.map((item) => (
               <Tooltip key={item.label} delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Link
@@ -85,6 +86,24 @@ function DesktopNav() {
      )
 }
 
+const ServicesIcon = () => (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Link
+          href={servicesNavItem.href}
+          passHref
+          className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+        >
+          <Briefcase className="h-5 w-5 text-primary" />
+          <span className="sr-only">{servicesNavItem.label}</span>
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{servicesNavItem.label}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+
 
 export function PublicHeader() {
   const { theme, toggleTheme } = useTheme();
@@ -101,6 +120,9 @@ export function PublicHeader() {
           <DesktopNav />
 
           <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2">
+             <div className="hidden sm:flex">
+                <ServicesIcon />
+             </div>
             {currentUser ? (
               <DropdownMenu>
                 <Tooltip>
@@ -204,5 +226,3 @@ export function PublicHeader() {
     </header>
   );
 }
-
-    
