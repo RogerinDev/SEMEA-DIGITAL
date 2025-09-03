@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getDbAdmin } from '@/lib/firebase/admin';
+import { dbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -56,7 +56,6 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   const department = mapIncidentCategoryToDepartment(incidentTypeInfo.category);
 
   try {
-    const dbAdmin = getDbAdmin();
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
     
     const newIncident: Omit<IncidentReport, 'id'> = {
@@ -92,7 +91,6 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
   if (!citizenId) return [];
 
   try {
-    const dbAdmin = getDbAdmin();
     const q = query(
         collection(dbAdmin, "incidents"), 
         where("citizenId", "==", citizenId),
@@ -126,7 +124,6 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
 export async function getIncidentByIdAction(id: string): Promise<IncidentReport | null> {
     if(!id) return null;
     try {
-        const dbAdmin = getDbAdmin();
         const docRef = doc(dbAdmin, 'incidents', id);
         const docSnap = await getDoc(docRef);
 
@@ -161,7 +158,6 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
 export async function getIncidentCountByCitizenAction(citizenId: string): Promise<number> {
     if (!citizenId) return 0;
     try {
-        const dbAdmin = getDbAdmin();
         const q = query(collection(dbAdmin, "incidents"), where("citizenId", "==", citizenId));
         const snapshot = await getCountFromServer(q);
         return snapshot.data().count;
@@ -174,7 +170,6 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
 
 export async function getIncidentsForAdminAction(department?: Department): Promise<IncidentReport[]> {
   try {
-    const dbAdmin = getDbAdmin();
     let q;
     const incidentsCollection = collection(dbAdmin, "incidents");
 
@@ -217,7 +212,6 @@ export async function getIncidentsCountAction({
   status?: IncidentStatus;
 }): Promise<number> {
   try {
-    const dbAdmin = getDbAdmin();
     const queryConstraints: any[] = [];
     if (department) {
       queryConstraints.push(where("department", "==", department));
@@ -249,7 +243,6 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
   }
 
   try {
-    const dbAdmin = getDbAdmin();
     const incidentRef = doc(dbAdmin, 'incidents', id);
     await updateDoc(incidentRef, {
       status,

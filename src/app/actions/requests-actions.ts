@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getDbAdmin } from '@/lib/firebase/admin';
+import { dbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -42,7 +42,6 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
   const department = mapServiceCategoryToDepartment(serviceTypeInfo.category);
 
   try {
-    const dbAdmin = getDbAdmin();
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
     
     const newRequest: Omit<ServiceRequest, 'id'> = {
@@ -77,7 +76,6 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
   if (!citizenId) return [];
 
   try {
-    const dbAdmin = getDbAdmin();
     const q = query(
         collection(dbAdmin, "service_requests"), 
         where("citizenId", "==", citizenId),
@@ -111,7 +109,6 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
 export async function getRequestByIdAction(id: string): Promise<ServiceRequest | null> {
     if (!id) return null;
     try {
-        const dbAdmin = getDbAdmin();
         const docRef = doc(dbAdmin, 'service_requests', id);
         const docSnap = await getDoc(docRef);
 
@@ -144,7 +141,6 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
 export async function getRequestCountByCitizenAction(citizenId: string): Promise<number> {
     if (!citizenId) return 0;
     try {
-        const dbAdmin = getDbAdmin();
         const q = query(collection(dbAdmin, "service_requests"), where("citizenId", "==", citizenId));
         const snapshot = await getCountFromServer(q);
         return snapshot.data().count;
@@ -157,7 +153,6 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
 
 export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
   try {
-    const dbAdmin = getDbAdmin();
     let q;
     const requestsCollection = collection(dbAdmin, "service_requests");
     
@@ -202,7 +197,6 @@ export async function getRequestsCountAction({
   fromDate?: Date;
 }): Promise<number> {
   try {
-    const dbAdmin = getDbAdmin();
     const queryConstraints: any[] = [];
     if (department) {
       queryConstraints.push(where("department", "==", department));
@@ -236,7 +230,6 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
   }
 
   try {
-    const dbAdmin = getDbAdmin();
     const requestRef = doc(dbAdmin, 'service_requests', id);
     await updateDoc(requestRef, {
       status: status,
