@@ -3,7 +3,9 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
 // Inicializa o app do Admin SDK
-admin.initializeApp();
+admin.initializeApp({
+  databaseURL: "https://semeabd.firebaseio.com",
+});
 
 // Define a região padrão para todas as funções
 const regionalFunctions = functions.region("southamerica-east1");

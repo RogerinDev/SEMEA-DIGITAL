@@ -18,6 +18,7 @@ function initializeAdminApp() {
   try {
      admin.initializeApp({
       credential: admin.credential.applicationDefault(),
+      databaseURL: "https://semeabd.firebaseio.com",
     });
   } catch (error: any) {
     console.error('Firebase Admin Initialization Error:', error);

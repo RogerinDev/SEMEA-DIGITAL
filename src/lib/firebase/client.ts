@@ -16,10 +16,16 @@ if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) {
 let app: FirebaseApp;
 let db: Firestore;
 
+// Add the databaseURL to the config
+const fullFirebaseConfig = {
+    ...FIREBASE_CONFIG,
+    databaseURL: "https://semeabd.firebaseio.com",
+};
+
 // Initialize Firebase
 // This check prevents re-initialization on hot reloads
 if (getApps().length === 0) {
-  app = initializeApp(FIREBASE_CONFIG);
+  app = initializeApp(fullFirebaseConfig);
 } else {
   app = getApp();
 }
