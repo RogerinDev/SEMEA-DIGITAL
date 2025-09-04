@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getDbAdmin } from '@/lib/firebase/admin';
+import { dbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, query, where, orderBy, addDoc } from 'firebase/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -11,7 +11,6 @@ interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'date
 }
 
 export async function addLostFoundPostAction(data: NewPostData): Promise<{ success: boolean; error?: string }> {
-  const db = getDbAdmin();
   if (!data.citizenId) {
     return { success: false, error: "Usuário não autenticado." };
   }
@@ -36,7 +35,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
         dateExpiration: expirationDate.toISOString(),
     };
 
-    const postsCollection = collection(db, 'lost_found_posts');
+    const postsCollection = collection(dbAdmin, 'lost_found_posts');
     await addDoc(postsCollection, newPost);
     
     revalidatePath('/animal-welfare/lost-found');
@@ -49,10 +48,9 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
 }
 
 export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]> {
-  const db = getDbAdmin();
   try {
     const q = query(
-      collection(db, "lost_found_posts"),
+      collection(dbAdmin, "lost_found_posts"),
       where("status", "==", "ativo"),
       where("dateExpiration", ">=", new Date().toISOString()), // Only fetch non-expired posts
       orderBy("dateExpiration", "asc"),

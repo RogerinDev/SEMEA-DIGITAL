@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getDbAdmin } from '@/lib/firebase/admin';
+import { dbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, query, orderBy, addDoc } from 'firebase/firestore';
 import type { AnimalForAdoption } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -9,7 +9,6 @@ import { revalidatePath } from 'next/cache';
 interface NewAnimalData extends Omit<AnimalForAdoption, 'id' | 'dateAdded'> {}
 
 export async function addAnimalForAdoptionAction(data: NewAnimalData): Promise<{ success: boolean; error?: string }> {
-  const db = getDbAdmin();
   try {
     const newAnimal: Omit<AnimalForAdoption, 'id'> = {
         name: data.name,
@@ -22,7 +21,7 @@ export async function addAnimalForAdoptionAction(data: NewAnimalData): Promise<{
         dateAdded: new Date().toISOString(),
     };
 
-    const animalsCollection = collection(db, 'animals_for_adoption');
+    const animalsCollection = collection(dbAdmin, 'animals_for_adoption');
     await addDoc(animalsCollection, newAnimal);
     
     revalidatePath('/animal-welfare/adoption');
@@ -36,10 +35,9 @@ export async function addAnimalForAdoptionAction(data: NewAnimalData): Promise<{
 }
 
 export async function getAnimalsForAdoptionAction(): Promise<AnimalForAdoption[]> {
-  const db = getDbAdmin();
   try {
     const q = query(
-      collection(db, "animals_for_adoption"),
+      collection(dbAdmin, "animals_for_adoption"),
       orderBy("dateAdded", "desc")
     );
 

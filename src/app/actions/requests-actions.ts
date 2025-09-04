@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getDbAdmin } from '@/lib/firebase/admin';
+import { dbAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -28,7 +28,6 @@ interface NewRequestData {
 }
 
 export async function addRequestAction(data: NewRequestData): Promise<{ success: boolean; protocol?: string; error?: string }> {
-  const db = getDbAdmin();
   if (!isValidServiceRequestType(data.requestType)) {
     return { success: false, error: "Tipo de serviço inválido." };
   }
@@ -60,7 +59,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       notes: "",
     };
 
-    const requestsCollection = collection(db, 'service_requests');
+    const requestsCollection = collection(dbAdmin, 'service_requests');
     await addDoc(requestsCollection, newRequest);
 
     revalidatePath('/dashboard/citizen/requests');
@@ -74,12 +73,11 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
 }
 
 export async function getRequestsByCitizenAction(citizenId: string): Promise<ServiceRequest[]> {
-  const db = getDbAdmin();
   if (!citizenId) return [];
 
   try {
     const q = query(
-        collection(db, "service_requests"), 
+        collection(dbAdmin, "service_requests"), 
         where("citizenId", "==", citizenId),
         orderBy("dateCreated", "desc")
     );
@@ -109,10 +107,9 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
 }
 
 export async function getRequestByIdAction(id: string): Promise<ServiceRequest | null> {
-    const db = getDbAdmin();
     if (!id) return null;
     try {
-        const docRef = doc(db, 'service_requests', id);
+        const docRef = doc(dbAdmin, 'service_requests', id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -142,10 +139,9 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
 }
 
 export async function getRequestCountByCitizenAction(citizenId: string): Promise<number> {
-    const db = getDbAdmin();
     if (!citizenId) return 0;
     try {
-        const q = query(collection(db, "service_requests"), where("citizenId", "==", citizenId));
+        const q = query(collection(dbAdmin, "service_requests"), where("citizenId", "==", citizenId));
         const snapshot = await getCountFromServer(q);
         return snapshot.data().count;
     } catch (error) {
@@ -156,10 +152,9 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
 
 
 export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
-  const db = getDbAdmin();
   try {
     let q;
-    const requestsCollection = collection(db, "service_requests");
+    const requestsCollection = collection(dbAdmin, "service_requests");
     
     if (department) {
       q = query(requestsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
@@ -201,7 +196,6 @@ export async function getRequestsCountAction({
   status?: ServiceRequestStatus;
   fromDate?: Date;
 }): Promise<number> {
-  const db = getDbAdmin();
   try {
     const queryConstraints: any[] = [];
     if (department) {
@@ -214,7 +208,7 @@ export async function getRequestsCountAction({
       queryConstraints.push(where("dateCreated", ">=", fromDate.toISOString()));
     }
 
-    const q = query(collection(db, "service_requests"), ...queryConstraints);
+    const q = query(collection(dbAdmin, "service_requests"), ...queryConstraints);
     const snapshot = await getCountFromServer(q);
     return snapshot.data().count;
   } catch (error) {
@@ -230,14 +224,13 @@ interface UpdateRequestData {
 }
 
 export async function updateRequestStatusAction(data: UpdateRequestData): Promise<{ success: boolean; error?: string }> {
-  const db = getDbAdmin();
   const { id, status, notes } = data;
   if (!id || !status) {
     return { success: false, error: "ID da solicitação e novo status são obrigatórios." };
   }
 
   try {
-    const requestRef = doc(db, 'service_requests', id);
+    const requestRef = doc(dbAdmin, 'service_requests', id);
     await updateDoc(requestRef, {
       status: status,
       notes: notes ?? "",
