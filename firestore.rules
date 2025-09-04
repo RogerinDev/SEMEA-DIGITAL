@@ -3,37 +3,47 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isAdminOfDepartment(department) {
-      return request.auth.token.role == 'admin' && request.auth.token.department == department;
+  
+    // Helper function to check if a user is an admin
+    function isAdmin() {
+      return request.auth != null && (request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin');
     }
-
-    function isSuperAdmin() {
-      return request.auth.token.role == 'superAdmin';
+    
+    // Helper function to check if the user is the owner of the document
+    function isOwner(resource) {
+      return request.auth != null && request.auth.uid == resource.data.citizenId;
     }
-
-    match /service_requests/{requestId} {
-      allow read: if request.auth.uid == resource.data.citizenId || isAdminOfDepartment(resource.data.department) || isSuperAdmin();
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.citizenId;
-      allow update: if isAdminOfDepartment(resource.data.department) || isSuperAdmin();
-      allow delete: if false;
+    
+    // Any authenticated user can read public info (animals, lost/found)
+    match /animals_for_adoption/{animalId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
-
-    match /incidents/{incidentId} {
-       allow read: if (resource.data.isAnonymous == false && request.auth.uid == resource.data.citizenId) || isAdminOfDepartment(resource.data.department) || isSuperAdmin();
-       allow create: if request.auth != null && (request.resource.data.isAnonymous == true || request.auth.uid == request.resource.data.citizenId);
-       allow update: if isAdminOfDepartment(resource.data.department) || isSuperAdmin();
-       allow delete: if false;
-    }
-
+    
     match /lost_found_posts/{postId} {
-        allow read: if true;
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.citizenId;
-        allow update, delete: if (resource.data.citizenId != null && request.auth.uid == resource.data.citizenId) || isSuperAdmin();
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.citizenId == request.auth.uid;
+      allow update, delete: if isAdmin() || isOwner(resource);
+    }
+    
+    // Service Requests: Only authenticated users can create, and only owners or admins can read/update.
+    match /service_requests/{requestId} {
+      allow read, update: if isAdmin() || isOwner(resource);
+      allow create: if request.auth != null && request.resource.data.citizenId == request.auth.uid;
+      allow delete: if isAdmin();
     }
 
-    match /users/{userId} {
-      allow read, write: if request.auth.uid == userId || isSuperAdmin();
+    // Incidents: Similar to service requests, but we'll keep it strict for now.
+    // Anonymous reports are handled by a server-side action which uses admin privileges.
+    match /incidents/{incidentId} {
+       allow read, update: if isAdmin() || (isOwner(resource) && resource.data.isAnonymous == false);
+       allow create: if request.auth != null && request.resource.data.citizenId == request.auth.uid;
+       allow delete: if isAdmin();
+    }
+    
+    // Fallback rule: Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
