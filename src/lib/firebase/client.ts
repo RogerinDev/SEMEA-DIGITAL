@@ -14,12 +14,11 @@ if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) {
 }
 
 let app: FirebaseApp;
-let db: Firestore;
 
-// Add the databaseURL to the config
+// Add the databaseURL to the config - This was a critical missing piece for some services.
 const fullFirebaseConfig = {
     ...FIREBASE_CONFIG,
-    databaseURL: "https://semeabd.firebaseio.com",
+    databaseURL: `https://${FIREBASE_CONFIG.projectId}.firebaseio.com`,
 };
 
 // Initialize Firebase
@@ -33,7 +32,7 @@ if (getApps().length === 0) {
 // Initialize Firebase services after ensuring the app is initialized.
 const auth: Auth = getAuth(app);
 const storage = getStorage(app);
-db = getFirestore(app);
+const db: Firestore = getFirestore(app);
 
 
 export { app, auth, db, storage };

@@ -2,11 +2,12 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-// No ambiente do Firebase, a SDK encontra as credenciais automaticamente.
-// A inicialização é feita uma vez, sem argumentos.
+// The Admin SDK is initialized in the main app's lib/firebase/admin.ts
+// and Cloud Functions will pick it up automatically. No need to initialize here.
 if (admin.apps.length === 0) {
-  admin.initializeApp();
+    admin.initializeApp();
 }
+
 
 // Define a região padrão para todas as funções
 const regionalFunctions = functions.region("southamerica-east1");

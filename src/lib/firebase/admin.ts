@@ -1,14 +1,12 @@
 
 import * as admin from 'firebase-admin';
-import type { Firestore } from 'firebase-admin/firestore';
-import type { Auth } from 'firebase-admin/auth';
 
-// Initialize Firebase Admin SDK
+// This ensures we only initialize the app once.
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-const dbAdmin: Firestore = admin.firestore();
-const authAdmin: Auth = admin.auth();
+const dbAdmin = admin.firestore();
+const authAdmin = admin.auth();
 
 export { dbAdmin, authAdmin };
