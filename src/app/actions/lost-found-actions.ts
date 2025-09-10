@@ -1,7 +1,7 @@
 
 'use server';
 
-import { dbAdmin } from '@/lib/firebase/admin';
+import { db } from '@/lib/firebase/admin';
 import { collection, getDocs, query, where, orderBy, addDoc } from 'firebase/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -35,7 +35,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
         dateExpiration: expirationDate.toISOString(),
     };
 
-    const postsCollection = collection(dbAdmin, 'lost_found_posts');
+    const postsCollection = collection(db, 'lost_found_posts');
     await addDoc(postsCollection, newPost);
     
     revalidatePath('/animal-welfare/lost-found');
@@ -50,7 +50,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
 export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]> {
   try {
     const q = query(
-      collection(dbAdmin, "lost_found_posts"),
+      collection(db, "lost_found_posts"),
       where("status", "==", "ativo"),
       where("dateExpiration", ">=", new Date().toISOString()), // Only fetch non-expired posts
       orderBy("dateExpiration", "asc"),

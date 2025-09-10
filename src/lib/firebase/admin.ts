@@ -1,3 +1,4 @@
+
 import admin from 'firebase-admin';
 
 // Garante que a inicialização ocorra apenas uma vez.
@@ -7,7 +8,7 @@ if (!admin.apps.length) {
   });
 }
 
-const dbAdmin = admin.firestore();
-const authAdmin = admin.auth();
+const db = admin.firestore();
+const auth = admin.auth();
 
-export { dbAdmin, authAdmin };
+export { db, auth };
