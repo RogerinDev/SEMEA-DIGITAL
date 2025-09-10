@@ -21,7 +21,7 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
 
   try {
     // --- Dados de Exemplo para Solicitações de Serviço ---
-    const requestsCollection = collection(db, 'service_requests');
+    const requestsCollectionRef = collection(db, 'service_requests');
     const exampleRequests = [
       {
         protocol: generateProtocol('SOL'),
@@ -55,12 +55,12 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
 
     console.log(`Adicionando ${exampleRequests.length} solicitações de serviço de exemplo.`);
     exampleRequests.forEach(req => {
-      const docRef = collection(db, 'service_requests').doc(); // Cria uma referência com ID automático
+      const docRef = doc(requestsCollectionRef); // Cria uma referência com ID automático
       batch.set(docRef, req);
     });
 
     // --- Dados de Exemplo para Denúncias ---
-    const incidentsCollection = collection(db, 'incidents');
+    const incidentsCollectionRef = collection(db, 'incidents');
     const exampleIncidents = [
       {
         protocol: generateProtocol('DEN'),
@@ -96,7 +96,7 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
     
     console.log(`Adicionando ${exampleIncidents.length} denúncias de exemplo.`);
     exampleIncidents.forEach(inc => {
-      const docRef = collection(db, 'incidents').doc();
+      const docRef = doc(incidentsCollectionRef);
       batch.set(docRef, inc);
     });
 

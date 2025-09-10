@@ -7,7 +7,7 @@
 'use server';
 
 import { db } from '@/lib/firebase/admin'; // Importa a instância do Firestore Admin SDK
-import { collection, getDocs, query, orderBy, addDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc, doc } from 'firebase/firestore';
 import type { AnimalForAdoption } from '@/types';
 import { revalidatePath } from 'next/cache'; // Para invalidar o cache do Next.js e atualizar as páginas
 
