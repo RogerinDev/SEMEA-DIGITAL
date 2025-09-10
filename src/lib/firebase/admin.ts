@@ -15,8 +15,7 @@ if (!admin.apps.length) {
   // Inicializa o SDK. Em ambientes de hospedagem do Google (como App Hosting ou Cloud Functions),
   // as credenciais da conta de serviço são descobertas automaticamente, então não é
   // necessário passar um objeto de configuração.
-  admin.initializeApp({
-  });
+  admin.initializeApp();
 }
 
 // Obtém e exporta a instância do serviço Firestore do Admin SDK.
