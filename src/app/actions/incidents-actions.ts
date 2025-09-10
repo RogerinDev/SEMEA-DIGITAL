@@ -5,7 +5,7 @@
 
 'use server';
 
-import { db } from '@/lib/firebase/admin';
+import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -62,6 +62,7 @@ interface NewIncidentData {
  * @returns Um objeto com status de sucesso, protocolo gerado ou mensagem de erro.
  */
 export async function addIncidentAction(data: NewIncidentData): Promise<{ success: boolean; protocol?: string; error?: string }> {
+  const { db } = getFirebaseAdmin();
   if (!isValidIncidentType(data.incidentType)) {
     return { success: false, error: "Tipo de denúncia inválido." };
   }
@@ -117,6 +118,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
  * @returns Uma lista de denúncias.
  */
 export async function getIncidentsByCitizenAction(citizenId: string): Promise<IncidentReport[]> {
+  const { db } = getFirebaseAdmin();
   if (!citizenId) return [];
 
   try {
@@ -147,6 +149,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
  * @returns A denúncia encontrada ou `null` se não existir.
  */
 export async function getIncidentByIdAction(id: string): Promise<IncidentReport | null> {
+    const { db } = getFirebaseAdmin();
     if(!id) return null;
     try {
         const docRef = doc(db, 'incidents', id);
@@ -174,6 +177,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
  * @returns O número de denúncias.
  */
 export async function getIncidentCountByCitizenAction(citizenId: string): Promise<number> {
+    const { db } = getFirebaseAdmin();
     if (!citizenId) return 0;
     try {
         const q = query(collection(db, "incidents"), where("citizenId", "==", citizenId));
@@ -192,6 +196,7 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
  * @returns Uma lista de denúncias para o painel administrativo.
  */
 export async function getIncidentsForAdminAction(department?: Department): Promise<IncidentReport[]> {
+  const { db } = getFirebaseAdmin();
   try {
     let q;
     const incidentsCollection = collection(db, "incidents");
@@ -229,6 +234,7 @@ export async function getIncidentsCountAction({
   department?: Department;
   status?: IncidentStatus;
 }): Promise<number> {
+  const { db } = getFirebaseAdmin();
   try {
     const queryConstraints: any[] = [];
     if (department) {
@@ -261,6 +267,7 @@ interface UpdateIncidentData {
  * @returns Um objeto com status de sucesso ou mensagem de erro.
  */
 export async function updateIncidentStatusAction(data: UpdateIncidentData): Promise<{ success: boolean; error?: string }> {
+  const { db } = getFirebaseAdmin();
   const { id, status, notes, inspector } = data;
   if (!id || !status) {
     return { success: false, error: "ID da denúncia e novo status são obrigatórios." };

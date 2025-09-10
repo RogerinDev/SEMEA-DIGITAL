@@ -5,7 +5,7 @@
 
 'use server';
 
-import { db } from '@/lib/firebase/admin';
+import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, query, where, orderBy, addDoc } from 'firebase/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -21,6 +21,7 @@ interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'date
  * @returns Um objeto indicando sucesso ou falha da operação.
  */
 export async function addLostFoundPostAction(data: NewPostData): Promise<{ success: boolean; error?: string }> {
+  const { db } = getFirebaseAdmin();
   // Validação para garantir que o usuário está autenticado.
   if (!data.citizenId) {
     return { success: false, error: "Usuário não autenticado." };
@@ -68,6 +69,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
  * @returns Uma lista de posts ativos, ordenados pela data de expiração e criação.
  */
 export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]> {
+  const { db } = getFirebaseAdmin();
   try {
     // Cria uma query para buscar posts que atendam aos critérios de "ativo" e "não expirado".
     const q = query(

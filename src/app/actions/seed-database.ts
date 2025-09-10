@@ -5,8 +5,8 @@
  */
 'use server';
 
-import { db } from '@/lib/firebase/admin';
-import { collection, writeBatch } from 'firebase/firestore';
+import { getFirebaseAdmin } from '@/lib/firebase/admin';
+import { collection, doc, writeBatch } from 'firebase/firestore';
 
 // Função para gerar um protocolo único.
 const generateProtocol = (prefix: string) => `${prefix}${Date.now().toString().slice(-6) + Math.floor(Math.random() * 100)}`;
@@ -17,6 +17,7 @@ const generateProtocol = (prefix: string) => `${prefix}${Date.now().toString().s
  */
 export async function seedDatabaseAction(): Promise<{ success: boolean; message: string; error?: any }> {
   console.log('Iniciando a ação de semear o banco de dados...');
+  const { db } = getFirebaseAdmin();
   const batch = writeBatch(db);
 
   try {

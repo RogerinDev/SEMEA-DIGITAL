@@ -6,7 +6,7 @@
 
 'use server';
 
-import { db } from '@/lib/firebase/admin'; // Importa a instância do Firestore Admin SDK
+import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, query, orderBy, addDoc, doc } from 'firebase/firestore';
 import type { AnimalForAdoption } from '@/types';
 import { revalidatePath } from 'next/cache'; // Para invalidar o cache do Next.js e atualizar as páginas
@@ -20,6 +20,7 @@ interface NewAnimalData extends Omit<AnimalForAdoption, 'id' | 'dateAdded'> {}
  * @returns Um objeto indicando o sucesso ou falha da operação.
  */
 export async function addAnimalForAdoptionAction(data: NewAnimalData): Promise<{ success: boolean; error?: string }> {
+  const { db } = getFirebaseAdmin();
   try {
     // Cria o objeto completo do novo animal, incluindo a data de adição.
     const newAnimal: Omit<AnimalForAdoption, 'id'> = {
@@ -54,6 +55,7 @@ export async function addAnimalForAdoptionAction(data: NewAnimalData): Promise<{
  * @returns Uma promessa que resolve com um array de objetos `AnimalForAdoption`.
  */
 export async function getAnimalsForAdoptionAction(): Promise<AnimalForAdoption[]> {
+  const { db } = getFirebaseAdmin();
   try {
     // Cria uma query para buscar os documentos na coleção, ordenando pelos mais recentes.
     const q = query(

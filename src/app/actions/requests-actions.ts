@@ -5,7 +5,7 @@
 
 'use server';
 
-import { db } from '@/lib/firebase/admin';
+import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
@@ -48,6 +48,7 @@ interface NewRequestData {
  * @returns Um objeto com status de sucesso, protocolo gerado ou mensagem de erro.
  */
 export async function addRequestAction(data: NewRequestData): Promise<{ success: boolean; protocol?: string; error?: string }> {
+  const { db } = getFirebaseAdmin();
   if (!isValidServiceRequestType(data.requestType)) {
     return { success: false, error: "Tipo de serviço inválido." };
   }
@@ -102,6 +103,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
  * @returns Uma lista de solicitações.
  */
 export async function getRequestsByCitizenAction(citizenId: string): Promise<ServiceRequest[]> {
+  const { db } = getFirebaseAdmin();
   if (!citizenId) return [];
 
   try {
@@ -131,6 +133,7 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
  * @returns A solicitação encontrada ou `null`.
  */
 export async function getRequestByIdAction(id: string): Promise<ServiceRequest | null> {
+    const { db } = getFirebaseAdmin();
     if (!id) return null;
     try {
         const docRef = doc(db, 'service_requests', id);
@@ -157,6 +160,7 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
  * @returns O número de solicitações.
  */
 export async function getRequestCountByCitizenAction(citizenId: string): Promise<number> {
+    const { db } = getFirebaseAdmin();
     if (!citizenId) return 0;
     try {
         const q = query(collection(db, "service_requests"), where("citizenId", "==", citizenId));
@@ -174,6 +178,7 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
  * @returns Uma lista de solicitações para o painel administrativo.
  */
 export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
+  const { db } = getFirebaseAdmin();
   try {
     let q;
     const requestsCollection = collection(db, "service_requests");
@@ -213,6 +218,7 @@ export async function getRequestsCountAction({
   status?: ServiceRequestStatus;
   fromDate?: Date;
 }): Promise<number> {
+  const { db } = getFirebaseAdmin();
   try {
     const queryConstraints: any[] = [];
     if (department) {
@@ -247,6 +253,7 @@ interface UpdateRequestData {
  * @returns Um objeto com status de sucesso ou mensagem de erro.
  */
 export async function updateRequestStatusAction(data: UpdateRequestData): Promise<{ success: boolean; error?: string }> {
+  const { db } = getFirebaseAdmin();
   const { id, status, notes } = data;
   if (!id || !status) {
     return { success: false, error: "ID da solicitação e novo status são obrigatórios." };

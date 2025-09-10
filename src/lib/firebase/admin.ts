@@ -3,28 +3,38 @@
  * Este arquivo inicializa o SDK de administrador, que é usado em Server Actions
  * e API Routes para interagir com os serviços do Firebase com privilégios de administrador
  * (por exemplo, para acessar o Firestore sem passar pelas regras de segurança do cliente).
+ *
+ * Esta implementação utiliza uma função para garantir que o Firebase seja inicializado
+ * apenas uma vez e sob demanda, evitando erros em ambientes de servidor Next.js.
  */
-
 import admin from 'firebase-admin';
 
-// Garante que a inicialização do Firebase Admin ocorra apenas uma vez.
-// Em ambientes de servidor (como Next.js Server Actions ou Vercel/Firebase Functions),
-// o código pode ser recarregado, e tentar inicializar o app múltiplas vezes causaria um erro.
-// Este `if` verifica se já existe algum app inicializado no array `admin.apps`.
-if (!admin.apps.length) {
-  // Inicializa o SDK. Em ambientes de hospedagem do Google (como App Hosting ou Cloud Functions),
-  // as credenciais da conta de serviço são descobertas automaticamente, então não é
-  // necessário passar um objeto de configuração.
-  admin.initializeApp();
+/**
+ * Retorna a instância inicializada do App do Firebase Admin.
+ * A função garante que a inicialização ocorra apenas uma vez.
+ * @returns {admin.app.App} A instância do app do Firebase Admin.
+ */
+function getAdminApp() {
+  if (admin.apps.length > 0) {
+    return admin.apps[0] as admin.app.App;
+  }
+
+  // Em ambientes de hospedagem do Google, as credenciais são descobertas automaticamente.
+  const app = admin.initializeApp();
+  return app;
 }
 
-// Obtém e exporta a instância do serviço Firestore do Admin SDK.
-// Esta instância `db` terá acesso total de leitura e escrita ao banco de dados,
-// ignorando as regras de segurança do cliente.
-const db = admin.firestore();
+/**
+ * Obtém e exporta as instâncias dos serviços do Firebase Admin (Firestore e Auth).
+ * @returns {{db: admin.firestore.Firestore, auth: admin.auth.Auth}} Um objeto contendo as instâncias dos serviços.
+ */
+function getFirebaseAdmin() {
+  const app = getAdminApp();
+  return {
+    db: admin.firestore(app),
+    auth: admin.auth(app),
+  };
+}
 
-// Obtém e exporta a instância do serviço de Autenticação do Admin SDK.
-// `auth` é usado para gerenciar usuários, como criar, deletar ou modificar Custom Claims.
-const auth = admin.auth();
-
-export { db, auth };
+// Exporta a função para ser usada pelas Server Actions.
+export { getFirebaseAdmin };
