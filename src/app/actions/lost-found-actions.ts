@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Server Actions para gerenciar a coleção de animais perdidos e achados.
+ * Contém a lógica para adicionar novos posts e buscar posts ativos.
+ */
 
 'use server';
 
@@ -6,19 +10,28 @@ import { collection, getDocs, query, where, orderBy, addDoc } from 'firebase/fir
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
 
+// Interface para os dados de um novo post, onde a data vem como string do formulário.
 interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'dateExpiration'> {
-  date: string; // The form sends a string
+  date: string; 
 }
 
+/**
+ * Server Action para adicionar um novo registro de animal perdido ou encontrado.
+ * @param data Os dados do novo post.
+ * @returns Um objeto indicando sucesso ou falha da operação.
+ */
 export async function addLostFoundPostAction(data: NewPostData): Promise<{ success: boolean; error?: string }> {
+  // Validação para garantir que o usuário está autenticado.
   if (!data.citizenId) {
     return { success: false, error: "Usuário não autenticado." };
   }
 
   try {
+    // Define uma data de expiração para o post (30 dias a partir de hoje).
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 30);
 
+    // Monta o objeto completo para o novo post.
     const newPost: Omit<LostFoundAnimal, 'id'> = {
         type: data.type,
         species: data.species,
@@ -27,17 +40,19 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
         lastSeenLocation: data.lastSeenLocation,
         contactName: data.contactName,
         contactPhone: data.contactPhone,
-        photoUrl: data.photoUrl ?? "", // Ensure photoUrl is handled, even if empty
+        photoUrl: data.photoUrl ?? "", // Garante que photoUrl seja uma string vazia se nula.
         status: 'ativo' as const,
         citizenId: data.citizenId,
-        date: new Date(data.date).toISOString(),
+        date: new Date(data.date).toISOString(), // Converte a data do formulário para ISO string.
         dateCreated: new Date().toISOString(),
         dateExpiration: expirationDate.toISOString(),
     };
 
+    // Adiciona o novo documento ao Firestore.
     const postsCollection = collection(db, 'lost_found_posts');
     await addDoc(postsCollection, newPost);
     
+    // Invalida o cache da página de perdidos e achados para mostrar o novo post.
     revalidatePath('/animal-welfare/lost-found');
 
     return { success: true };
@@ -47,35 +62,31 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
   }
 }
 
+/**
+ * Server Action para buscar todos os posts de animais perdidos e achados que estão ativos.
+ * Um post é considerado ativo se seu status for 'ativo' e a data de expiração não tiver passado.
+ * @returns Uma lista de posts ativos, ordenados pela data de expiração e criação.
+ */
 export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]> {
   try {
+    // Cria uma query para buscar posts que atendam aos critérios de "ativo" e "não expirado".
     const q = query(
       collection(db, "lost_found_posts"),
       where("status", "==", "ativo"),
-      where("dateExpiration", ">=", new Date().toISOString()), // Only fetch non-expired posts
-      orderBy("dateExpiration", "asc"),
-      orderBy("dateCreated", "desc")
+      where("dateExpiration", ">=", new Date().toISOString()), // Filtra apenas posts não expirados.
+      orderBy("dateExpiration", "asc"), // Ordena para mostrar os que expiram primeiro.
+      orderBy("dateCreated", "desc") // Ordena os mais recentes primeiro dentro da mesma data de expiração.
     );
 
+    // Executa a query.
     const querySnapshot = await getDocs(q);
     const posts: LostFoundAnimal[] = [];
+    // Itera sobre os resultados e formata os dados.
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       posts.push({
         id: doc.id,
-        type: data.type,
-        species: data.species,
-        breed: data.breed,
-        description: data.description,
-        lastSeenLocation: data.lastSeenLocation,
-        date: data.date,
-        contactName: data.contactName,
-        contactPhone: data.contactPhone,
-        photoUrl: data.photoUrl,
-        status: data.status,
-        citizenId: data.citizenId,
-        dateCreated: data.dateCreated,
-        dateExpiration: data.dateExpiration,
+        ...data,
       } as LostFoundAnimal);
     });
     return posts;

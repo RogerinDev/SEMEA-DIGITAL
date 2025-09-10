@@ -1,12 +1,19 @@
+/**
+ * @fileoverview Arquivo de dados estáticos para a seção de Arborização Urbana.
+ * Centraliza as informações sobre os projetos de arborização, facilitando a manutenção
+ * e o uso desses dados em diferentes partes da aplicação.
+ */
+
 import type { ArborizationProject } from '@/types';
 
+// Array contendo os dados de cada projeto de arborização.
 export const arborizationProjects: ArborizationProject[] = [
   {
     id: '1',
     slug: 'plantar',
     title: 'Projeto PLANTAR',
     objective: 'O plantio de mudas de árvores nativas e exóticas com fins paisagísticos na arborização urbana de praças e vias públicas, em diferentes regiões da cidade onde a cobertura é mais escassa.',
-    detailsPage: true,
+    detailsPage: true, // Indica que este projeto tem uma página de detalhes própria.
   },
   {
     id: '2',
@@ -51,8 +58,8 @@ export const arborizationProjects: ArborizationProject[] = [
     howToParticipate: 'O munícipe pode solicitar o plantio de árvores na calçada do seu imóvel ou em áreas públicas por meio de mensagens via WhatsApp. Ele participa da escolha da espécie, do plantio e das ações de manejo.',
     cta: {
       text: 'Solicitar via WhatsApp',
-      link: 'https://wa.me/553536902311?text=Olá!%20Gostaria%20de%20solicitar%20o%20plantio%20de%20uma%20árvore%20pelo%20Tele-Árvore.', // Placeholder number
-      type: 'whatsapp'
+      link: 'https://wa.me/553536902311?text=Olá!%20Gostaria%20de%20solicitar%20o%20plantio%20de%20uma%20árvore%20pelo%20Tele-Árvore.', // Placeholder do número
+      type: 'whatsapp' // O tipo 'whatsapp' indica que é um link externo para o WhatsApp.
     },
     detailsPage: true,
   },
@@ -64,8 +71,8 @@ export const arborizationProjects: ArborizationProject[] = [
     howToParticipate: 'O projeto é realizado em parceria com o Centro Ambulatorial de Especialidades da Criança, que realiza o cadastro das famílias interessadas. Cada bebê participante recebe um certificado de “amigo do meio-ambiente”.',
     cta: {
         text: 'Saiba como se cadastrar',
-        link: '/info/urban-afforestation/contact', // Directs to contact page for more info
-        type: 'info'
+        link: '/info/urban-afforestation/contact', // Direciona para a página de contato para mais informações.
+        type: 'info' // Tipo 'info' para links internos de informação.
     },
     detailsPage: true,
   },

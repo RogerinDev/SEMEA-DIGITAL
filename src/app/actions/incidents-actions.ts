@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Server Actions para gerenciar a coleção de denúncias (incidents) no Firestore.
+ * Contém a lógica do lado do servidor para adicionar, buscar, contar e atualizar denúncias.
+ */
 
 'use server';
 
@@ -6,6 +10,11 @@ import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromSe
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
 
+/**
+ * Função de guarda (type guard) para validar se um valor é um tipo de denúncia conhecido.
+ * @param type O valor a ser verificado.
+ * @returns `true` se o tipo for válido, `false` caso contrário.
+ */
 function isValidIncidentType(type: any): type is IncidentType {
   const validTypes: IncidentType[] = [
     "descarte_irregular_residuo", "maus_tratos_animal", "desmatamento_ilegal", 
@@ -17,6 +26,11 @@ function isValidIncidentType(type: any): type is IncidentType {
   return validTypes.includes(type);
 }
 
+/**
+ * Mapeia uma categoria de denúncia para o departamento responsável.
+ * @param category A categoria da denúncia.
+ * @returns O departamento correspondente.
+ */
 function mapIncidentCategoryToDepartment(category: IncidentCategory): Department {
     switch (category) {
         case 'residuos_poluicao':
@@ -28,10 +42,11 @@ function mapIncidentCategoryToDepartment(category: IncidentCategory): Department
         case 'outras':
             return 'educacao_ambiental';
         default:
-            return 'educacao_ambiental';
+            return 'educacao_ambiental'; // Departamento padrão para casos não mapeados.
     }
 }
 
+// Interface para os dados de uma nova denúncia.
 interface NewIncidentData {
   incidentType: IncidentType;
   description: string;
@@ -41,6 +56,11 @@ interface NewIncidentData {
   citizenName: string;
 }
 
+/**
+ * Server Action para adicionar uma nova denúncia.
+ * @param data Os dados da nova denúncia.
+ * @returns Um objeto com status de sucesso, protocolo gerado ou mensagem de erro.
+ */
 export async function addIncidentAction(data: NewIncidentData): Promise<{ success: boolean; protocol?: string; error?: string }> {
   if (!isValidIncidentType(data.incidentType)) {
     return { success: false, error: "Tipo de denúncia inválido." };
@@ -56,8 +76,10 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   const department = mapIncidentCategoryToDepartment(incidentTypeInfo.category);
 
   try {
+    // Gera um protocolo único baseado no timestamp.
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
     
+    // Monta o objeto da nova denúncia.
     const newIncident: Omit<IncidentReport, 'id'> = {
       protocol,
       type: data.incidentType,
@@ -74,9 +96,11 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       inspector: "",
     };
 
+    // Adiciona o documento ao Firestore.
     const incidentsCollection = collection(db, 'incidents');
     await addDoc(incidentsCollection, newIncident);
     
+    // Invalida o cache das páginas relevantes para mostrar os dados atualizados.
     revalidatePath('/dashboard/citizen/incidents');
     revalidatePath('/dashboard/admin/incidents');
     
@@ -87,6 +111,11 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   }
 }
 
+/**
+ * Server Action para buscar todas as denúncias de um cidadão específico.
+ * @param citizenId O ID do cidadão (Firebase UID).
+ * @returns Uma lista de denúncias.
+ */
 export async function getIncidentsByCitizenAction(citizenId: string): Promise<IncidentReport[]> {
   if (!citizenId) return [];
 
@@ -102,16 +131,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
       const data = doc.data();
       incidents.push({
         id: doc.id,
-        protocol: data.protocol,
-        type: data.type,
-        status: data.status,
-        dateCreated: data.dateCreated,
-        description: data.description,
-        location: data.location,
-        department: data.department,
-        reportedBy: data.reportedBy,
-        isAnonymous: data.isAnonymous,
-        citizenId: data.citizenId,
+        ...data
       } as IncidentReport);
     });
     return incidents;
@@ -121,6 +141,11 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
   }
 }
 
+/**
+ * Server Action para buscar uma denúncia específica pelo seu ID de documento.
+ * @param id O ID do documento no Firestore.
+ * @returns A denúncia encontrada ou `null` se não existir.
+ */
 export async function getIncidentByIdAction(id: string): Promise<IncidentReport | null> {
     if(!id) return null;
     try {
@@ -131,19 +156,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
             const data = docSnap.data();
             return {
                 id: docSnap.id,
-                protocol: data.protocol,
-                type: data.type,
-                status: data.status,
-                dateCreated: data.dateCreated,
-                dateUpdated: data.dateUpdated,
-                description: data.description,
-                location: data.location,
-                department: data.department,
-                reportedBy: data.reportedBy,
-                isAnonymous: data.isAnonymous,
-                citizenId: data.citizenId,
-                notes: data.notes,
-                inspector: data.inspector,
+                ...data
             } as IncidentReport;
         } else {
             console.log("No such incident document!");
@@ -155,6 +168,11 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
     }
 }
 
+/**
+ * Server Action para contar o número total de denúncias de um cidadão.
+ * @param citizenId O ID do cidadão.
+ * @returns O número de denúncias.
+ */
 export async function getIncidentCountByCitizenAction(citizenId: string): Promise<number> {
     if (!citizenId) return 0;
     try {
@@ -168,6 +186,11 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
 }
 
 
+/**
+ * Server Action para buscar denúncias para a visão do administrador.
+ * @param department - Opcional. Filtra as denúncias por departamento.
+ * @returns Uma lista de denúncias para o painel administrativo.
+ */
 export async function getIncidentsForAdminAction(department?: Department): Promise<IncidentReport[]> {
   try {
     let q;
@@ -182,19 +205,9 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
     const querySnapshot = await getDocs(q);
     const incidents: IncidentReport[] = [];
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
       incidents.push({
         id: doc.id,
-        protocol: data.protocol,
-        type: data.type,
-        status: data.status,
-        dateCreated: data.dateCreated,
-        description: data.description,
-        location: data.location,
-        department: data.department,
-        reportedBy: data.reportedBy,
-        isAnonymous: data.isAnonymous,
-        citizenId: data.citizenId,
+        ...doc.data()
       } as IncidentReport);
     });
     return incidents;
@@ -204,6 +217,11 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
   }
 }
 
+/**
+ * Server Action para contar denúncias com base em filtros (departamento, status).
+ * @param filters - Objeto com filtros opcionais.
+ * @returns O número de denúncias que correspondem aos filtros.
+ */
 export async function getIncidentsCountAction({
   department,
   status,
@@ -229,6 +247,7 @@ export async function getIncidentsCountAction({
   }
 }
 
+// Interface para os dados de atualização de uma denúncia.
 interface UpdateIncidentData {
     id: string;
     status: IncidentStatus;
@@ -236,6 +255,11 @@ interface UpdateIncidentData {
     inspector?: string;
 }
 
+/**
+ * Server Action para atualizar o status, notas e fiscal de uma denúncia.
+ * @param data Os dados para atualização.
+ * @returns Um objeto com status de sucesso ou mensagem de erro.
+ */
 export async function updateIncidentStatusAction(data: UpdateIncidentData): Promise<{ success: boolean; error?: string }> {
   const { id, status, notes, inspector } = data;
   if (!id || !status) {
@@ -251,6 +275,7 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
       dateUpdated: new Date().toISOString(),
     });
     
+    // Invalida o cache de todas as páginas que exibem esta denúncia.
     revalidatePath(`/dashboard/admin/incidents/${id}`);
     revalidatePath(`/dashboard/citizen/incidents/${id}`);
     revalidatePath('/dashboard/admin/incidents');

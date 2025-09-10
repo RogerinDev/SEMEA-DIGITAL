@@ -1,16 +1,26 @@
+/**
+ * @fileoverview Arquivo central de definições de tipos (TypeScript) para toda a aplicação.
+ * Isso garante consistência e reuso de tipos em diferentes partes do código.
+ */
 
 import type { User as FirebaseUser } from 'firebase/auth';
 
+// Define os papéis de usuário possíveis no sistema.
 export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin' | 'superAdmin';
 
+// Estende o tipo de usuário do Firebase para incluir nossos campos customizados.
 export interface AppUser extends FirebaseUser {
-  role?: UserRole;
-  department?: Department;
+  role?: UserRole; // Papel do usuário (vindo dos Custom Claims).
+  department?: Department; // Departamento do usuário (vindo dos Custom Claims).
 }
 
+// Define os departamentos da secretaria.
 export type Department = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental' | 'gabinete';
 
+// Define os status possíveis para uma solicitação de serviço.
 export type ServiceRequestStatus = "pendente" | "em_analise" | "vistoria_agendada" | "aguardando_documentacao" | "aprovado" | "rejeitado" | "concluido" | "cancelado_pelo_usuario";
+
+// Define os tipos de solicitação de serviço que um usuário pode fazer.
 export type ServiceRequestType =
   | "castracao_animal"
   | "corte_arvore_risco"
@@ -26,30 +36,34 @@ export type ServiceRequestType =
   | "requerimento_corte_poda"
   | "outros_servicos_gerais";
 
+// Estrutura de um documento de solicitação de serviço no Firestore.
 export interface ServiceRequest {
-  id: string; // Firestore document ID
+  id: string; // ID do documento no Firestore.
   type: ServiceRequestType;
-  protocol: string;
+  protocol: string; // Protocolo gerado pelo sistema.
   status: ServiceRequestStatus;
-  dateCreated: string; // Store as ISO string for simplicity on client
-  dateUpdated: string;
+  dateCreated: string; // Data de criação em formato ISO string.
+  dateUpdated: string; // Data da última atualização em formato ISO string.
   description: string;
   department: Department;
-  citizenId?: string; // UID from Firebase Auth
+  citizenId?: string; // UID do Firebase Auth do solicitante.
   citizenName?: string; 
   address?: string;
   contactPhone?: string;
-  notes?: string;
+  notes?: string; // Notas internas do administrador.
 }
 
+// Define as categorias de serviço, que agrupam os tipos de serviço.
 export type ServiceCategory = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental';
 
+// Estrutura para descrever um tipo de solicitação de serviço.
 export interface ServiceRequestTypeInfo {
   value: ServiceRequestType;
   label: string;
   category: ServiceCategory;
 }
 
+// Lista mestre de todos os tipos de solicitação de serviço.
 export const SERVICE_REQUEST_TYPES: ServiceRequestTypeInfo[] = [
   // Arborização
   { value: "poda_arvore", label: "Poda de Árvore", category: 'arborizacao' },
@@ -74,9 +88,13 @@ export const SERVICE_REQUEST_TYPES: ServiceRequestTypeInfo[] = [
 ];
 
 
+// Define as categorias de denúncia ambiental.
 export type IncidentCategory = 'residuos_poluicao' | 'animais' | 'flora_areas_protegidas' | 'outras';
 
+// Define os status possíveis para uma denúncia.
 export type IncidentStatus = "recebida" | "em_verificacao" | "fiscalizacao_agendada" | "em_andamento_fiscalizacao" | "auto_infracao_emitido" | "medida_corretiva_solicitada" | "resolvida" | "arquivada_improcedente";
+
+// Define os tipos de denúncia que um usuário pode fazer.
 export type IncidentType =
   | "descarte_irregular_residuo"
   | "maus_tratos_animal"
@@ -90,136 +108,151 @@ export type IncidentType =
   | "arvore_doente_risco_nao_solicitado_corte"
   | "outra_infracao_ambiental";
 
+// Estrutura de um documento de denúncia no Firestore.
 export interface IncidentReport {
-  id: string; // Firestore document ID
+  id: string;
   type: IncidentType;
   protocol: string;
   status: IncidentStatus;
-  dateCreated: string; // Store as ISO string
+  dateCreated: string;
   dateUpdated?: string;
   description: string;
   location: string;
   department: Department;
-  citizenId?: string; // UID from Firebase Auth
-  reportedBy?: string; // Optional, can be anonymous
+  citizenId?: string;
+  reportedBy?: string;
   isAnonymous?: boolean;
-  notes?: string;
-  inspector?: string;
+  notes?: string; // Notas internas do administrador/fiscal.
+  inspector?: string; // Nome do fiscal responsável.
 }
 
+// Estrutura para descrever um tipo de denúncia.
 export interface IncidentTypeInfo {
   value: IncidentType;
   label: string;
   category: IncidentCategory;
 }
 
+// Lista mestre de todos os tipos de denúncia.
 export const INCIDENT_TYPES: IncidentTypeInfo[] = [
-    // Resíduos e Poluição
     { value: "descarte_irregular_residuo", label: "Descarte Irregular de Resíduo", category: 'residuos_poluicao' },
     { value: "poluicao_sonora", label: "Poluição Sonora", category: 'residuos_poluicao' },
     { value: "poluicao_agua_solo_ar", label: "Poluição da Água/Solo/Ar", category: 'residuos_poluicao' },
-    // Maus Tratos e Animais
     { value: "maus_tratos_animal", label: "Maus Tratos a Animal", category: 'animais' },
     { value: "animal_silvestre_risco_resgate", label: "Animal Silvestre em Risco/Resgate", category: 'animais' },
-    // Flora e Áreas Protegidas
     { value: "desmatamento_ilegal", label: "Desmatamento Ilegal", category: 'flora_areas_protegidas' },
     { value: "queimada_ilegal", label: "Queimada Ilegal", category: 'flora_areas_protegidas' },
     { value: "invasao_area_protegida", label: "Invasão de Área Protegida", category: 'flora_areas_protegidas' },
     { value: "arvore_doente_risco_nao_solicitado_corte", label: "Árvore Doente/Risco (Não Solicitado Corte)", category: 'flora_areas_protegidas' },
-    // Outras
     { value: "problema_parque_municipal", label: "Problema em Parque Municipal", category: 'outras' },
     { value: "outra_infracao_ambiental", label: "Outra Infração Ambiental", category: 'outras' },
 ];
 
 
+// ---- Tipos para a Seção de Bem-Estar Animal ----
+
+// Status de um animal no processo de adoção.
 export type AdoptionStatus = "disponivel" | "processo_adocao_em_andamento" | "adotado";
+// Espécies de animais para adoção.
 export type AnimalSpecies = "cao" | "gato" | "outro";
 
+// Estrutura de um documento de animal para adoção.
 export interface AnimalForAdoption {
-  id: string; // Firestore document ID
+  id: string;
   name: string;
   species: AnimalSpecies;
   breed: string;
   age: string;
-  photoUrl: string; // URL from Firebase Storage
+  photoUrl: string; // URL da imagem no Firebase Storage.
   description: string;
   status: AdoptionStatus;
-  dateAdded: string; // ISO string
+  dateAdded: string;
 }
 
-
+// Estrutura de um documento de animal perdido ou achado.
 export interface LostFoundAnimal {
-  id: string; // Firestore document ID
+  id: string;
   type: 'perdido' | 'encontrado';
   species: string;
   breed?: string;
   description: string;
   lastSeenLocation: string;
-  date: string; // ISO string for the event date
+  date: string; // Data do ocorrido.
   contactName: string;
   contactPhone: string;
-  photoUrl: string; // URL from Firebase Storage
+  photoUrl: string;
   status: 'ativo' | 'resolvido';
-  citizenId: string; // UID from Firebase Auth
-  dateCreated: string; // ISO String - Firestore server timestamp
-  dateExpiration: string; // ISO String - Firestore server timestamp
+  citizenId: string;
+  dateCreated: string;
+  dateExpiration: string; // Data em que o post deixará de ser exibido.
 }
 
+// ---- Tipos para a Seção de Educação Ambiental ----
+
+// Estrutura de um evento ambiental.
 export interface EnvironmentalEvent {
     id:string;
     name: string;
     type: "palestra" | "workshop" | "curso_curta_duracao" | "trilha_guiada_ecologica" | "feira_ambiental";
-    date: string; // Store as ISO string
+    date: string;
     location: string;
     description: string;
     imageUrl?: string;
-    dataAiHint?: string;
+    dataAiHint?: string; // Dica para IA gerar imagens.
 }
 
-// For GenAI
-export type ResolvedTicket = {
-  ticketId: string;
-  description: string;
-  resolution: string;
-};
-
-// Types for Environmental Education Section
+// Estrutura de um projeto educacional.
 export interface EducationalProject {
   id: string;
-  slug: string;
+  slug: string; // Identificador para URL.
   title: string;
   imageUrl: string;
   dataAiHint: string;
-  introduction: string; // Short description for listing page
+  introduction: string;
   objectives: string[];
   targetAudience: string;
   associatedLectures?: string[];
   methodology?: string[];
   duration?: string;
   observations?: string[];
-  generalNote?: boolean; // To indicate if the general SEMEA focus note should be displayed
+  generalNote?: boolean;
 }
 
+// Estrutura de uma palestra temática.
 export interface ThematicLecture {
   id: string;
   title: string;
-  category?: string; // e.g., ODS
-  description?: string; // Optional brief description
+  category?: string; // Ex: 'ODS', 'Projetos'.
+  description?: string;
 }
 
-export const GENERAL_SEMEA_FOCUS_NOTE = "Além dos projetos específicos, a SEMEA foca em fomentar a destinação adequada de resíduos sólidos, prevenção a queimadas, preparo para emergência climática (proteção de APPs, áreas verdes, arborização urbana) e bem-estar animal.";
+// ---- Tipos para a Seção de Arborização Urbana ----
 
-// Types for Urban Arborization Section
+// Estrutura de um projeto de arborização.
 export interface ArborizationProject {
   id: string;
   slug: string;
   title: string;
   objective: string;
   howToParticipate?: string;
-  cta?: {
+  cta?: { // Call to Action
     text: string;
     link: string;
     type: 'whatsapp' | 'internal' | 'external' | 'info';
   };
-  detailsPage: boolean; 
+  detailsPage: boolean; // Se tem uma página de detalhes.
 }
+
+
+// ---- Tipos para IA (Genkit) ----
+
+// Estrutura de um ticket resolvido, usado como base de conhecimento para a IA.
+export type ResolvedTicket = {
+  ticketId: string;
+  description: string;
+  resolution: string;
+};
+
+
+// Constante com nota geral da SEMEA.
+export const GENERAL_SEMEA_FOCUS_NOTE = "Além dos projetos específicos, a SEMEA foca em fomentar a destinação adequada de resíduos sólidos, prevenção a queimadas, preparo para emergência climática (proteção de APPs, áreas verdes, arborização urbana) e bem-estar animal.";

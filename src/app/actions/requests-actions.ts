@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Server Actions para gerenciar a coleção de solicitações de serviço (`service_requests`).
+ * Contém a lógica do lado do servidor para adicionar, buscar, contar e atualizar solicitações.
+ */
 
 'use server';
 
@@ -6,18 +10,29 @@ import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromSe
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
 
+// Array de tipos de serviço válidos para validação.
 const validServiceRequestTypes = SERVICE_REQUEST_TYPES.map(t => t.value);
 
-// This is a type guard to ensure the service type is valid
+/**
+ * Função de guarda (type guard) para validar se um valor é um tipo de serviço conhecido.
+ * @param type O valor a ser verificado.
+ * @returns `true` se o tipo for válido, `false` caso contrário.
+ */
 function isValidServiceRequestType(type: any): type is ServiceRequestType {
   return validServiceRequestTypes.includes(type);
 }
 
-// Added for consistency and robustness, similar to incidents-actions
+/**
+ * Mapeia uma categoria de serviço para o departamento responsável.
+ * Neste caso, a categoria e o departamento têm o mesmo nome.
+ * @param category A categoria do serviço.
+ * @returns O departamento correspondente.
+ */
 function mapServiceCategoryToDepartment(category: ServiceCategory): Department {
     return category;
 }
 
+// Interface para os dados de uma nova solicitação.
 interface NewRequestData {
   requestType: ServiceRequestType;
   description: string;
@@ -27,6 +42,11 @@ interface NewRequestData {
   citizenName: string;
 }
 
+/**
+ * Server Action para adicionar uma nova solicitação de serviço.
+ * @param data Os dados da nova solicitação.
+ * @returns Um objeto com status de sucesso, protocolo gerado ou mensagem de erro.
+ */
 export async function addRequestAction(data: NewRequestData): Promise<{ success: boolean; protocol?: string; error?: string }> {
   if (!isValidServiceRequestType(data.requestType)) {
     return { success: false, error: "Tipo de serviço inválido." };
@@ -42,8 +62,10 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
   const department = mapServiceCategoryToDepartment(serviceTypeInfo.category);
 
   try {
+    // Gera um protocolo único.
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
     
+    // Monta o objeto da nova solicitação.
     const newRequest: Omit<ServiceRequest, 'id'> = {
       protocol: protocol,
       type: data.requestType,
@@ -59,9 +81,11 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       notes: "",
     };
 
+    // Adiciona o documento ao Firestore.
     const requestsCollection = collection(db, 'service_requests');
     await addDoc(requestsCollection, newRequest);
 
+    // Invalida o cache das páginas relevantes.
     revalidatePath('/dashboard/citizen/requests');
     revalidatePath('/dashboard/admin/requests');
 
@@ -72,6 +96,11 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
   }
 }
 
+/**
+ * Server Action para buscar todas as solicitações de um cidadão específico.
+ * @param citizenId O ID do cidadão (Firebase UID).
+ * @returns Uma lista de solicitações.
+ */
 export async function getRequestsByCitizenAction(citizenId: string): Promise<ServiceRequest[]> {
   if (!citizenId) return [];
 
@@ -84,19 +113,9 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
     const querySnapshot = await getDocs(q);
     const requests: ServiceRequest[] = [];
     querySnapshot.forEach((doc) => {
-        const data = doc.data();
         requests.push({
             id: doc.id,
-            protocol: data.protocol,
-            type: data.type,
-            status: data.status,
-            dateCreated: data.dateCreated,
-            dateUpdated: data.dateUpdated,
-            description: data.description,
-            department: data.department,
-            citizenName: data.citizenName,
-            address: data.address,
-            contactPhone: data.contactPhone,
+            ...doc.data(),
         } as ServiceRequest);
     });
     return requests;
@@ -106,6 +125,11 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
   }
 }
 
+/**
+ * Server Action para buscar uma solicitação específica pelo seu ID de documento.
+ * @param id O ID do documento no Firestore.
+ * @returns A solicitação encontrada ou `null`.
+ */
 export async function getRequestByIdAction(id: string): Promise<ServiceRequest | null> {
     if (!id) return null;
     try {
@@ -113,20 +137,9 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            const data = docSnap.data();
             return {
                 id: docSnap.id,
-                protocol: data.protocol,
-                type: data.type,
-                status: data.status,
-                dateCreated: data.dateCreated,
-                dateUpdated: data.dateUpdated,
-                description: data.description,
-                department: data.department,
-                citizenName: data.citizenName,
-                address: data.address,
-                contactPhone: data.contactPhone,
-                notes: data.notes,
+                ...docSnap.data(),
             } as ServiceRequest;
         } else {
             console.log("No such document!");
@@ -138,6 +151,11 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
     }
 }
 
+/**
+ * Server Action para contar o número total de solicitações de um cidadão.
+ * @param citizenId O ID do cidadão.
+ * @returns O número de solicitações.
+ */
 export async function getRequestCountByCitizenAction(citizenId: string): Promise<number> {
     if (!citizenId) return 0;
     try {
@@ -150,7 +168,11 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
     }
 }
 
-
+/**
+ * Server Action para buscar solicitações para a visão do administrador.
+ * @param department - Opcional. Filtra as solicitações por departamento.
+ * @returns Uma lista de solicitações para o painel administrativo.
+ */
 export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
   try {
     let q;
@@ -165,19 +187,9 @@ export async function getRequestsForAdminAction(department?: Department): Promis
     const querySnapshot = await getDocs(q);
     const requests: ServiceRequest[] = [];
     querySnapshot.forEach((doc) => {
-        const data = doc.data();
         requests.push({
             id: doc.id,
-            protocol: data.protocol,
-            type: data.type,
-            status: data.status,
-            dateCreated: data.dateCreated,
-            dateUpdated: data.dateUpdated,
-            description: data.description,
-            department: data.department,
-            citizenName: data.citizenName,
-            address: data.address,
-            contactPhone: data.contactPhone,
+            ...doc.data(),
         } as ServiceRequest);
     });
     return requests;
@@ -187,6 +199,11 @@ export async function getRequestsForAdminAction(department?: Department): Promis
   }
 }
 
+/**
+ * Server Action para contar solicitações com base em filtros.
+ * @param filters - Objeto com filtros opcionais (departamento, status, data).
+ * @returns O número de solicitações que correspondem aos filtros.
+ */
 export async function getRequestsCountAction({
   department,
   status,
@@ -217,12 +234,18 @@ export async function getRequestsCountAction({
   }
 }
 
+// Interface para os dados de atualização de uma solicitação.
 interface UpdateRequestData {
     id: string;
     status: ServiceRequestStatus;
     notes?: string;
 }
 
+/**
+ * Server Action para atualizar o status e notas de uma solicitação.
+ * @param data Os dados para atualização.
+ * @returns Um objeto com status de sucesso ou mensagem de erro.
+ */
 export async function updateRequestStatusAction(data: UpdateRequestData): Promise<{ success: boolean; error?: string }> {
   const { id, status, notes } = data;
   if (!id || !status) {
@@ -237,6 +260,7 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
       dateUpdated: new Date().toISOString(),
     });
 
+    // Invalida o cache das páginas relevantes.
     revalidatePath(`/dashboard/admin/requests/${id}`);
     revalidatePath(`/dashboard/citizen/requests/${id}`);
     revalidatePath('/dashboard/admin/requests');

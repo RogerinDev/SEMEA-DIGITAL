@@ -1,6 +1,11 @@
+/**
+ * @fileoverview Arquivo de dados estáticos para a seção de Educação Ambiental.
+ * Centraliza as informações sobre projetos, palestras e eventos, facilitando a manutenção.
+ */
 
 import type { EducationalProject, ThematicLecture, EnvironmentalEvent } from '@/types';
 
+// Lista de projetos educacionais oferecidos pela SEMEA.
 export const educationalProjects: EducationalProject[] = [
   {
     id: '1',
@@ -19,7 +24,7 @@ export const educationalProjects: EducationalProject[] = [
       'A IMPORTÂNCIA DAS ÁRVORES',
       'PANORAMA AMBIENTAL DE VARGINHA',
     ],
-    generalNote: true,
+    generalNote: true, // Indica que a nota geral da SEMEA deve ser exibida.
   },
   {
     id: '2',
@@ -85,7 +90,9 @@ export const educationalProjects: EducationalProject[] = [
   },
 ];
 
+// Lista de palestras temáticas oferecidas.
 export const thematicLectures: ThematicLecture[] = [
+  // Palestras com foco nos Objetivos de Desenvolvimento Sustentável (ODS) da ONU.
   { id: 'ods6', title: 'ODS 6 - ÁGUA É VIDA', category: 'ODS' },
   { id: 'ods13', title: 'ODS 13 - O CLIMA MUDOU, E AGORA?', category: 'ODS' },
   { id: 'ods7', title: 'ODS 7 - ENERGIA LIMPA', category: 'ODS' },
@@ -94,17 +101,18 @@ export const thematicLectures: ThematicLecture[] = [
   { id: 'ods15', title: 'ODS 15 - PLANETA TERRA', category: 'ODS' },
   { id: 'ods12', title: 'ODS 12 - CONSUMO CONSCIENTE', category: 'ODS' },
   { id: 'ods17', title: 'ODS 17 - PARCERIAS AMBIENTAIS', category: 'ODS' },
-  // Adding project-specific lectures for a consolidated view if desired, or they can be listed separately
+  // Palestras diretamente vinculadas aos projetos educacionais.
   { id: 'importancia_arvores', title: 'A IMPORTÂNCIA DAS ÁRVORES', category: 'Projetos' },
   { id: 'panorama_varginha', title: 'PANORAMA AMBIENTAL DE VARGINHA', category: 'Projetos' },
   { id: 'historia_lixo', title: 'HISTÓRIA DO LIXO', category: 'Projetos' },
-  { id: 'bichos_lixo', title: 'OS BICHOS E O LIXO', category: 'Projetos' }, // Repeated, but can be part of multiple projects
+  { id: 'bichos_lixo', title: 'OS BICHOS E O LIXO', category: 'Projetos' },
   { id: 'lixo_luxo', title: 'O LIXO QUE É LUXO', category: 'Projetos' },
   { id: 'bichos_mato_mata', title: 'BICHOS DO MATO E DA MATA', category: 'Projetos' },
   { id: 'cuidar_animais', title: 'COMO CUIDAR DOS ANIMAIS DE ESTIMAÇÃO', category: 'Projetos' },
   { id: 'bicho_chama_bicho', title: 'BICHO QUE CHAMA BICHO (CONTAÇÃO DE ESTÓRIA)', category: 'Projetos' },
 ];
 
+// Lista de eventos ambientais (dados de exemplo).
 export const environmentalEvents: EnvironmentalEvent[] = [
   { id: '1', name: 'Semana do Meio Ambiente 2024', type: 'feira_ambiental', date: new Date(2024, 5, 5, 9, 0).toISOString(), location: 'Praça Central de Varginha', description: 'Palestras, workshops e atividades educativas para todas as idades celebrando o meio ambiente.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'environmental fair' },
   { id: '2', name: 'Workshop de Plantio de Hortas Urbanas', type: 'workshop', date: new Date(2024, 7, 12, 14, 0).toISOString(), location: 'Parque Novo Horizonte', description: 'Aprenda técnicas de cultivo de alimentos em pequenos espaços e contribua para uma cidade mais verde.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'urban gardening' },

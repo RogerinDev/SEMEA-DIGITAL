@@ -2,68 +2,86 @@
 'use server';
 
 /**
- * @fileOverview Suggests similar resolved tickets to help officials find examples and best practices for resolving the current request more efficiently.
+ * @fileOverview Sugere tickets resolvidos similares para ajudar os funcionários
+ * a encontrar exemplos e melhores práticas para resolver a solicitação atual
+ * de forma mais eficiente.
  *
- * - suggestSimilarTickets - A function that suggests similar resolved tickets.
- * - SuggestSimilarTicketsInput - The input type for the suggestSimilarTickets function.
- * - SuggestSimilarTicketsOutput - The return type for the suggestSimilarTickets function.
+ * Exporta:
+ * - suggestSimilarTickets: Função principal que invoca o fluxo de IA.
+ * - SuggestSimilarTicketsInput: Tipo de dados de entrada para a função.
+ * - SuggestSimilarTicketsOutput: Tipo de dados de saída da função.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+// Define o esquema de entrada para o fluxo de IA usando Zod.
+// Isso garante que os dados de entrada tenham o formato esperado.
 const SuggestSimilarTicketsInputSchema = z.object({
-  ticketDescription: z.string().describe('The description of the current ticket.'),
-  ticketType: z.string().describe('The type of the current ticket (e.g., castracao_animal, corte_arvore_risco).'),
+  ticketDescription: z.string().describe('A descrição do ticket atual.'),
+  ticketType: z.string().describe('O tipo do ticket atual (ex: castracao_animal, corte_arvore_risco).'),
   resolvedTickets: z.array(
     z.object({
-      ticketId: z.string().describe('The ID of the resolved ticket.'),
-      description: z.string().describe('The description of the resolved ticket.'),
-      resolution: z.string().describe('The resolution of the resolved ticket.'),
+      ticketId: z.string().describe('O ID do ticket resolvido.'),
+      description: z.string().describe('A descrição do ticket resolvido.'),
+      resolution: z.string().describe('A resolução aplicada ao ticket resolvido.'),
     })
-  ).describe('A list of resolved tickets with their descriptions and resolutions.'),
+  ).describe('Uma lista de tickets resolvidos com suas descrições e resoluções.'),
 });
+// Exporta o tipo inferido do esquema Zod para uso no código TypeScript.
 export type SuggestSimilarTicketsInput = z.infer<typeof SuggestSimilarTicketsInputSchema>;
 
+// Define o esquema de saída que a IA deve retornar.
+// As descrições ajudam o modelo a entender o formato de resposta desejado.
 const SuggestSimilarTicketsOutputSchema = z.array(
   z.object({
-    ticketId: z.string().describe('The ID of the similar resolved ticket.'),
-    similarityScore: z.number().describe('A score indicating the similarity of the resolved ticket to the current ticket (0-1).'),
+    ticketId: z.string().describe('O ID do ticket resolvido similar.'),
+    similarityScore: z.number().describe('Uma pontuação de 0 a 1 indicando a similaridade do ticket resolvido com o ticket atual.'),
   })
-).describe('A list of similar resolved tickets, ranked by similarity score.');
+).describe('Uma lista de tickets resolvidos similares, classificados por pontuação de similaridade.');
+// Exporta o tipo inferido do esquema de saída.
 export type SuggestSimilarTicketsOutput = z.infer<typeof SuggestSimilarTicketsOutputSchema>;
 
+/**
+ * Função de invólucro (wrapper) assíncrona que chama o fluxo Genkit.
+ * Esta é a função que será exportada e usada pelos Server Components.
+ * @param input Os dados de entrada, conformes com o `SuggestSimilarTicketsInput`.
+ * @returns Uma promessa que resolve com a lista de tickets similares.
+ */
 export async function suggestSimilarTickets(input: SuggestSimilarTicketsInput): Promise<SuggestSimilarTicketsOutput> {
   return suggestSimilarTicketsFlow(input);
 }
 
+// Define o prompt que será enviado para o modelo de linguagem (LLM).
 const prompt = ai.definePrompt({
   name: 'suggestSimilarTicketsPrompt',
   input: {schema: SuggestSimilarTicketsInputSchema},
   output: {schema: SuggestSimilarTicketsOutputSchema},
-  prompt: `You are an AI assistant helping officials find similar resolved tickets.
+  // O template do prompt usa a sintaxe Handlebars para injetar os dados de entrada.
+  prompt: `Você é um assistente de IA que ajuda funcionários a encontrar tickets resolvidos similares.
 
-  Given the current ticket description and type, and a list of resolved tickets with their descriptions and resolutions, suggest the top 3 most similar resolved tickets.
-  Return a list of ticket IDs and a similarity score (0-1) for each suggested ticket, ranked by similarity score in descending order.
+  Dada a descrição e o tipo do ticket atual, e uma lista de tickets já resolvidos com suas descrições e resoluções, sugira os 3 tickets mais similares.
+  Retorne uma lista com os IDs dos tickets e uma pontuação de similaridade (0-1) para cada um, classificados em ordem decrescente de similaridade.
 
-  Current Ticket Description: {{{ticketDescription}}}
-  Current Ticket Type: {{{ticketType}}}
+  Ticket Atual - Descrição: {{{ticketDescription}}}
+  Ticket Atual - Tipo: {{{ticketType}}}
 
-  Resolved Tickets:
+  Lista de Tickets Resolvidos:
   {{#each resolvedTickets}}
-  Ticket ID: {{{ticketId}}}
-  Description: {{{description}}}
-  Resolution: {{{resolution}}}
+  - Ticket ID: {{{ticketId}}}
+    - Descrição: {{{description}}}
+    - Resolução: {{{resolution}}}
   {{/each}}
 
-  Output format: 
+  Formato de Saída (JSON): 
   [{
-  "ticketId": "<ticket_id>",
-  "similarityScore": <similarity_score>
+    "ticketId": "<id_do_ticket>",
+    "similarityScore": <pontuacao_de_similaridade>
   }]
   `,
 });
 
+// Define o fluxo (flow) do Genkit, que orquestra a chamada ao prompt.
 const suggestSimilarTicketsFlow = ai.defineFlow(
   {
     name: 'suggestSimilarTicketsFlow',
@@ -71,7 +89,9 @@ const suggestSimilarTicketsFlow = ai.defineFlow(
     outputSchema: SuggestSimilarTicketsOutputSchema,
   },
   async input => {
+    // Executa o prompt com os dados de entrada.
     const {output} = await prompt(input);
+    // Retorna a saída gerada pela IA, com '!' para afirmar que não será nulo.
     return output!;
   }
 );
