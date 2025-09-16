@@ -6,7 +6,7 @@
  */
 
 // Importa e configura o `dotenv` para carregar variáveis de ambiente
-// do arquivo `.env.local` para o processo do Node.js.
+// do arquivo `.env` para o processo do Node.js.
 import { config } from 'dotenv';
 config();
 
