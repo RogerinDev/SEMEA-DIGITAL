@@ -7,7 +7,6 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase-admin/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -99,8 +98,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
     };
 
     // Adiciona o documento ao Firestore.
-    const incidentsCollection = collection(db, 'incidents');
-    await addDoc(incidentsCollection, newIncident);
+    await db.collection('incidents').add(newIncident);
     
     // Invalida o cache das páginas relevantes para mostrar os dados atualizados.
     revalidatePath('/dashboard/citizen/incidents');
@@ -123,12 +121,11 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
   if (!citizenId) return [];
 
   try {
-    const q = query(
-        collection(db, "incidents"), 
-        where("citizenId", "==", citizenId),
-        orderBy("dateCreated", "desc")
-    );
-    const querySnapshot = await getDocs(q);
+    const q = db.collection("incidents")
+        .where("citizenId", "==", citizenId)
+        .orderBy("dateCreated", "desc");
+    
+    const querySnapshot = await q.get();
     const incidents: IncidentReport[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
@@ -153,10 +150,10 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
     const { db } = getFirebaseAdmin();
     if(!id) return null;
     try {
-        const docRef = doc(db, 'incidents', id);
-        const docSnap = await getDoc(docRef);
+        const docRef = db.collection('incidents').doc(id);
+        const docSnap = await docRef.get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             const data = docSnap.data();
             return {
                 id: docSnap.id,
@@ -181,8 +178,8 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
     const { db } = getFirebaseAdmin();
     if (!citizenId) return 0;
     try {
-        const q = query(collection(db, "incidents"), where("citizenId", "==", citizenId));
-        const snapshot = await getCountFromServer(q);
+        const q = db.collection("incidents").where("citizenId", "==", citizenId);
+        const snapshot = await q.count().get();
         return snapshot.data().count;
     } catch (error) {
         console.error("Error getting incident count: ", error);
@@ -200,15 +197,15 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
   const { db } = getFirebaseAdmin();
   try {
     let q;
-    const incidentsCollection = collection(db, "incidents");
+    const incidentsCollection = db.collection("incidents");
 
     if (department) {
-      q = query(incidentsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
+      q = incidentsCollection.where("department", "==", department).orderBy("dateCreated", "desc");
     } else {
-      q = query(incidentsCollection, orderBy("dateCreated", "desc"));
+      q = incidentsCollection.orderBy("dateCreated", "desc");
     }
 
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await q.get();
     const incidents: IncidentReport[] = [];
     querySnapshot.forEach((doc) => {
       incidents.push({
@@ -237,16 +234,16 @@ export async function getIncidentsCountAction({
 }): Promise<number> {
   const { db } = getFirebaseAdmin();
   try {
-    const queryConstraints: any[] = [];
+    let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection("incidents");
+
     if (department) {
-      queryConstraints.push(where("department", "==", department));
+      query = query.where("department", "==", department);
     }
     if (status) {
-      queryConstraints.push(where("status", "==", status));
+      query = query.where("status", "==", status);
     }
 
-    const q = query(collection(db, "incidents"), ...queryConstraints);
-    const snapshot = await getCountFromServer(q);
+    const snapshot = await query.count().get();
     return snapshot.data().count;
   } catch (error) {
     console.error("Error getting incident count for admin: ", error);
@@ -275,8 +272,8 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
   }
 
   try {
-    const incidentRef = doc(db, 'incidents', id);
-    await updateDoc(incidentRef, {
+    const incidentRef = db.collection('incidents').doc(id);
+    await incidentRef.update({
       status,
       notes: notes ?? "",
       inspector: inspector ?? "",

@@ -7,9 +7,9 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase-admin/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
+import type admin from 'firebase-admin';
 
 // Array de tipos de serviço válidos para validação.
 const validServiceRequestTypes = SERVICE_REQUEST_TYPES.map(t => t.value);
@@ -83,8 +83,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
     };
 
     // Adiciona o documento ao Firestore.
-    const requestsCollection = collection(db, 'service_requests');
-    await addDoc(requestsCollection, newRequest);
+    await db.collection('service_requests').add(newRequest);
 
     // Invalida o cache das páginas relevantes.
     revalidatePath('/dashboard/citizen/requests');
@@ -107,12 +106,11 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
   if (!citizenId) return [];
 
   try {
-    const q = query(
-        collection(db, "service_requests"), 
-        where("citizenId", "==", citizenId),
-        orderBy("dateCreated", "desc")
-    );
-    const querySnapshot = await getDocs(q);
+    const q = db.collection("service_requests")
+        .where("citizenId", "==", citizenId)
+        .orderBy("dateCreated", "desc");
+    
+    const querySnapshot = await q.get();
     const requests: ServiceRequest[] = [];
     querySnapshot.forEach((doc) => {
         requests.push({
@@ -136,10 +134,10 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
     const { db } = getFirebaseAdmin();
     if (!id) return null;
     try {
-        const docRef = doc(db, 'service_requests', id);
-        const docSnap = await getDoc(docRef);
+        const docRef = db.collection('service_requests').doc(id);
+        const docSnap = await docRef.get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             return {
                 id: docSnap.id,
                 ...docSnap.data(),
@@ -163,8 +161,8 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
     const { db } = getFirebaseAdmin();
     if (!citizenId) return 0;
     try {
-        const q = query(collection(db, "service_requests"), where("citizenId", "==", citizenId));
-        const snapshot = await getCountFromServer(q);
+        const q = db.collection("service_requests").where("citizenId", "==", citizenId);
+        const snapshot = await q.count().get();
         return snapshot.data().count;
     } catch (error) {
         console.error("Error getting request count: ", error);
@@ -181,15 +179,15 @@ export async function getRequestsForAdminAction(department?: Department): Promis
   const { db } = getFirebaseAdmin();
   try {
     let q;
-    const requestsCollection = collection(db, "service_requests");
+    const requestsCollection = db.collection("service_requests");
     
     if (department) {
-      q = query(requestsCollection, where("department", "==", department), orderBy("dateCreated", "desc"));
+      q = requestsCollection.where("department", "==", department).orderBy("dateCreated", "desc");
     } else {
-      q = query(requestsCollection, orderBy("dateCreated", "desc"));
+      q = requestsCollection.orderBy("dateCreated", "desc");
     }
 
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await q.get();
     const requests: ServiceRequest[] = [];
     querySnapshot.forEach((doc) => {
         requests.push({
@@ -220,19 +218,18 @@ export async function getRequestsCountAction({
 }): Promise<number> {
   const { db } = getFirebaseAdmin();
   try {
-    const queryConstraints: any[] = [];
+    let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection("service_requests");
     if (department) {
-      queryConstraints.push(where("department", "==", department));
+      query = query.where("department", "==", department);
     }
     if (status) {
-      queryConstraints.push(where("status", "==", status));
+      query = query.where("status", "==", status);
     }
     if (fromDate) {
-      queryConstraints.push(where("dateCreated", ">=", fromDate.toISOString()));
+      query = query.where("dateCreated", ">=", fromDate.toISOString());
     }
 
-    const q = query(collection(db, "service_requests"), ...queryConstraints);
-    const snapshot = await getCountFromServer(q);
+    const snapshot = await query.count().get();
     return snapshot.data().count;
   } catch (error) {
     console.error("Error getting request count for admin: ", error);
@@ -260,8 +257,8 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
   }
 
   try {
-    const requestRef = doc(db, 'service_requests', id);
-    await updateDoc(requestRef, {
+    const requestRef = db.collection('service_requests').doc(id);
+    await requestRef.update({
       status: status,
       notes: notes ?? "",
       dateUpdated: new Date().toISOString(),

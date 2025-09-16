@@ -7,7 +7,6 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, query, where, orderBy, addDoc } from 'firebase-admin/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
 
@@ -51,8 +50,7 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
     };
 
     // Adiciona o novo documento ao Firestore.
-    const postsCollection = collection(db, 'lost_found_posts');
-    await addDoc(postsCollection, newPost);
+    await db.collection('lost_found_posts').add(newPost);
     
     // Invalida o cache da página de perdidos e achados para mostrar o novo post.
     revalidatePath('/animal-welfare/lost-found');
@@ -73,16 +71,14 @@ export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]
   const { db } = getFirebaseAdmin();
   try {
     // Cria uma query para buscar posts que atendam aos critérios de "ativo" e "não expirado".
-    const q = query(
-      collection(db, "lost_found_posts"),
-      where("status", "==", "ativo"),
-      where("dateExpiration", ">=", new Date().toISOString()), // Filtra apenas posts não expirados.
-      orderBy("dateExpiration", "asc"), // Ordena para mostrar os que expiram primeiro.
-      orderBy("dateCreated", "desc") // Ordena os mais recentes primeiro dentro da mesma data de expiração.
-    );
+    const q = db.collection("lost_found_posts")
+      .where("status", "==", "ativo")
+      .where("dateExpiration", ">=", new Date().toISOString()) // Filtra apenas posts não expirados.
+      .orderBy("dateExpiration", "asc") // Ordena para mostrar os que expiram primeiro.
+      .orderBy("dateCreated", "desc"); // Ordena os mais recentes primeiro dentro da mesma data de expiração.
 
     // Executa a query.
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await q.get();
     const posts: LostFoundAnimal[] = [];
     // Itera sobre os resultados e formata os dados.
     querySnapshot.forEach((doc) => {

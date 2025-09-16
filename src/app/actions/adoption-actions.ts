@@ -7,7 +7,6 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, query, orderBy, addDoc } from 'firebase-admin/firestore';
 import type { AnimalForAdoption } from '@/types';
 import { revalidatePath } from 'next/cache'; // Para invalidar o cache do Next.js e atualizar as páginas
 
@@ -35,10 +34,8 @@ export async function addAnimalForAdoptionAction(data: NewAnimalData): Promise<{
         dateAdded: new Date().toISOString(), // Define a data atual como data de adição.
     };
 
-    // Obtém a referência para a coleção no Firestore.
-    const animalsCollection = collection(db, 'animals_for_adoption');
-    // Adiciona o novo documento à coleção.
-    await addDoc(animalsCollection, newAnimal);
+    // Obtém a referência para a coleção no Firestore e adiciona o documento.
+    await db.collection('animals_for_adoption').add(newAnimal);
     
     // Invalida o cache das páginas de adoção para que elas sejam re-renderizadas com os novos dados.
     revalidatePath('/animal-welfare/adoption');
@@ -60,13 +57,10 @@ export async function getAnimalsForAdoptionAction(): Promise<AnimalForAdoption[]
   const { db } = getFirebaseAdmin();
   try {
     // Cria uma query para buscar os documentos na coleção, ordenando pelos mais recentes.
-    const q = query(
-      collection(db, "animals_for_adoption"),
-      orderBy("dateAdded", "desc")
-    );
+    const q = db.collection("animals_for_adoption").orderBy("dateAdded", "desc");
 
     // Executa a query.
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await q.get();
     const animals: AnimalForAdoption[] = [];
     // Itera sobre os resultados e formata os dados para o tipo esperado.
     querySnapshot.forEach((doc) => {
