@@ -6,7 +6,6 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection } from 'firebase-admin/firestore';
 
 // Função para gerar um protocolo único.
 const generateProtocol = (prefix: string) => `${prefix}${Date.now().toString().slice(-6) + Math.floor(Math.random() * 100)}`;
@@ -23,7 +22,7 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
 
   try {
     // --- Dados de Exemplo para Solicitações de Serviço ---
-    const requestsCollectionRef = collection(db, 'service_requests');
+    const requestsCollectionRef = db.collection('service_requests');
     const exampleRequests = [
       {
         protocol: generateProtocol('SOL'),
@@ -62,7 +61,7 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
     });
 
     // --- Dados de Exemplo para Denúncias ---
-    const incidentsCollectionRef = collection(db, 'incidents');
+    const incidentsCollectionRef = db.collection('incidents');
     const exampleIncidents = [
       {
         protocol: generateProtocol('DEN'),
