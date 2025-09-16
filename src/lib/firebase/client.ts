@@ -8,29 +8,30 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { FIREBASE_CONFIG } from "@/config/firebase";
+import type { FirebaseOptions } from "firebase/app";
 
-// Verificação crítica para garantir que as configurações do Firebase estejam presentes.
-// Sem essas configurações, o aplicativo não funcionará.
-if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) {
-  console.error("CRITICAL FIREBASE CONFIG ERROR: Firebase configuration is missing. The app will not work correctly.");
-}
+// Lê as variáveis de ambiente e monta o objeto de configuração.
+const FIREBASE_CONFIG: FirebaseOptions = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
 
 // Variável para armazenar a instância do aplicativo Firebase.
 let app: FirebaseApp;
-
-// Adiciona a `databaseURL` ao objeto de configuração.
-// Isso pode ser necessário para garantir a compatibilidade com todos os serviços do Firebase.
-const fullFirebaseConfig = {
-    ...FIREBASE_CONFIG,
-    databaseURL: `https://${FIREBASE_CONFIG.projectId}.firebaseio.com`,
-};
 
 // Inicializa o Firebase.
 // A verificação `getApps().length === 0` impede a reinicialização do app
 // em cenários de hot-reloading durante o desenvolvimento, o que causaria erros.
 if (getApps().length === 0) {
-  app = initializeApp(fullFirebaseConfig);
+  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) {
+    throw new Error("CRITICAL FIREBASE CONFIG ERROR: Firebase configuration is missing in environment variables. The app cannot start.");
+  }
+  app = initializeApp(FIREBASE_CONFIG);
 } else {
   // Se o app já estiver inicializado, apenas o obtém.
   app = getApp();
