@@ -26,8 +26,8 @@ export function PageTitle({ title, icon: Icon, iconClassName, className, descrip
       <div className="flex items-center gap-3">
         {/* Renderiza o ícone se ele for fornecido. */}
         {Icon && <Icon className={cn("h-8 w-8 text-primary", iconClassName)} />}
-        {/* Título principal. */}
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
+        {/* Título principal. Utiliza <h2> para melhor semântica em páginas de detalhes. */}
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
       </div>
       {/* Renderiza a descrição se ela for fornecida. */}
       {description && <p className="mt-2 text-muted-foreground">{description}</p>}
