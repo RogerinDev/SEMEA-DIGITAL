@@ -29,7 +29,7 @@ function getFirebaseAdmin(): FirebaseAdminServices {
     }
     // Se não foi, inicializa o app.
     // Em ambientes de servidor do Google (como App Hosting, Cloud Functions),
-    // as credenciais são detectadas automaticamente.
+    // as credenciais são detectadas automaticamente se a variável não for passada.
     try {
         const serviceAccount = JSON.parse(serviceAccountKey) as ServiceAccount;
         admin.initializeApp({
