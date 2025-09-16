@@ -6,7 +6,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, doc } from 'firebase-admin/firestore';
+import { collection } from 'firebase-admin/firestore';
 
 // Função para gerar um protocolo único.
 const generateProtocol = (prefix: string) => `${prefix}${Date.now().toString().slice(-6) + Math.floor(Math.random() * 100)}`;
@@ -57,7 +57,7 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
 
     console.log(`Adicionando ${exampleRequests.length} solicitações de serviço de exemplo.`);
     exampleRequests.forEach(req => {
-      const docRef = doc(requestsCollectionRef); // Cria uma referência com ID automático
+      const docRef = requestsCollectionRef.doc(); // Cria uma referência com ID automático
       batch.set(docRef, req);
     });
 
@@ -98,7 +98,7 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
     
     console.log(`Adicionando ${exampleIncidents.length} denúncias de exemplo.`);
     exampleIncidents.forEach(inc => {
-      const docRef = doc(incidentsCollectionRef);
+      const docRef = incidentsCollectionRef.doc();
       batch.set(docRef, inc);
     });
 
