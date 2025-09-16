@@ -6,7 +6,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, doc, writeBatch } from 'firebase/firestore';
+import { collection, doc, writeBatch } from 'firebase-admin/firestore';
 
 // Função para gerar um protocolo único.
 const generateProtocol = (prefix: string) => `${prefix}${Date.now().toString().slice(-6) + Math.floor(Math.random() * 100)}`;

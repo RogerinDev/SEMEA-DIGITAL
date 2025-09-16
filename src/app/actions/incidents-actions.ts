@@ -7,7 +7,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase-admin/firestore';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
 

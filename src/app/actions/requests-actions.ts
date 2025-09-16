@@ -7,7 +7,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, query, where, orderBy, getCountFromServer, addDoc, updateDoc } from 'firebase-admin/firestore';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
 import { revalidatePath } from 'next/cache';
 

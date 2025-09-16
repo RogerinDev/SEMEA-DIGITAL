@@ -7,7 +7,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, query, where, orderBy, addDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, addDoc } from 'firebase-admin/firestore';
 import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
 

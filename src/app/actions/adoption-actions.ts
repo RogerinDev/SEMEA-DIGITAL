@@ -7,7 +7,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, query, orderBy, addDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc } from 'firebase-admin/firestore';
 import type { AnimalForAdoption } from '@/types';
 import { revalidatePath } from 'next/cache'; // Para invalidar o cache do Next.js e atualizar as páginas
 
