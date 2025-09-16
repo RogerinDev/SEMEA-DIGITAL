@@ -7,11 +7,12 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-// O SDK do Admin é inicializado automaticamente no ambiente de Cloud Functions.
-// A verificação `admin.apps.length` foi removida para simplificar e seguir a prática
-// padrão do ambiente, que gerencia o ciclo de vida da inicialização.
-admin.initializeApp();
-
+// Garante que o SDK do Admin seja inicializado apenas uma vez.
+// Em um ambiente de Cloud Functions, a inicialização ocorre automaticamente.
+// Este 'if' garante a inicialização caso o código seja executado em outro contexto.
+if (admin.apps.length === 0) {
+    admin.initializeApp();
+}
 
 // Define a região padrão para todas as funções neste arquivo,
 // otimizando a latência para a localização dos usuários.
