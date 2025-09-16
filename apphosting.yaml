@@ -1,7 +1,20 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
 
+# The runConfig block specifies runtime configurations for the backend.
 runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  # The environment block defines environment variables available to the app.
+  environment:
+    # This line creates an environment variable named FIREBASE_SERVICE_ACCOUNT_KEY.
+    # Its value is fetched from a secret stored in Secret Manager.
+    FIREBASE_SERVICE_ACCOUNT_KEY: ${secret.FIREBASE_SERVICE_ACCOUNT_KEY}
+
+# The secret block specifies which secrets from Secret Manager should be made
+# available to the App Hosting backend.
+secret:
+  # The ID of the secret stored in Google Cloud Secret Manager.
+  # This must match the name of the secret you created.
+  - id: FIREBASE_SERVICE_ACCOUNT_KEY
