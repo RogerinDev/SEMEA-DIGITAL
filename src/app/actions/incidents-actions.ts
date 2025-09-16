@@ -1,6 +1,7 @@
 /**
  * @fileoverview Server Actions para gerenciar a coleção de denúncias (incidents) no Firestore.
  * Contém a lógica do lado do servidor para adicionar, buscar, contar e atualizar denúncias.
+ * Cada função garante a obtenção de uma instância de DB segura antes de operar.
  */
 
 'use server';

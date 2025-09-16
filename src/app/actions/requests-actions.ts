@@ -1,6 +1,7 @@
 /**
  * @fileoverview Server Actions para gerenciar a coleção de solicitações de serviço (`service_requests`).
  * Contém a lógica do lado do servidor para adicionar, buscar, contar e atualizar solicitações.
+ * Cada função garante a obtenção de uma instância de DB segura antes de operar.
  */
 
 'use server';
@@ -24,7 +25,6 @@ function isValidServiceRequestType(type: any): type is ServiceRequestType {
 
 /**
  * Mapeia uma categoria de serviço para o departamento responsável.
- * Neste caso, a categoria e o departamento têm o mesmo nome.
  * @param category A categoria do serviço.
  * @returns O departamento correspondente.
  */

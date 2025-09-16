@@ -1,40 +1,41 @@
 /**
  * @fileoverview Configuração do Firebase Admin SDK para o lado do servidor.
- * Este arquivo inicializa o SDK de administrador, que é usado em Server Actions
- * e API Routes para interagir com os serviços do Firebase com privilégios de administrador
- * (por exemplo, para acessar o Firestore sem passar pelas regras de segurança do cliente).
- *
- * Esta implementação utiliza uma função para garantir que o Firebase seja inicializado
- * apenas uma vez e sob demanda, evitando erros em ambientes de servidor Next.js.
+ * Este arquivo utiliza um padrão singleton para inicializar o SDK de administrador,
+ * garantindo que a conexão seja estabelecida apenas uma vez, mesmo em um ambiente
+ * serverless como o do Next.js, onde os módulos podem ser recarregados.
  */
 import admin from 'firebase-admin';
 
-/**
- * Retorna a instância inicializada do App do Firebase Admin.
- * A função garante que a inicialização ocorra apenas uma vez.
- * @returns {admin.app.App} A instância do app do Firebase Admin.
- */
-function getAdminApp() {
-  if (admin.apps.length > 0) {
-    return admin.apps[0] as admin.app.App;
-  }
-
-  // Em ambientes de hospedagem do Google, as credenciais são descobertas automaticamente.
-  const app = admin.initializeApp();
-  return app;
+// Interface para definir a estrutura do retorno da função de inicialização.
+interface FirebaseAdminServices {
+  db: admin.firestore.Firestore;
+  auth: admin.auth.Auth;
 }
 
 /**
- * Obtém e exporta as instâncias dos serviços do Firebase Admin (Firestore e Auth).
- * @returns {{db: admin.firestore.Firestore, auth: admin.auth.Auth}} Um objeto contendo as instâncias dos serviços.
+ * Garante que o Firebase Admin seja inicializado apenas uma vez e retorna os serviços.
+ * Se o app já estiver inicializado, retorna a instância existente.
+ * Caso contrário, inicializa um novo app com as credenciais do ambiente.
+ * 
+ * @returns {FirebaseAdminServices} Um objeto contendo as instâncias dos serviços Firestore e Auth.
  */
-function getFirebaseAdmin() {
-  const app = getAdminApp();
+function getFirebaseAdmin(): FirebaseAdminServices {
+  // Verifica se o app padrão já foi inicializado.
+  if (!admin.apps.length) {
+    // Se não foi, inicializa o app.
+    // Em ambientes de servidor do Google (como App Hosting, Cloud Functions),
+    // as credenciais são detectadas automaticamente.
+    admin.initializeApp();
+  }
+
+  // Retorna as instâncias dos serviços do Firebase Admin.
   return {
-    db: admin.firestore(app),
-    auth: admin.auth(app),
+    db: admin.firestore(), // Instância do Cloud Firestore.
+    auth: admin.auth(),      // Instância do Firebase Authentication.
   };
 }
 
-// Exporta a função para ser usada pelas Server Actions.
+// Exporta a função que fornece acesso aos serviços do admin.
+// As Server Actions irão importar e chamar esta função para garantir que
+// estão usando uma instância válida e pronta do Firebase Admin.
 export { getFirebaseAdmin };

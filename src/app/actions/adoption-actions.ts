@@ -7,7 +7,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { collection, getDocs, query, orderBy, addDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, addDoc } from 'firebase/firestore';
 import type { AnimalForAdoption } from '@/types';
 import { revalidatePath } from 'next/cache'; // Para invalidar o cache do Next.js e atualizar as páginas
 
@@ -16,6 +16,7 @@ interface NewAnimalData extends Omit<AnimalForAdoption, 'id' | 'dateAdded'> {}
 
 /**
  * Server Action para adicionar um novo animal à coleção 'animals_for_adoption'.
+ * A função primeiro obtém uma instância segura do banco de dados antes de executar a operação.
  * @param data Os dados do novo animal a ser cadastrado.
  * @returns Um objeto indicando o sucesso ou falha da operação.
  */
@@ -52,6 +53,7 @@ export async function addAnimalForAdoptionAction(data: NewAnimalData): Promise<{
 
 /**
  * Server Action para buscar todos os animais para adoção, ordenados pela data de adição.
+ * Obtém uma instância segura do banco de dados antes da consulta.
  * @returns Uma promessa que resolve com um array de objetos `AnimalForAdoption`.
  */
 export async function getAnimalsForAdoptionAction(): Promise<AnimalForAdoption[]> {

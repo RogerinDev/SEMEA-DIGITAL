@@ -13,6 +13,7 @@ const generateProtocol = (prefix: string) => `${prefix}${Date.now().toString().s
 
 /**
  * Server Action que insere dados de exemplo nas coleções do Firestore.
+ * A função primeiro obtém uma instância segura do banco de dados antes de executar as operações.
  * @returns Um objeto indicando o sucesso ou falha da operação.
  */
 export async function seedDatabaseAction(): Promise<{ success: boolean; message: string; error?: any }> {

@@ -1,6 +1,7 @@
 /**
  * @fileoverview Server Actions para gerenciar a coleção de animais perdidos e achados.
  * Contém a lógica para adicionar novos posts e buscar posts ativos.
+ * Cada função garante a obtenção de uma instância de DB segura antes de operar.
  */
 
 'use server';
