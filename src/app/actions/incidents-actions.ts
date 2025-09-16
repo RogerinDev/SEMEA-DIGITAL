@@ -9,6 +9,7 @@
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
+import type admin from 'firebase-admin';
 
 /**
  * Função de guarda (type guard) para validar se um valor é um tipo de denúncia conhecido.
