@@ -112,8 +112,8 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
     
     const querySnapshot = await q.get();
     const requests: ServiceRequest[] = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+      id: doc.id,
+      ...doc.data(),
     } as ServiceRequest));
     return requests;
   } catch (error) {

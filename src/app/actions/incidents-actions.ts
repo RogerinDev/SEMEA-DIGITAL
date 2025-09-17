@@ -151,10 +151,9 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
         const docSnap = await docRef.get();
 
         if (docSnap.exists) {
-            const data = docSnap.data();
             return {
                 id: docSnap.id,
-                ...data
+                ...docSnap.data()
             } as IncidentReport;
         } else {
             console.log("No such incident document!");
