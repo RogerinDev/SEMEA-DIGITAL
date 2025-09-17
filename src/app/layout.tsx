@@ -17,7 +17,18 @@ export const metadata: Metadata = {
   title: 'SEMEA Digital',
   description: 'Plataforma digital da Secretaria Municipal de Meio Ambiente de Varginha - MG.',
   icons: {
-    icon: '/favicon.png',
+    icon: [
+      {
+        media: '(prefers-color-scheme: light)',
+        url: '/favicon.png',
+        href: '/favicon.png',
+      },
+      {
+        media: '(prefers-color-scheme: dark)',
+        url: '/favicon.png',
+        href: '/favicon.png',
+      },
+    ],
   },
 };
 
