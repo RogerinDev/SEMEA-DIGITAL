@@ -12,6 +12,10 @@ runConfig:
     # Its value is fetched from a secret stored in Secret Manager.
     FIREBASE_SERVICE_ACCOUNT_KEY: ${secret.FIREBASE_SERVICE_ACCOUNT_KEY}
 
+# The serviceAccount field specifies the service account to be used by the
+# App Hosting backend.
+serviceAccount: semea-digital@appspot.gserviceaccount.com
+
 # The secret block specifies which secrets from Secret Manager should be made
 # available to the App Hosting backend.
 secret:
