@@ -1,49 +1,51 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper function to check if a user is an admin
-    function isAdmin() {
-      return request.auth != null && (request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin');
-    }
-    
-    // Helper function to check if the user is the owner of the document
-    function isOwner(resource) {
-      return request.auth != null && request.auth.uid == resource.data.citizenId;
-    }
-    
-    // Any authenticated user can read public info (animals, lost/found)
-    match /animals_for_adoption/{animalId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    match /lost_found_posts/{postId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.resource.data.citizenId == request.auth.uid;
-      allow update, delete: if isAdmin() || isOwner(resource);
-    }
-    
-    // Service Requests: Only authenticated users can create, and only owners or admins can read/update.
-    match /service_requests/{requestId} {
-      allow read, update: if isAdmin() || isOwner(resource);
-      allow create: if request.auth != null && request.resource.data.citizenId == request.auth.uid;
-      allow delete: if isAdmin();
-    }
 
-    // Incidents: Similar to service requests, but we'll keep it strict for now.
-    // Anonymous reports are handled by a server-side action which uses admin privileges.
-    match /incidents/{incidentId} {
-       allow read, update: if isAdmin() || (isOwner(resource) && resource.data.isAnonymous == false);
-       allow create: if request.auth != null && request.resource.data.citizenId == request.auth.uid;
-       allow delete: if isAdmin();
-    }
-    
-    // Fallback rule: Deny all other access by default
+    // Regra geral: por padrão, nega acesso a tudo, a menos que uma regra específica permita.
     match /{document=**} {
       allow read, write: if false;
+    }
+
+    // Permite que qualquer usuário (autenticado ou não) leia os animais para adoção.
+    // Apenas administradores podem criar, atualizar ou deletar.
+    match /animals_for_adoption/{animalId} {
+      allow read: if true;
+      allow write: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
+    }
+
+    // Permite que qualquer usuário leia posts de perdidos e achados.
+    // Apenas o cidadão que criou pode criar o seu próprio post. Admins podem gerenciar.
+    match /lost_found_posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.citizenId;
+      allow update, delete: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
+    }
+
+    // Regras para Solicitações de Serviço
+    // Um usuário autenticado pode criar uma solicitação para si mesmo.
+    // Um usuário só pode ler as suas próprias solicitações.
+    // Administradores podem ler e escrever em qualquer solicitação.
+    match /service_requests/{requestId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.citizenId;
+      allow read: if request.auth != null && (resource.data.citizenId == request.auth.uid || request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin');
+      allow write: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
+    }
+
+    // Regras para Denúncias
+    // Um usuário autenticado pode criar uma denúncia (anônima ou não).
+    // Um usuário só pode ler as suas próprias denúncias (se não forem anônimas).
+    // Administradores podem ler e escrever em qualquer denúncia.
+    match /incidents/{incidentId} {
+      allow create: if request.auth != null;
+      allow read: if (request.auth != null && resource.data.citizenId == request.auth.uid && resource.data.isAnonymous == false) || request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
+      allow write: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
+    }
+
+    // Coleção de teste
+    match /test_collection/{testId} {
+        allow read, write: if true;
     }
   }
 }
