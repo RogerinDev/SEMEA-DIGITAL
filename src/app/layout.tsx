@@ -16,6 +16,9 @@ import { ThemeProvider } from '@/contexts/theme-context'; // Provedor de context
 export const metadata: Metadata = {
   title: 'SEMEA Digital - Secretaria Municipal de Meio Ambiente',
   description: 'Plataforma digital da Secretaria Municipal de Meio Ambiente de Varginha - MG.',
+  icons: {
+    icon: '/semea-logo.png',
+  },
 };
 
 /**
