@@ -111,13 +111,10 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
         .orderBy("dateCreated", "desc");
     
     const querySnapshot = await q.get();
-    const requests: ServiceRequest[] = [];
-    querySnapshot.forEach((doc) => {
-        requests.push({
-            id: doc.id,
-            ...doc.data(),
-        } as ServiceRequest);
-    });
+    const requests: ServiceRequest[] = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+    } as ServiceRequest));
     return requests;
   } catch (error) {
     console.error("Error fetching requests: ", error);

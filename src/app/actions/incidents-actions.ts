@@ -127,14 +127,10 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
         .orderBy("dateCreated", "desc");
     
     const querySnapshot = await q.get();
-    const incidents: IncidentReport[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      incidents.push({
-        id: doc.id,
-        ...data
-      } as IncidentReport);
-    });
+    const incidents: IncidentReport[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as IncidentReport));
     return incidents;
   } catch (error) {
     console.error("Error fetching incidents: ", error);
