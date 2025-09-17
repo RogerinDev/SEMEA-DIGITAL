@@ -26,8 +26,8 @@ export function Logo({ className, iconSize = 24, textSize = "text-lg" }: LogoPro
       <Image 
         src="/semea-logo.png" 
         alt="SEMEA Digital Logo" 
-        width={iconSize * 1.8} // Ajuste de proporção para a imagem específica do logo.
-        height={iconSize * 1.8} 
+        width={iconSize}
+        height={iconSize} 
         className="object-contain" // Garante que a imagem não seja cortada.
       />
       {/* Texto do logo. */}
