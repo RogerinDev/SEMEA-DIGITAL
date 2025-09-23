@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Arquivo central de definições de tipos (TypeScript) para toda a aplicação.
  * Isso garante consistência e reuso de tipos em diferentes partes do código.
@@ -253,6 +254,18 @@ export type ResolvedTicket = {
   description: string;
   resolution: string;
 };
+
+
+// ---- Tipos para o Dashboard de Desempenho ----
+
+export interface PerformanceData {
+  totalCompleted: number;
+  avgResolutionTime: number;
+  mostFrequentCategory: string;
+  dailyTrend: { date: string; count: number }[];
+  categoryDistribution: { name: string; value: number }[];
+  departmentDistribution: { name: string; value: number }[];
+}
 
 
 // Constante com nota geral da SEMEA.

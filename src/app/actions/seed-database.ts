@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Server Action para popular o banco de dados com dados de exemplo.
  * Esta é uma ferramenta de desenvolvimento para testar a conexão com o Firestore
@@ -52,6 +53,31 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
         dateUpdated: new Date().toISOString(),
         notes: 'Verificar disponibilidade de agenda no centro de zoonoses.',
       },
+      // --- DADOS PARA O DASHBOARD DE DESEMPENHO ---
+       {
+        protocol: 'SOLDAA4B',
+        type: 'poda_arvore',
+        description: 'Poda de árvore concluída na Rua dos Testes, 1.',
+        department: 'arborizacao',
+        citizenId: 'performance-test-user',
+        citizenName: 'Usuário Teste Desempenho',
+        status: 'concluido',
+        dateCreated: new Date(Date.now() - 86400000 * 15).toISOString(), // 15 dias atrás
+        dateUpdated: new Date(Date.now() - 86400000 * 15).toISOString(), // Concluído no mesmo dia
+        notes: 'Serviço de poda realizado com sucesso.',
+      },
+       {
+        protocol: 'SOLDDC60',
+        type: 'castracao_animal',
+        description: 'Castração concluída para o animal "Rex".',
+        department: 'bem_estar_animal',
+        citizenId: 'performance-test-user-2',
+        citizenName: 'Usuário Teste Desempenho 2',
+        status: 'concluido',
+        dateCreated: new Date(Date.now() - 86400000 * 10).toISOString(), // 10 dias atrás
+        dateUpdated: new Date(Date.now() - 86400000 * 8).toISOString(), // Concluído 2 dias depois
+        notes: 'Cirurgia de castração realizada sem complicações.',
+      }
     ];
 
     console.log(`Adicionando ${exampleRequests.length} solicitações de serviço de exemplo.`);
@@ -93,6 +119,37 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
         notes: 'Fiscal João atribuído para verificação no local.',
         inspector: 'João',
       },
+      // --- DADOS PARA O DASHBOARD DE DESEMPENHO ---
+       {
+        protocol: 'DENA145B',
+        type: 'descarte_irregular_residuo',
+        description: 'Denúncia de descarte resolvida. Material recolhido.',
+        location: 'Rua dos Testes, 2',
+        department: 'residuos',
+        isAnonymous: true,
+        citizenId: null,
+        reportedBy: 'Anônimo',
+        status: 'resolvida',
+        dateCreated: new Date(Date.now() - 86400000 * 20).toISOString(), // 20 dias atrás
+        dateUpdated: new Date(Date.now() - 86400000 * 20).toISOString(), // Resolvido no mesmo dia
+        notes: 'Equipe de limpeza removeu o entulho.',
+        inspector: 'Equipe Limpeza',
+      },
+      {
+        protocol: 'DEN1FDB7',
+        type: 'maus_tratos_animal',
+        description: 'Animal resgatado e encaminhado para abrigo.',
+        location: 'Rua dos Testes, 3',
+        department: 'bem_estar_animal',
+        isAnonymous: false,
+        citizenId: 'performance-test-user-3',
+        reportedBy: 'Usuário Teste Desempenho 3',
+        status: 'resolvida',
+        dateCreated: new Date(Date.now() - 86400000 * 8).toISOString(), // 8 dias atrás
+        dateUpdated: new Date(Date.now() - 86400000 * 3).toISOString(), // Resolvido 5 dias depois
+        notes: 'Animal recebeu cuidados veterinários e está para adoção.',
+        inspector: 'Fiscal Ana',
+      },
     ];
     
     console.log(`Adicionando ${exampleIncidents.length} denúncias de exemplo.`);
@@ -104,7 +161,7 @@ export async function seedDatabaseAction(): Promise<{ success: boolean; message:
     // Executa todas as operações em lote
     await batch.commit();
 
-    const successMessage = 'Banco de dados populado com sucesso! 2 solicitações e 2 denúncias de exemplo foram adicionadas.';
+    const successMessage = 'Banco de dados populado com sucesso! 4 solicitações e 4 denúncias de exemplo foram adicionadas (incluindo dados concluídos para o dashboard).';
     console.log(successMessage);
     return { success: true, message: successMessage };
 
