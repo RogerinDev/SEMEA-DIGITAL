@@ -13,18 +13,25 @@ import { Logo } from '@/components/logo';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import PublicLayout from '@/components/layouts/public-layout';
+import { Separator } from '@/components/ui/separator';
+
+const GoogleIcon = () => (
+  <svg className="mr-2 h-4 w-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+    <path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 109.8 512 0 402.2 0 261.8 0 120.5 109.8 8.6 244 8.6c77.7 0 120.5 30.4 148.6 57.6l-64 63.3c-24-23.2-52.8-38.5-84.6-38.5-72.3 0-131.2 59.3-131.2 132.8s58.9 132.8 131.2 132.8c76 0 104.5-54.7 108.3-82.9H244v-66.2h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+  </svg>
+);
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { register, loading: authLoading } = useAuth();
+  const { register, signInWithGoogle, loading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEmailSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (password !== confirmPassword) {
       toast({ title: "Erro no Cadastro", description: "As senhas não coincidem.", variant: "destructive" });
@@ -32,15 +39,24 @@ export default function RegisterPage() {
     }
     setIsSubmitting(true);
     const result = await register(name, email, password);
-    // After registration, the user is NOT logged in.
-    // They are shown a toast and redirected to the login page.
     if (typeof result !== 'string') {
       router.push('/login');
-    } else {
-      // Error is handled by toast in AuthContext, no need to show another one.
     }
     setIsSubmitting(false);
   };
+  
+  const handleGoogleSubmit = async () => {
+    setIsSubmitting(true);
+    const result = await signInWithGoogle();
+    if(typeof result !== 'string') {
+      if (result.role === 'admin' || result.role === 'superAdmin') {
+        router.push('/dashboard/admin');
+      } else {
+        router.push('/dashboard/citizen');
+      }
+    }
+    setIsSubmitting(false);
+  }
 
   const isLoading = authLoading || isSubmitting;
 
@@ -56,7 +72,24 @@ export default function RegisterPage() {
             <CardDescription>Junte-se à plataforma SEMEA Digital. Após o registro, um e-mail de verificação será enviado.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <Button variant="outline" className="w-full mb-6" onClick={handleGoogleSubmit} disabled={isLoading}>
+              {isLoading && isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
+              Cadastrar com o Google
+            </Button>
+            
+            <div className="relative mb-6">
+              <Separator />
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Ou cadastre-se com seu e-mail
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleEmailSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
                 <Input 
@@ -104,8 +137,8 @@ export default function RegisterPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                Registrar
+                {isLoading && isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                Registrar com E-mail
               </Button>
             </form>
             <div className="mt-6 text-center text-sm">

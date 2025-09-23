@@ -16,6 +16,8 @@ import {
   updatePassword,
   sendPasswordResetEmail,
   sendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +27,7 @@ interface AuthContextType {
   currentUser: AppUser | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<AppUser | string>;
+  signInWithGoogle: () => Promise<AppUser | string>;
   register: (name: string, email: string, pass:string) => Promise<UserCredential | string>;
   logout: () => Promise<void>;
   changeUserPassword: (currentPass: string, newPass: string) => Promise<boolean>;
@@ -57,7 +60,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const idTokenResult = await user.getIdTokenResult();
         const claims = idTokenResult.claims;
         
-        // This is a safe way to add properties to the user object without breaking its prototype chain
         const appUser = user as AppUser;
         appUser.role = claims.role as AppUser['role'];
         appUser.department = claims.department as AppUser['department'];
@@ -78,25 +80,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const user = userCredential.user;
 
       if (!user.emailVerified) {
-        await signOut(auth); // Log out the user immediately
+        await signOut(auth);
         toast({
           title: "Verificação Necessária",
           description: "Seu e-mail ainda não foi verificado. Por favor, verifique sua caixa de entrada e clique no link de verificação.",
           variant: "destructive",
         });
-        // Optionally, offer to resend the email
-        // await sendEmailVerification(user);
         return 'auth/email-not-verified';
       }
 
-      // Force refresh to get latest claims. Important after promotion.
       const idTokenResult = await user.getIdTokenResult(true); 
       const claims = idTokenResult.claims;
       const appUser = user as AppUser;
       appUser.role = claims.role as AppUser['role'];
       appUser.department = claims.department as AppUser['department'];
 
-      setCurrentUser(appUser); // Update context state immediately
+      setCurrentUser(appUser);
       
       toast({ title: "Login realizado com sucesso!" });
       return appUser;
@@ -110,12 +109,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else if (authError.code === 'auth/too-many-requests') {
         description = "Acesso à conta temporariamente desativado devido a muitas tentativas de login. Tente novamente mais tarde.";
       } else {
-        // For other, unexpected errors, it's still good to log them.
         console.error("Unhandled login error:", authError);
       }
 
-
       toast({ title: "Erro no Login", description, variant: "destructive" });
+      return authError.code;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async (): Promise<AppUser | string> => {
+    setLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+
+      const idTokenResult = await user.getIdTokenResult(true);
+      const claims = idTokenResult.claims;
+      const appUser = user as AppUser;
+      appUser.role = claims.role as AppUser['role'] || 'citizen'; // Default to citizen
+      appUser.department = claims.department as AppUser['department'];
+
+      setCurrentUser(appUser);
+      toast({ title: "Login com Google realizado com sucesso!" });
+      return appUser;
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Google Sign-In Error:", authError);
+      let description = "Ocorreu um erro inesperado durante o login com o Google.";
+
+      if (authError.code === 'auth/popup-closed-by-user') {
+        description = "A janela de login com o Google foi fechada antes da conclusão.";
+      } else if (authError.code === 'auth/account-exists-with-different-credential') {
+        description = "Já existe uma conta com este e-mail, mas criada com um método de login diferente. Tente fazer login com e-mail e senha.";
+      }
+      
+      toast({ title: "Erro de Login", description, variant: "destructive" });
       return authError.code;
     } finally {
       setLoading(false);
@@ -128,10 +159,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(userCredential.user, { displayName: name });
       
-      // Send verification email
       await sendEmailVerification(userCredential.user);
       
-      await signOut(auth); // Log out user, they must verify first
+      await signOut(auth);
 
       toast({ 
         title: "Cadastro quase concluído!", 
@@ -219,6 +249,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     currentUser,
     loading,
     login,
+    signInWithGoogle,
     register,
     logout,
     changeUserPassword,
