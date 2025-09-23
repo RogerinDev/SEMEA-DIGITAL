@@ -167,24 +167,35 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
     }
 }
 
+interface GetRequestsForAdminParams {
+  department?: Department;
+  // Adicionado para suportar paginação
+  page?: number; 
+  limit?: number;
+}
+
+
 /**
  * Server Action para buscar solicitações para a visão do administrador.
- * @param department - Opcional. Filtra as solicitações por departamento.
+ * @param department - Opcional. Filtra as denúncias por departamento.
  * @returns Uma lista de solicitações para o painel administrativo.
  */
-export async function getRequestsForAdminAction(department?: Department): Promise<ServiceRequest[]> {
+export async function getRequestsForAdminAction({ department, page = 1, limit = 10 }: GetRequestsForAdminParams): Promise<ServiceRequest[]> {
   const { db } = getFirebaseAdmin();
   try {
-    let q;
-    const requestsCollection = db.collection("service_requests");
+    let query: admin.firestore.Query = db.collection("service_requests");
     
     if (department) {
-      q = requestsCollection.where("department", "==", department).orderBy("dateCreated", "desc");
-    } else {
-      q = requestsCollection.orderBy("dateCreated", "desc");
+      query = query.where("department", "==", department);
     }
+    
+    query = query.orderBy("dateCreated", "desc");
+    
+    // Lógica de Paginação removida temporariamente para simplificar e buscar todos os dados para filtragem no cliente
+    // const offset = (page - 1) * limit;
+    // query = query.limit(limit).offset(offset);
 
-    const querySnapshot = await q.get();
+    const querySnapshot = await query.get();
     const requests: ServiceRequest[] = [];
     querySnapshot.forEach((doc) => {
         requests.push({
