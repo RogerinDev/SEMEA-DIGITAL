@@ -1,9 +1,10 @@
+
 "use client";
 
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon, Edit, Lock, LogOut, Menu } from 'lucide-react';
+import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon, Edit, Lock, LogOut, Menu, LayoutDashboard } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/theme-context';
@@ -104,12 +105,31 @@ const ServicesIcon = () => (
         <p>{servicesNavItem.label}</p>
       </TooltipContent>
     </Tooltip>
-  );
+);
+
+const AdminDashboardIcon = () => (
+    <Tooltip>
+        <TooltipTrigger asChild>
+            <Link
+                href="/dashboard/admin"
+                passHref
+                className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+            >
+                <LayoutDashboard className="h-5 w-5 text-primary" />
+                <span className="sr-only">Painel Administrativo</span>
+            </Link>
+        </TooltipTrigger>
+        <TooltipContent>
+            <p>Painel Administrativo</p>
+        </TooltipContent>
+    </Tooltip>
+);
 
 
 export function PublicHeader() {
   const { theme, toggleTheme } = useTheme();
   const { currentUser, logout } = useAuth();
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superAdmin';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -125,6 +145,7 @@ export function PublicHeader() {
             {currentUser ? (
               <>
                 <div className="hidden sm:flex">
+                  {isAdmin && <AdminDashboardIcon />}
                   <ServicesIcon />
                 </div>
                 <DropdownMenu>
