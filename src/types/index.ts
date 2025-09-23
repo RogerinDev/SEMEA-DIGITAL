@@ -119,11 +119,12 @@ export interface IncidentReport {
   description: string;
   location: string;
   department: Department;
-  citizenId?: string;
+  citizenId?: string | null;
   reportedBy?: string;
   isAnonymous?: boolean;
   notes?: string; // Notas internas do administrador/fiscal.
   inspector?: string; // Nome do fiscal responsável.
+  evidenceUrls?: string[]; // URLs das fotos/vídeos.
 }
 
 // Estrutura para descrever um tipo de denúncia.

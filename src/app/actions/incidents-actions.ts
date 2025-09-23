@@ -55,6 +55,7 @@ interface NewIncidentData {
   isAnonymous: boolean;
   citizenId: string;
   citizenName: string;
+  evidenceUrls: string[];
 }
 
 /**
@@ -94,6 +95,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       status: 'recebida',
       dateCreated: new Date().toISOString(),
       dateUpdated: new Date().toISOString(),
+      evidenceUrls: data.evidenceUrls,
       notes: "",
       inspector: "",
     };
@@ -118,24 +120,40 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
  * @returns Uma lista de denúncias.
  */
 export async function getIncidentsByCitizenAction(citizenId: string): Promise<IncidentReport[]> {
-  const { db } = getFirebaseAdmin();
-  if (!citizenId) return [];
+    const { db } = getFirebaseAdmin();
+    if (!citizenId) return [];
 
-  try {
-    const q = db.collection("incidents")
-        .where("citizenId", "==", citizenId)
-        .orderBy("dateCreated", "desc");
-    
-    const querySnapshot = await q.get();
-    const incidents: IncidentReport[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as IncidentReport));
-    return incidents;
-  } catch (error) {
-    console.error("Error fetching incidents: ", error);
-    return [];
-  }
+    try {
+        const q = db.collection("incidents")
+            .where("citizenId", "==", citizenId)
+            .orderBy("dateCreated", "desc");
+        
+        const querySnapshot = await q.get();
+        const incidents: IncidentReport[] = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                protocol: data.protocol,
+                type: data.type,
+                description: data.description,
+                location: data.location,
+                department: data.department,
+                isAnonymous: data.isAnonymous,
+                citizenId: data.citizenId,
+                reportedBy: data.reportedBy,
+                status: data.status,
+                dateCreated: data.dateCreated,
+                dateUpdated: data.dateUpdated,
+                notes: data.notes,
+                inspector: data.inspector,
+                evidenceUrls: data.evidenceUrls || [],
+            };
+        });
+        return incidents;
+    } catch (error) {
+        console.error("Error fetching incidents: ", error);
+        return [];
+    }
 }
 
 /**
@@ -151,10 +169,25 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
         const docSnap = await docRef.get();
 
         if (docSnap.exists) {
+            const data = docSnap.data();
+            if (!data) return null;
             return {
                 id: docSnap.id,
-                ...docSnap.data()
-            } as IncidentReport;
+                protocol: data.protocol,
+                type: data.type,
+                description: data.description,
+                location: data.location,
+                department: data.department,
+                isAnonymous: data.isAnonymous,
+                citizenId: data.citizenId,
+                reportedBy: data.reportedBy,
+                status: data.status,
+                dateCreated: data.dateCreated,
+                dateUpdated: data.dateUpdated,
+                notes: data.notes,
+                inspector: data.inspector,
+                evidenceUrls: data.evidenceUrls || [],
+            };
         } else {
             console.log("No such incident document!");
             return null;
@@ -204,10 +237,24 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
     const querySnapshot = await q.get();
     const incidents: IncidentReport[] = [];
     querySnapshot.forEach((doc) => {
+      const data = doc.data();
       incidents.push({
         id: doc.id,
-        ...doc.data()
-      } as IncidentReport);
+        protocol: data.protocol,
+        type: data.type,
+        description: data.description,
+        location: data.location,
+        department: data.department,
+        isAnonymous: data.isAnonymous,
+        citizenId: data.citizenId,
+        reportedBy: data.reportedBy,
+        status: data.status,
+        dateCreated: data.dateCreated,
+        dateUpdated: data.dateUpdated,
+        notes: data.notes,
+        inspector: data.inspector,
+        evidenceUrls: data.evidenceUrls || [],
+      });
     });
     return incidents;
   } catch (error) {

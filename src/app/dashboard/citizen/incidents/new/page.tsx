@@ -2,12 +2,13 @@
 "use client";
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from 'next/navigation';
-import { PawPrint, Recycle, TreePine, AlertTriangle as AlertTriangleIcon, Loader2, ArrowLeft } from 'lucide-react';
+import { PawPrint, Recycle, TreePine, AlertTriangle as AlertTriangleIcon, Loader2, ArrowLeft, Upload, X, File, Video, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
 import { Button } from "@/components/ui/button";
 import { PageTitle } from '@/components/page-title';
@@ -29,6 +30,13 @@ import { INCIDENT_TYPES, type IncidentType, type IncidentCategory } from '@/type
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";
 import { addIncidentAction } from "@/app/actions/incidents-actions";
+import { storage } from '@/lib/firebase/client';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { cn } from '@/lib/utils';
+
+const MAX_FILES = 5;
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const formSchema = z.object({
   incidentType: z.custom<IncidentType>(val => INCIDENT_TYPES.map(it => it.value).includes(val as IncidentType), {
@@ -44,6 +52,10 @@ const formSchema = z.object({
   }),
   locationReference: z.string().optional(),
   anonymous: z.boolean().default(false).optional(),
+  evidenceFiles: z.array(z.instanceof(File))
+    .max(MAX_FILES, `Você pode enviar no máximo ${MAX_FILES} arquivos.`)
+    .refine(files => files.every(file => file.size <= MAX_FILE_SIZE_BYTES), `Cada arquivo deve ter no máximo ${MAX_FILE_SIZE_MB}MB.`)
+    .optional(),
 });
 
 const categories: { [key in IncidentCategory]: { label: string; icon: React.ElementType } } = {
@@ -60,6 +72,8 @@ export default function NewIncidentReportPage() {
   const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<IncidentCategory | null>(null);
+  const [previewFiles, setPreviewFiles] = useState<{ url: string; type: string; name: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,8 +82,48 @@ export default function NewIncidentReportPage() {
       location: "",
       locationReference: "",
       anonymous: false,
+      evidenceFiles: [],
     },
   });
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const currentFiles = form.getValues('evidenceFiles') || [];
+    
+    if (files.length + currentFiles.length > MAX_FILES) {
+      toast({ title: "Limite de arquivos excedido", description: `Você só pode anexar até ${MAX_FILES} arquivos.`, variant: "destructive" });
+      return;
+    }
+
+    const newFiles = files.filter(file => {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast({ title: "Arquivo muito grande", description: `O arquivo "${file.name}" excede o limite de ${MAX_FILE_SIZE_MB}MB.`, variant: "destructive" });
+        return false;
+      }
+      return true;
+    });
+
+    const updatedFiles = [...currentFiles, ...newFiles];
+    form.setValue('evidenceFiles', updatedFiles, { shouldValidate: true });
+
+    const newPreviews = newFiles.map(file => ({
+      url: URL.createObjectURL(file),
+      type: file.type,
+      name: file.name
+    }));
+    setPreviewFiles(prev => [...prev, ...newPreviews]);
+  };
+
+  const removeFile = (fileName: string) => {
+    const updatedFiles = (form.getValues('evidenceFiles') || []).filter(file => file.name !== fileName);
+    form.setValue('evidenceFiles', updatedFiles, { shouldValidate: true });
+
+    setPreviewFiles(prev => {
+      const previewToRemove = prev.find(p => p.name === fileName);
+      if (previewToRemove) URL.revokeObjectURL(previewToRemove.url);
+      return prev.filter(p => p.name !== fileName);
+    });
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!currentUser) {
@@ -77,31 +131,51 @@ export default function NewIncidentReportPage() {
       return;
     }
     setIsSubmitting(true);
-    
-    const result = await addIncidentAction({
-      incidentType: values.incidentType,
-      description: values.description,
-      location: `${values.location}${values.locationReference ? ` (${values.locationReference})` : ''}`,
-      isAnonymous: values.anonymous || false,
-      citizenId: currentUser.uid,
-      citizenName: currentUser.displayName || currentUser.email || 'Cidadão',
-    });
-    
-    if (result.success) {
-        toast({
-            title: "Denúncia Registrada!",
-            description: `Sua denúncia foi registrada com sucesso. Protocolo: ${result.protocol}`,
-            variant: "default",
-        });
-        router.push('/dashboard/citizen/incidents');
-    } else {
-        toast({
-            title: "Erro ao Registrar",
-            description: result.error || "Não foi possível registrar a denúncia. Tente novamente.",
-            variant: "destructive",
-        });
+
+    const evidenceUrls: string[] = [];
+    try {
+      if (values.evidenceFiles && values.evidenceFiles.length > 0) {
+        toast({ title: "Enviando evidências...", description: `Anexando ${values.evidenceFiles.length} arquivo(s).`});
+        
+        for (const file of values.evidenceFiles) {
+          const storageRef = ref(storage, `incident_evidence/${currentUser.uid}-${Date.now()}-${file.name}`);
+          const uploadResult = await uploadBytes(storageRef, file);
+          const downloadUrl = await getDownloadURL(uploadResult.ref);
+          evidenceUrls.push(downloadUrl);
+        }
+        toast({ title: "Evidências enviadas!", description: "Seus arquivos foram anexados com sucesso." });
+      }
+
+      const result = await addIncidentAction({
+        incidentType: values.incidentType,
+        description: values.description,
+        location: `${values.location}${values.locationReference ? ` (${values.locationReference})` : ''}`,
+        isAnonymous: values.anonymous || false,
+        citizenId: currentUser.uid,
+        citizenName: currentUser.displayName || currentUser.email || 'Cidadão',
+        evidenceUrls: evidenceUrls,
+      });
+      
+      if (result.success) {
+          toast({
+              title: "Denúncia Registrada!",
+              description: `Sua denúncia foi registrada com sucesso. Protocolo: ${result.protocol}`,
+              variant: "default",
+          });
+          router.push('/dashboard/citizen/incidents');
+      } else {
+          toast({
+              title: "Erro ao Registrar",
+              description: result.error || "Não foi possível registrar a denúncia. Tente novamente.",
+              variant: "destructive",
+          });
+      }
+    } catch (error) {
+        console.error("Error during submission:", error);
+        toast({ title: "Erro no Upload", description: "Não foi possível enviar um ou mais arquivos. Tente novamente.", variant: "destructive"});
+    } finally {
+        setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   }
   
   const handleCategorySelect = (category: IncidentCategory) => {
@@ -238,6 +312,61 @@ export default function NewIncidentReportPage() {
                   </FormItem>
                 )}
               />
+               <FormField
+                  control={form.control}
+                  name="evidenceFiles"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Anexar Evidências (Fotos/Vídeos)</FormLabel>
+                      <FormDescription>
+                        Envie até {MAX_FILES} arquivos (imagens ou vídeos) com no máximo {MAX_FILE_SIZE_MB}MB cada.
+                      </FormDescription>
+                      <FormControl>
+                        <div>
+                          <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Adicionar Arquivos
+                          </Button>
+                          <Input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            multiple
+                            accept="image/*,video/*"
+                            onChange={handleFileChange}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      {previewFiles.length > 0 && (
+                        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {previewFiles.map((file, index) => (
+                            <div key={index} className="relative group aspect-square border rounded-md overflow-hidden">
+                              {file.type.startsWith('image/') ? (
+                                <Image src={file.url} alt={file.name} layout="fill" objectFit="cover" />
+                              ) : (
+                                <div className="w-full h-full bg-muted flex flex-col items-center justify-center p-2">
+                                  <Video className="h-8 w-8 text-muted-foreground" />
+                                  <p className="text-xs text-center text-muted-foreground mt-1 truncate">{file.name}</p>
+                                </div>
+                              )}
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                onClick={() => removeFile(file.name)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
               <FormField
                 control={form.control}
                 name="anonymous"
@@ -276,5 +405,3 @@ export default function NewIncidentReportPage() {
     </>
   );
 }
-
-    
