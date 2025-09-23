@@ -264,16 +264,18 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
 }
 
 /**
- * Server Action para contar denúncias com base em filtros (departamento, status).
+ * Server Action para contar denúncias com base em filtros (departamento, status, data).
  * @param filters - Objeto com filtros opcionais.
  * @returns O número de denúncias que correspondem aos filtros.
  */
 export async function getIncidentsCountAction({
   department,
   status,
+  fromDate,
 }: {
   department?: Department;
   status?: IncidentStatus;
+  fromDate?: Date;
 }): Promise<number> {
   const { db } = getFirebaseAdmin();
   try {
@@ -284,6 +286,9 @@ export async function getIncidentsCountAction({
     }
     if (status) {
       query = query.where("status", "==", status);
+    }
+    if (fromDate) {
+        query = query.where("dateCreated", ">=", fromDate.toISOString());
     }
 
     const snapshot = await query.count().get();

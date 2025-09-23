@@ -33,16 +33,17 @@ export default function AdminDashboardPage() {
       const date = new Date();
       const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
 
-      const [pendingRequestsCount, newIncidentsCount, completedThisMonthCount] = await Promise.all([
+      const [pendingRequestsCount, newIncidentsCount, completedRequestsCount, resolvedIncidentsCount] = await Promise.all([
         getRequestsCountAction({ department, status: 'pendente' }),
         getIncidentsCountAction({ department, status: 'recebida' }),
         getRequestsCountAction({ department, status: 'concluido', fromDate: firstDayOfMonth }),
+        getIncidentsCountAction({ department, status: 'resolvida', fromDate: firstDayOfMonth }),
       ]);
       
       setCounts({
         pendingRequests: pendingRequestsCount,
         newIncidents: newIncidentsCount,
-        completedThisMonth: completedThisMonthCount,
+        completedThisMonth: completedRequestsCount + resolvedIncidentsCount,
       });
       
       setLoading(false);
