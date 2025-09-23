@@ -40,6 +40,9 @@ export default function LoginPage() {
     event.preventDefault();
     setIsSubmitting(true);
     const result = await login(email, password);
+    
+    // The login function now handles success and failure toasts.
+    // It returns the user object on success or an error code string on failure.
     if (typeof result !== 'string') {
       // Redirect based on the role from custom claims
       if (result.role === 'admin' || result.role === 'superAdmin') {
@@ -48,6 +51,8 @@ export default function LoginPage() {
          router.push('/dashboard/citizen');
       }
     }
+    // If login fails (e.g., email not verified, wrong password), do nothing.
+    // The toast notification is already handled by the auth context.
     setIsSubmitting(false);
   };
 

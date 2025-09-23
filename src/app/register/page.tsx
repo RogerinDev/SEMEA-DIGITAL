@@ -32,10 +32,12 @@ export default function RegisterPage() {
     }
     setIsSubmitting(true);
     const result = await register(name, email, password);
+    // After registration, the user is NOT logged in.
+    // They are shown a toast and redirected to the login page.
     if (typeof result !== 'string') {
-      router.push('/dashboard/citizen');
+      router.push('/login');
     } else {
-      // Error is handled by toast in AuthContext
+      // Error is handled by toast in AuthContext, no need to show another one.
     }
     setIsSubmitting(false);
   };
@@ -51,7 +53,7 @@ export default function RegisterPage() {
               <Logo iconSize={32} textSize="text-2xl" />
             </div>
             <CardTitle className="text-2xl">Crie sua Conta</CardTitle>
-            <CardDescription>Junte-se à plataforma SEMEA Digital.</CardDescription>
+            <CardDescription>Junte-se à plataforma SEMEA Digital. Após o registro, um e-mail de verificação será enviado.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">

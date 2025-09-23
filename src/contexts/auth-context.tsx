@@ -15,6 +15,7 @@ import {
   reauthenticateWithCredential,
   updatePassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -76,6 +77,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await signInWithEmailAndPassword(auth, email, pass);
       const user = userCredential.user;
 
+      if (!user.emailVerified) {
+        await signOut(auth); // Log out the user immediately
+        toast({
+          title: "Verificação Necessária",
+          description: "Seu e-mail ainda não foi verificado. Por favor, verifique sua caixa de entrada e clique no link de verificação.",
+          variant: "destructive",
+        });
+        // Optionally, offer to resend the email
+        // await sendEmailVerification(user);
+        return 'auth/email-not-verified';
+      }
+
       // Force refresh to get latest claims. Important after promotion.
       const idTokenResult = await user.getIdTokenResult(true); 
       const claims = idTokenResult.claims;
@@ -115,17 +128,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(userCredential.user, { displayName: name });
       
-      const appUser = userCredential.user as AppUser;
-      appUser.role = 'citizen';
+      // Send verification email
+      await sendEmailVerification(userCredential.user);
+      
+      await signOut(auth); // Log out user, they must verify first
 
-      setCurrentUser(appUser);
-
-      toast({ title: "Cadastro realizado com sucesso!" });
+      toast({ 
+        title: "Cadastro quase concluído!", 
+        description: "Enviamos um e-mail de verificação. Por favor, verifique sua caixa de entrada para ativar sua conta.",
+        duration: 8000, 
+      });
       return userCredential;
     } catch (error) {
       const authError = error as AuthError;
       console.error("Error registering:", authError);
-      toast({ title: "Erro no Cadastro", description: authError.message, variant: "destructive" });
+       let description = "Ocorreu um erro inesperado. Tente novamente.";
+        if (authError.code === 'auth/email-already-in-use') {
+            description = "Este e-mail já está em uso. Tente fazer login ou use um e-mail diferente.";
+        } else {
+            description = authError.message;
+        }
+
+      toast({ title: "Erro no Cadastro", description, variant: "destructive" });
       return authError.code;
     } finally {
       setLoading(false);
