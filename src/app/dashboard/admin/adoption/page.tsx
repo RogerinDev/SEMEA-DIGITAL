@@ -3,7 +3,7 @@
 
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
-import { PawPrint, PlusCircle, Loader2, Upload, X, Dog, Cat } from 'lucide-react';
+import { PawPrint, PlusCircle, Loader2, Upload, X, Dog, Cat, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -245,6 +245,7 @@ const getStatusBadgeVariant = (status: AdoptionStatus) => {
 }
 
 export default function AdminAdoptionPage() {
+    const { currentUser } = useAuth();
     const [animals, setAnimals] = useState<AnimalForAdoption[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -263,6 +264,20 @@ export default function AdminAdoptionPage() {
     const handleAnimalAdded = () => {
         setRefreshKey(prev => prev + 1);
     }
+    
+    // Security check: Only allow superAdmins or admins from the 'bem_estar_animal' department
+    const isAuthorized = currentUser?.role === 'superAdmin' || (currentUser?.role === 'admin' && currentUser?.department === 'bem_estar_animal');
+
+    if (!isAuthorized) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
+                <h1 className="text-2xl font-bold">Acesso Negado</h1>
+                <p className="text-muted-foreground max-w-md">Você não tem permissão para gerenciar os animais para adoção. Esta seção é restrita aos administradores do setor de Bem-Estar Animal.</p>
+            </div>
+        );
+    }
+
 
     return (
         <>
