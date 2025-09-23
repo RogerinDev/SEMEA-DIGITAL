@@ -46,6 +46,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { storage } from '@/lib/firebase/client';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const animalFormSchema = z.object({
   name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres."),
