@@ -129,6 +129,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
 
+      // Force refresh the token to get the latest custom claims.
       const idTokenResult = await user.getIdTokenResult(true);
       const claims = idTokenResult.claims;
       const appUser = user as AppUser;
