@@ -91,6 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return 'auth/email-not-verified';
       }
 
+      // Force refresh the token to get the latest custom claims.
       const idTokenResult = await user.getIdTokenResult(true); 
       const claims = idTokenResult.claims;
       const appUser = user as AppUser;
@@ -264,5 +265,3 @@ export function AuthProvider({ children }: AuthProviderProps) {
     </AuthContext.Provider>
   );
 }
-
-    
