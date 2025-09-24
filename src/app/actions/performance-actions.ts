@@ -3,7 +3,7 @@
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import type { PerformanceData, ServiceRequest, IncidentReport, Department } from '@/types';
-import { differenceInDays, format, isValid, parseISO } from 'date-fns';
+import { differenceInDays, format, isValid, parseISO, isWithinInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface DateRange {
@@ -28,32 +28,41 @@ export async function getPerformanceDataAction(
   }
 
   const { db } = getFirebaseAdmin();
-  const fromDateISO = dateRange.from.toISOString();
-  // Add 1 day to the 'to' date to include the whole day in the query
+  
+  // Set time to end of day for 'to' date to ensure full day is included in interval
   const toDate = new Date(dateRange.to);
-  toDate.setDate(toDate.getDate() + 1);
-  const toDateISO = toDate.toISOString();
+  toDate.setHours(23, 59, 59, 999);
+
 
   try {
-    // 1. Fetch completed service requests
+    // 1. Fetch ALL completed service requests and filter by date in the backend.
+    // This avoids a complex Firestore query that requires a composite index.
     const requestsSnapshot = await db
       .collection('service_requests')
       .where('status', '==', 'concluido')
-      .where('dateUpdated', '>=', fromDateISO)
-      .where('dateUpdated', '<', toDateISO)
       .get();
     
-    const completedRequests = requestsSnapshot.docs.map(doc => doc.data() as ServiceRequest);
+    const completedRequests = requestsSnapshot.docs
+      .map(doc => doc.data() as ServiceRequest)
+      .filter(req => {
+        if (!req.dateUpdated) return false;
+        const updatedDate = parseISO(req.dateUpdated);
+        return isValid(updatedDate) && isWithinInterval(updatedDate, { start: dateRange.from, end: toDate });
+      });
 
-    // 2. Fetch resolved incidents
+    // 2. Fetch ALL resolved incidents and filter by date in the backend.
     const incidentsSnapshot = await db
       .collection('incidents')
       .where('status', '==', 'resolvida')
-      .where('dateUpdated', '>=', fromDateISO)
-      .where('dateUpdated', '<', toDateISO)
       .get();
       
-    const resolvedIncidents = incidentsSnapshot.docs.map(doc => doc.data() as IncidentReport);
+    const resolvedIncidents = incidentsSnapshot.docs
+        .map(doc => doc.data() as IncidentReport)
+        .filter(inc => {
+            if (!inc.dateUpdated) return false;
+            const updatedDate = parseISO(inc.dateUpdated);
+            return isValid(updatedDate) && isWithinInterval(updatedDate, { start: dateRange.from, end: toDate });
+        });
 
     const allCompleted = [...completedRequests, ...resolvedIncidents];
 
@@ -100,7 +109,12 @@ export async function getPerformanceDataAction(
             acc.push({ date: dateStr, count: 1 });
         }
         return acc;
-    }, [] as { date: string; count: number }[]).sort((a,b) => a.date.localeCompare(b.date, 'pt-BR-u-kn-true'));
+    }, [] as { date: string; count: number }[]).sort((a,b) => {
+        const [dayA, monthA] = a.date.split('/');
+        const [dayB, monthB] = b.date.split('/');
+        if (monthA !== monthB) return monthA.localeCompare(monthB);
+        return dayA.localeCompare(dayB);
+    });
 
 
     const categoryDistribution = Object.entries(categoryCounts)
