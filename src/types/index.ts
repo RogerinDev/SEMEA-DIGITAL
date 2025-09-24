@@ -7,7 +7,7 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 
 // Define os papéis de usuário possíveis no sistema.
-export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin' | 'superAdmin';
+export type UserRole = 'citizen' | 'tecnico_ambiental' | 'fiscal_ambiental' | 'gestor_parques' | 'educador_ambiental' | 'agente_bem_estar_animal' | 'admin' | 'superAdmin' | 'Dev';
 
 // Estende o tipo de usuário do Firebase para incluir nossos campos customizados.
 export interface AppUser extends FirebaseUser {

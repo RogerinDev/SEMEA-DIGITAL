@@ -21,12 +21,12 @@ const regionalFunctions = functions.region("southamerica-east1");
 /**
  * Função Callable para definir um Custom Claim (papel e departamento) para um usuário.
  * Esta função é projetada para ser chamada a partir do aplicativo cliente (front-end).
- * A segurança é garantida verificando se o chamador tem o papel de 'superAdmin'.
+ * A segurança é garantida verificando se o chamador tem o papel de 'superAdmin' ou 'Dev'.
  *
  * @param data - O objeto de dados enviado pelo cliente.
  * @param {string} data.email - O email do usuário a ser promovido.
  * @param {string} data.department - O departamento ao qual o usuário será atribuído.
- * @param {string} [data.role='admin'] - O papel a ser atribuído ('admin' ou 'superAdmin').
+ * @param {string} [data.role='admin'] - O papel a ser atribuído ('admin', 'superAdmin', 'Dev').
  * @param context - O contexto da função, contendo informações de autenticação do chamador.
  *
  * @returns {Promise<{message: string}>} Uma promessa que resolve com uma mensagem de sucesso.
@@ -35,12 +35,12 @@ const regionalFunctions = functions.region("southamerica-east1");
  */
 export const setAdminRole = regionalFunctions.https.onCall(async (data, context) => {
   // --- Verificação de Segurança ---
-  // Apenas usuários com o Custom Claim 'superAdmin' podem executar esta função.
-  // Isso impede que usuários comuns ou administradores de departamento promovam outros.
-  if (context.auth?.token.role !== "superAdmin") {
+  // Apenas usuários com o Custom Claim 'superAdmin' ou 'Dev' podem executar esta função.
+  const callerRole = context.auth?.token.role;
+  if (callerRole !== "superAdmin" && callerRole !== "Dev") {
     throw new functions.https.HttpsError(
       "permission-denied",
-      "Apenas super-admins podem executar esta ação."
+      "Apenas Super Admins ou Desenvolvedores podem executar esta ação."
     );
   }
 
@@ -54,13 +54,20 @@ export const setAdminRole = regionalFunctions.https.onCall(async (data, context)
     );
   }
 
+  // Valida o papel que está sendo atribuído
+  const validRoles = ["admin", "superAdmin", "Dev", "citizen"];
+  if (!validRoles.includes(role)) {
+      throw new functions.https.HttpsError(
+          "invalid-argument",
+          `O papel '${role}' é inválido.`
+      );
+  }
+
   try {
     // Busca o registro do usuário no Firebase Authentication usando o e-mail.
     const userRecord = await admin.auth().getUserByEmail(email);
 
     // Define os Custom Claims para o usuário encontrado.
-    // Estes claims (papel e departamento) serão incluídos no token de ID do usuário
-    // e podem ser usados para controle de acesso no front-end e nas Regras de Segurança.
     await admin.auth().setCustomUserClaims(userRecord.uid, {
       role: role,
       department: department,
