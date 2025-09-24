@@ -1,7 +1,7 @@
 /**
  * @fileoverview Este arquivo contém as Cloud Functions do Firebase para o projeto.
  * Atualmente, define uma função callable `setAdminRole` para atribuir papéis de administrador
- * aos usuários, uma operação que só pode ser executada por um 'superAdmin'.
+ * aos usuários, uma operação que só pode ser executada por um 'superAdmin' ou 'Dev'.
  */
 
 import * as functions from "firebase-functions";
@@ -26,7 +26,7 @@ const regionalFunctions = functions.region("southamerica-east1");
  * @param data - O objeto de dados enviado pelo cliente.
  * @param {string} data.email - O email do usuário a ser promovido.
  * @param {string} data.department - O departamento ao qual o usuário será atribuído.
- * @param {string} [data.role='admin'] - O papel a ser atribuído ('admin', 'superAdmin', 'Dev').
+ * @param {string} [data.role='admin'] - O papel a ser atribuído ('admin', 'superAdmin', 'Dev', 'citizen').
  * @param context - O contexto da função, contendo informações de autenticação do chamador.
  *
  * @returns {Promise<{message: string}>} Uma promessa que resolve com uma mensagem de sucesso.
