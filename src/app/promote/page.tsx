@@ -4,6 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import React, { useState } from 'react';
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { app } from "@/lib/firebase/client"; // Importa a instância do app Firebase do cliente.
+import { FIREBASE_REGION } from "@/config/firebase"; // Importa a região configurada.
+
 
 import { PageTitle } from "@/components/page-title";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { setAdminRoleAction } from "@/app/actions/admin-actions";
 import { type Department, type UserRole } from "@/types";
 
 const formSchema = z.object({
@@ -46,26 +49,23 @@ export default function PromotePage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true);
         try {
-            // Esta é uma chamada "insegura" para contornar o problema de permissão.
-            // A Cloud Function ainda terá sua própria segurança, mas esta página não verifica o autor da chamada.
-            const result = await setAdminRoleAction(values);
-            if (result.success) {
-                toast({
-                    title: "Sucesso!",
-                    description: `O usuário ${values.email} foi promovido. Faça logout e login novamente para aplicar as permissões.`,
-                });
-                form.reset();
-            } else {
-                toast({
-                    title: "Erro na Promoção",
-                    description: result.error,
-                    variant: "destructive",
-                });
-            }
-        } catch (error) {
+            // Chamada direta para a Cloud Function do lado do cliente
+            const functions = getFunctions(app, FIREBASE_REGION);
+            const setAdminRoleCallable = httpsCallable<{ email: string; department: Department; role: UserRole }, { message: string }>(functions, 'setAdminRole');
+            
+            const result = await setAdminRoleCallable(values);
+
             toast({
-                title: "Erro Inesperado",
-                description: "Ocorreu um erro ao processar a solicitação.",
+                title: "Sucesso!",
+                description: result.data.message || `O usuário ${values.email} foi promovido. Faça logout e login novamente para aplicar as permissões.`,
+            });
+            form.reset();
+
+        } catch (error: any) {
+            console.error("Erro ao chamar a função 'setAdminRole':", error);
+            toast({
+                title: "Erro na Promoção",
+                description: error.message || "Ocorreu um erro ao processar a solicitação.",
                 variant: "destructive",
             });
         } finally {
@@ -79,9 +79,9 @@ export default function PromotePage() {
             
             <Card className="max-w-lg mx-auto">
                 <CardHeader>
-                    <CardTitle>Promover Usuário (Bypass de Permissão do Cliente)</CardTitle>
+                    <CardTitle>Promover Usuário (Chamada Direta)</CardTitle>
                     <CardDescription>
-                        Esta ação chama a Cloud Function `setAdminRole`. O usuário que está LOGADO no navegador no momento em que você clica no botão DEVE ter a permissão de `superAdmin` ou `Dev` no Firebase Auth para que a função seja executada com sucesso.
+                        Esta ação chama a Cloud Function `setAdminRole` diretamente do seu navegador. O usuário que está logado neste navegador no momento do clique DEVE ter a permissão de `superAdmin` ou `Dev` no Firebase Auth para que a função seja executada com sucesso.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
