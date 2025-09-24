@@ -45,18 +45,7 @@ export async function setAdminRoleAction(data: SetAdminRoleData): Promise<{ succ
   } catch (error: any) {
     console.error("Error calling setAdminRole function:", error);
 
-    // Tratamento de erros específicos do Firebase para fornecer feedback mais claro ao usuário.
-    if (error.code === 'functions/permission-denied') {
-        return { success: false, error: "Permissão negada. Apenas Super Admins podem executar esta ação." };
-    }
-     if (error.code === 'functions/invalid-argument') {
-        return { success: false, error: "Argumentos inválidos. Verifique o e-mail e o departamento." };
-    }
-    if (error.code === 'functions/not-found') {
-        return { success: false, error: "A função de administração não foi encontrada (not-found). Verifique se a Cloud Function 'setAdminRole' foi implantada corretamente no Firebase." };
-    }
-    
-    // Retorna a mensagem de erro da função callable, que geralmente é amigável,
+    // Retorna a mensagem de erro exata da função callable, que geralmente é amigável,
     // ou uma mensagem de erro genérica se nenhuma outra condição for atendida.
     return { success: false, error: error.message || "Ocorreu um erro desconhecido ao chamar a função." };
   }
