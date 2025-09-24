@@ -80,11 +80,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const user = userCredential.user;
 
       if (!user.emailVerified) {
+        await sendEmailVerification(user);
         await signOut(auth);
         toast({
           title: "Verificação Necessária",
-          description: "Seu e-mail ainda não foi verificado. Por favor, verifique sua caixa de entrada e clique no link de verificação.",
+          description: "Seu e-mail ainda não foi verificado. Um novo link de verificação foi enviado para sua caixa de entrada.",
           variant: "destructive",
+          duration: 8000,
         });
         return 'auth/email-not-verified';
       }
@@ -262,3 +264,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     </AuthContext.Provider>
   );
 }
+
+    
