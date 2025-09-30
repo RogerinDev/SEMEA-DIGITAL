@@ -69,7 +69,7 @@ function MobileNav() {
 
 function DesktopNav() {
      return (
-        <nav className="hidden md:flex flex-shrink-0 items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:space-x-2 lg:space-x-3">
+        <nav className="hidden md:flex items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:space-x-2 lg:space-x-3">
             {mainNavItems.map((item) => (
               <Tooltip key={item.label} delayDuration={100}>
                 <TooltipTrigger asChild>
@@ -135,16 +135,20 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-3 md:px-4">
+          
+          {/* Left Side */}
           <div className="flex items-center gap-2">
             <MobileNav />
-            <Logo iconSize={22} textSize="text-base md:text-lg" className="flex-shrink-0" />
+            <Logo iconSize={22} textSize="text-base md:text-lg" />
           </div>
           
+          {/* Center Nav */}
           <div className="flex-1 flex justify-center">
             <DesktopNav />
           </div>
 
-          <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2">
+          {/* Right Side */}
+          <div className="flex items-center justify-end space-x-1 md:space-x-2">
             {currentUser ? (
               <>
                 <div className="hidden sm:flex">
