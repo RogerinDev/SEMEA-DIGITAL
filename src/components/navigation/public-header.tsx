@@ -69,7 +69,7 @@ function MobileNav() {
 
 function DesktopNav() {
      return (
-        <nav className="hidden md:flex flex-shrink-0 items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:flex-shrink md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:space-x-2 lg:space-x-3">
+        <nav className="hidden md:flex flex-shrink-0 items-center space-x-1 text-sm font-medium sm:space-x-1.5 md:space-x-2 lg:space-x-3">
             {mainNavItems.map((item) => (
               <Tooltip key={item.label} delayDuration={100}>
                 <TooltipTrigger asChild>
@@ -140,7 +140,9 @@ export function PublicHeader() {
             <Logo iconSize={22} textSize="text-base md:text-lg" className="flex-shrink-0" />
           </div>
           
-          <DesktopNav />
+          <div className="flex-1 flex justify-center">
+            <DesktopNav />
+          </div>
 
           <div className="flex flex-shrink-0 items-center space-x-1 md:space-x-2">
             {currentUser ? (
