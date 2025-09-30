@@ -136,16 +136,16 @@ export function PublicHeader() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-3 md:px-4">
           
-          <div className="flex items-center justify-start gap-2">
+          <div className="flex items-center justify-start">
             <MobileNav />
             <Logo iconSize={22} textSize="text-base md:text-lg" />
           </div>
           
-          <div className="flex-1 flex justify-center">
+          <div className="flex flex-1 items-center justify-center">
             <DesktopNav />
           </div>
 
-          <div className="flex items-center justify-end space-x-1 md:space-x-2">
+          <div className="flex items-center justify-end">
             {currentUser ? (
               <>
                 <div className="hidden sm:flex">
