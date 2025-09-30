@@ -133,13 +133,13 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-3 md:px-4">
+        <div className="container grid h-16 grid-cols-3 items-center">
           <div className="flex items-center justify-start">
             <MobileNav />
             <Logo iconSize={22} textSize="text-base md:text-lg" />
           </div>
           
-          <div className="flex flex-1 justify-center">
+          <div className="flex items-center justify-center">
             <DesktopNav />
           </div>
 
