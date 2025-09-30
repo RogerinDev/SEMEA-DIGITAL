@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Building, Users, UserCircle, Mail, Phone, MapPin, Clock, InstagramIcon } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react'; // Added import
 
 export default function SobreSemeadPage() {
   const atribuicoes = [
