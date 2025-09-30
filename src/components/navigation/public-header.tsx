@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import React from 'react';
 
 const mainNavItems = [
@@ -41,12 +41,13 @@ function MobileNav() {
                     <span className="sr-only">Abrir menu</span>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[280px]">
-                <div className="flex flex-col h-full">
-                    <div className="p-4 border-b">
-                        <Logo iconSize={24} textSize="text-lg" />
-                    </div>
-                    <nav className="flex-grow p-4">
+            <SheetContent side="left" className="w-[280px] flex flex-col p-0">
+                <SheetHeader className="p-4 border-b">
+                    <SheetTitle className="sr-only">Menu Principal</SheetTitle>
+                    <Logo iconSize={24} textSize="text-lg" />
+                </SheetHeader>
+                <div className="flex-grow overflow-y-auto">
+                    <nav className="p-4">
                         <ul className="space-y-2">
                             {navItems.map((item) => (
                                 <li key={item.label}>
@@ -129,7 +130,7 @@ const AdminDashboardIcon = () => (
 export function PublicHeader() {
   const { theme, toggleTheme } = useTheme();
   const { currentUser, logout } = useAuth();
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superAdmin';
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superAdmin' || currentUser?.role === 'Dev';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
