@@ -1,10 +1,12 @@
 
+
 import PublicLayout from '@/components/layouts/public-layout';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Building, Users, UserCircle, Mail, Phone, MapPin, Clock, InstagramIcon } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 
 export default function SobreSemeadPage() {
   const atribuicoes = [
