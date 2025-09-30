@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -43,7 +42,7 @@ function MobileNav() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[280px] flex flex-col p-0">
                 <SheetHeader className="p-4 border-b">
-                    <SheetTitle className="sr-only">Menu Principal</SheetTitle>
+                   <SheetTitle className="sr-only">Menu Principal</SheetTitle>
                     <Logo iconSize={24} textSize="text-lg" />
                 </SheetHeader>
                 <div className="flex-grow overflow-y-auto">
@@ -135,20 +134,19 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-3 md:px-4">
-          
           <div className="flex items-center justify-start">
             <MobileNav />
             <Logo iconSize={22} textSize="text-base md:text-lg" />
           </div>
           
-          <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-1 justify-center">
             <DesktopNav />
           </div>
 
           <div className="flex items-center justify-end">
             {currentUser ? (
               <>
-                <div className="hidden sm:flex">
+                <div className="hidden sm:flex items-center">
                   {isAdmin && <AdminDashboardIcon />}
                   <ServicesIcon />
                 </div>
@@ -191,20 +189,22 @@ export function PublicHeader() {
               </>
             ) : (
               <>
-                 <Link
-                    href="/login"
-                    passHref
-                    className={cn(buttonVariants({ variant: "secondary" }), "hidden sm:inline-flex")}
-                >
-                    Entrar
-                </Link>
-                <Link
-                    href="/register"
-                    passHref
-                    className={cn(buttonVariants({ variant: "default" }), "hidden sm:inline-flex")}
-                >
-                    Registrar
-                </Link>
+                 <div className="hidden sm:flex items-center space-x-2">
+                    <Link
+                        href="/login"
+                        passHref
+                        className={cn(buttonVariants({ variant: "secondary" }))}
+                    >
+                        Entrar
+                    </Link>
+                    <Link
+                        href="/register"
+                        passHref
+                        className={cn(buttonVariants({ variant: "default" }))}
+                    >
+                        Registrar
+                    </Link>
+                 </div>
 
                 <Tooltip>
                   <TooltipTrigger asChild>
