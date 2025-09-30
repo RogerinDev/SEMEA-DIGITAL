@@ -43,7 +43,7 @@ function MobileNav() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[280px] flex flex-col p-0">
                 <SheetHeader className="p-4 border-b">
-                     <SheetTitle className="sr-only">Menu Principal</SheetTitle>
+                    <SheetTitle className="sr-only">Menu Principal</SheetTitle>
                     <Logo iconSize={24} textSize="text-lg" />
                 </SheetHeader>
                 <div className="flex-grow overflow-y-auto">
@@ -134,20 +134,17 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container grid h-16 grid-cols-3 items-center px-3 md:px-4">
+        <div className="container flex h-16 items-center justify-between px-3 md:px-4">
           
-          {/* Left Column */}
           <div className="flex items-center justify-start gap-2">
             <MobileNav />
             <Logo iconSize={22} textSize="text-base md:text-lg" />
           </div>
           
-          {/* Center Column */}
-          <div className="flex items-center justify-center">
+          <div className="flex-1 flex justify-center">
             <DesktopNav />
           </div>
 
-          {/* Right Column */}
           <div className="flex items-center justify-end space-x-1 md:space-x-2">
             {currentUser ? (
               <>
