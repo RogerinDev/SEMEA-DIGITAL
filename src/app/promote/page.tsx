@@ -4,10 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import React, { useState } from 'react';
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { app } from "@/lib/firebase/client"; // Importa a instância do app Firebase do cliente.
-import { FIREBASE_REGION } from "@/config/firebase"; // Importa a região configurada.
-
 
 import { PageTitle } from "@/components/page-title";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,11 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { type Department, type UserRole } from "@/types";
+import { setAdminRoleAction } from "@/app/actions/admin-actions";
 
 const formSchema = z.object({
   email: z.string().email("Por favor, insira um e-mail válido."),
   department: z.custom<Department>(val => typeof val === 'string' && val.length > 0, "Selecione um departamento."),
-  role: z.custom<UserRole>(val => ['admin', 'superAdmin', 'Dev'].includes(val), "Selecione um papel válido."),
+  role: z.custom<UserRole>(val => ['admin', 'superAdmin', 'Dev', 'citizen'].includes(val), "Selecione um papel válido."),
 });
 
 const departments: { value: Department; label: string }[] = [
@@ -49,22 +46,27 @@ export default function PromotePage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true);
         try {
-            // Chamada direta para a Cloud Function do lado do cliente
-            const functions = getFunctions(app, FIREBASE_REGION);
-            const setAdminRoleCallable = httpsCallable<{ email: string; department: Department; role: UserRole }, { message: string }>(functions, 'setAdminRole');
-            
-            const result = await setAdminRoleCallable(values);
+            // Chamada para a Server Action em vez da função direta
+            const result = await setAdminRoleAction(values);
 
-            toast({
-                title: "Sucesso!",
-                description: result.data.message || `O usuário ${values.email} foi promovido. Faça logout e login novamente para aplicar as permissões.`,
-            });
-            form.reset();
+            if (result.success) {
+                toast({
+                    title: "Sucesso!",
+                    description: result.message || `O usuário ${values.email} foi promovido. Faça logout e login novamente para aplicar as permissões.`,
+                });
+                form.reset();
+            } else {
+                 toast({
+                    title: "Erro na Promoção",
+                    description: result.error || "Ocorreu um erro ao processar a solicitação.",
+                    variant: "destructive",
+                });
+            }
 
         } catch (error: any) {
-            console.error("Erro ao chamar a função 'setAdminRole':", error);
+            console.error("Erro ao chamar a server action 'setAdminRoleAction':", error);
             toast({
-                title: "Erro na Promoção",
+                title: "Erro Inesperado",
                 description: error.message || "Ocorreu um erro ao processar a solicitação.",
                 variant: "destructive",
             });
@@ -79,9 +81,9 @@ export default function PromotePage() {
             
             <Card className="max-w-lg mx-auto">
                 <CardHeader>
-                    <CardTitle>Promover Usuário (Chamada Direta)</CardTitle>
+                    <CardTitle>Promover Usuário (via Server Action)</CardTitle>
                     <CardDescription>
-                        Esta ação chama a Cloud Function `setAdminRole` diretamente do seu navegador. O usuário que está logado neste navegador no momento do clique DEVE ter a permissão de `superAdmin` ou `Dev` no Firebase Auth para que a função seja executada com sucesso.
+                       Esta página agora chama uma Server Action no backend, que contém a lógica de emergência para promover o usuário 'rogerinhootavio@hotmail.com'.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -110,7 +112,7 @@ export default function PromotePage() {
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Selecione o departamento" />
-                                                </SelectTrigger>
+                                                </Trigger>
                                             </FormControl>
                                             <SelectContent>
                                                 {departments.map(dep => (
@@ -132,7 +134,7 @@ export default function PromotePage() {
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Selecione o papel" />
-                                                </SelectTrigger>
+                                                </Trigger>
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectItem value="admin">Admin de Setor</SelectItem>
