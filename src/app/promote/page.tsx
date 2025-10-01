@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { type Department, type UserRole } from "@/types";
 import { setAdminRoleAction } from "@/app/actions/admin-actions";
