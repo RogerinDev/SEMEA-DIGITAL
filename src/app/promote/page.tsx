@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +47,6 @@ export default function PromotePage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true);
         try {
-            // Chamada para a Server Action em vez da função direta
             const result = await setAdminRoleAction(values);
 
             if (result.success) {
