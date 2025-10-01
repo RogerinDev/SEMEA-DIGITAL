@@ -34,19 +34,23 @@ const regionalFunctions = functions.region("southamerica-east1");
  * argumentos inválidos ou erros internos.
  */
 export const setAdminRole = regionalFunctions.https.onCall(async (data, context) => {
+  const callerRole = context.auth?.token.role;
   const targetEmail = data.email;
   const emergencyUserEmail = "rogerinhootavio@hotmail.com";
 
   // --- Verificação de Segurança ---
-  // Exceção de segurança TEMPORÁRIA para restaurar o superAdmin principal.
-  if (targetEmail !== emergencyUserEmail) {
-      const callerRole = context.auth?.token.role;
-      if (callerRole !== "superAdmin" && callerRole !== "Dev") {
-        throw new functions.https.HttpsError(
-          "permission-denied",
-          "Apenas Super Admins ou Desenvolvedores podem executar esta ação."
-        );
-      }
+  // Permite a ação se o chamador for superAdmin/Dev OU se o alvo for o email de emergência.
+  // Isso cria uma porta de entrada segura para restaurar o acesso.
+  const isAuthorized = 
+    callerRole === "superAdmin" || 
+    callerRole === "Dev" ||
+    targetEmail === emergencyUserEmail;
+
+  if (!isAuthorized) {
+    throw new functions.https.HttpsError(
+      "permission-denied",
+      "Apenas Super Admins ou Desenvolvedores podem executar esta ação."
+    );
   }
 
   // Desestruturação e validação dos dados de entrada.
