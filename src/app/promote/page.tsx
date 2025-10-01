@@ -111,7 +111,7 @@ export default function PromotePage() {
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Selecione o departamento" />
-                                                </SelectTrigger>
+                                                </Trigger>
                                             </FormControl>
                                             <SelectContent>
                                                 {departments.map(dep => (
