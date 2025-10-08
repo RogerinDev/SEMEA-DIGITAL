@@ -7,3 +7,4 @@ To get started, take a look at src/app/page.tsx.
 Your app is ready for the next step.
 <!-- Triggering deploy to apply new IAM permissions and Firestore rules. -->
 <!-- Forçando uma atualização para sincronização do Git. -->
+<!-- Forçando uma nova atualização para sincronização do Git. -->
