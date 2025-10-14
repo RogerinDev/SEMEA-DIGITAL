@@ -1,27 +1,16 @@
-
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import React, { useState } from 'react';
-
 import { PageTitle } from "@/components/page-title";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { type Department, type UserRole } from "@/types";
 import { setAdminRoleAction } from "@/app/actions/admin-actions";
-
-const formSchema = z.object({
-  email: z.string().email("Por favor, insira um e-mail válido."),
-  department: z.custom<Department>(val => typeof val === 'string' && val.length > 0, "Selecione um departamento."),
-  role: z.custom<UserRole>(val => ['admin', 'superAdmin', 'Dev', 'citizen'].includes(val), "Selecione um papel válido."),
-});
 
 const departments: { value: Department; label: string }[] = [
     { value: "arborizacao", label: "Arborização" },
@@ -34,27 +23,23 @@ const departments: { value: Department; label: string }[] = [
 export default function PromotePage() {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Usando useState para gerenciar os campos do formulário
+    const [email, setEmail] = useState("rogerinhootavio@hotmail.com");
+    const [department, setDepartment] = useState<Department>("gabinete");
+    const [role, setRole] = useState<UserRole>("superAdmin");
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            email: "",
-            role: "superAdmin",
-            department: "gabinete",
-        },
-    });
-
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         setIsSubmitting(true);
         try {
-            const result = await setAdminRoleAction(values);
+            const result = await setAdminRoleAction({ email, department, role });
 
             if (result.success) {
                 toast({
                     title: "Sucesso!",
-                    description: result.message || `O usuário ${values.email} foi promovido. Faça logout e login novamente para aplicar as permissões.`,
+                    description: result.message || `O usuário ${email} foi promovido. Faça logout e login novamente para aplicar as permissões.`,
                 });
-                form.reset();
             } else {
                  toast({
                     title: "Erro na Promoção",
@@ -73,7 +58,7 @@ export default function PromotePage() {
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
     
     return (
         <div className="container mx-auto py-12">
@@ -83,75 +68,56 @@ export default function PromotePage() {
                 <CardHeader>
                     <CardTitle>Promover Usuário (via Server Action)</CardTitle>
                     <CardDescription>
-                       Esta página agora chama uma Server Action no backend, que contém a lógica de emergência para promover o usuário 'rogerinhootavio@hotmail.com'.
+                       Esta página chama uma Server Action no backend, que contém a lógica de emergência para promover o usuário especificado.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>E-mail do Usuário a ser Promovido</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="usuario@exemplo.com" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">E-mail do Usuário a ser Promovido</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="usuario@exemplo.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
                             />
-                             <FormField
-                                control={form.control}
-                                name="department"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Departamento</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Selecione o departamento" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {departments.map(dep => (
-                                                    <SelectItem key={dep.value} value={dep.value}>{dep.label}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="role"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Papel (Role)</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Selecione o papel" />
-                                                </Trigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="admin">Admin de Setor</SelectItem>
-                                                <SelectItem value="superAdmin">Super Admin</SelectItem>
-                                                <SelectItem value="Dev">Dev</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <Button type="submit" disabled={isSubmitting} className="w-full">
-                                {isSubmitting ? <Loader2 className="animate-spin mr-2"/> : <ShieldCheck className="mr-2"/>}
-                                Forçar Promoção
-                            </Button>
-                        </form>
-                    </Form>
+                        </div>
+                        
+                        <div className="space-y-2">
+                             <Label htmlFor="department">Departamento</Label>
+                             <Select value={department} onValueChange={(value) => setDepartment(value as Department)} required>
+                                <SelectTrigger id="department">
+                                    <SelectValue placeholder="Selecione o departamento" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {departments.map(dep => (
+                                        <SelectItem key={dep.value} value={dep.value}>{dep.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                             <Label htmlFor="role">Papel (Role)</Label>
+                            <Select value={role} onValueChange={(value) => setRole(value as UserRole)} required>
+                                <SelectTrigger id="role">
+                                    <SelectValue placeholder="Selecione o papel" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="admin">Admin de Setor</SelectItem>
+                                    <SelectItem value="superAdmin">Super Admin</SelectItem>
+                                    <SelectItem value="Dev">Dev</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <Button type="submit" disabled={isSubmitting} className="w-full">
+                            {isSubmitting ? <Loader2 className="animate-spin mr-2"/> : <ShieldCheck className="mr-2"/>}
+                            Forçar Promoção
+                        </Button>
+                    </form>
                 </CardContent>
             </Card>
         </div>
