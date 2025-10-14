@@ -35,16 +35,10 @@ const regionalFunctions = functions.region("southamerica-east1");
  */
 export const setAdminRole = regionalFunctions.https.onCall(async (data, context) => {
   const callerRole = context.auth?.token.role;
-  const targetEmail = data.email;
-  const emergencyUserEmail = "rogerinhootavio@hotmail.com";
 
   // --- Verificação de Segurança ---
-  // Permite a ação se o chamador for superAdmin/Dev OU se o alvo for o email de emergência.
-  // Isso cria uma porta de entrada segura para restaurar o acesso.
-  const isAuthorized = 
-    callerRole === "superAdmin" || 
-    callerRole === "Dev" ||
-    targetEmail === emergencyUserEmail;
+  // Apenas usuários com o Custom Claim 'superAdmin' ou 'Dev' podem executar esta função.
+  const isAuthorized = callerRole === "superAdmin" || callerRole === "Dev";
 
   if (!isAuthorized) {
     throw new functions.https.HttpsError(
