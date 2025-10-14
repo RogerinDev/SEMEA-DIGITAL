@@ -30,13 +30,21 @@ export const emergencyPromote = regionalFunctions.https.onRequest(async (request
     try {
         console.log(`Tentando promover o usuário: ${superAdminEmail}`);
         const userRecord = await admin.auth().getUserByEmail(superAdminEmail);
+        const currentClaims = userRecord.customClaims || {};
+
+        if (currentClaims.role === "superAdmin") {
+            const message = `O usuário ${superAdminEmail} já é um superAdmin. Nenhuma ação foi necessária.`;
+            console.log(message);
+            response.status(200).send(message);
+            return;
+        }
         
         await admin.auth().setCustomUserClaims(userRecord.uid, { 
             role: "superAdmin",
             department: "gabinete"
         });
 
-        const successMessage = `Usuário ${superAdminEmail} promovido a superAdmin com sucesso!`;
+        const successMessage = `Sucesso! O usuário ${superAdminEmail} foi promovido a superAdmin. Por favor, faça logout e login novamente no site para ver as alterações.`;
         console.log(successMessage);
         response.status(200).send(successMessage);
 
@@ -45,7 +53,7 @@ export const emergencyPromote = regionalFunctions.https.onRequest(async (request
         if (error.code === 'auth/user-not-found') {
             response.status(404).send(`Erro: Usuário de emergência ${superAdminEmail} não encontrado.`);
         } else {
-            response.status(500).send("Erro interno ao tentar promover o usuário.");
+            response.status(500).send("Erro interno ao tentar promover o usuário. Verifique os logs da função.");
         }
     }
 });
