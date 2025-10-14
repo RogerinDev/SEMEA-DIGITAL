@@ -20,7 +20,7 @@ import { type Department, type UserRole } from "@/types";
 const formSchema = z.object({
   email: z.string().email("Por favor, insira um e-mail válido."),
   department: z.custom<Department>(val => typeof val === 'string' && val.length > 0, "Selecione um departamento."),
-  role: z.custom<UserRole>(val => ['admin', 'superAdmin', 'Dev', 'citizen'].includes(val), "Selecione um papel válido."),
+  role: z.custom<UserRole>(val => ['admin', 'superAdmin', 'citizen'].includes(val), "Selecione um papel válido."),
 });
 
 const departments: { value: Department; label: string }[] = [
@@ -28,7 +28,7 @@ const departments: { value: Department; label: string }[] = [
     { value: "residuos", label: "Resíduos" },
     { value: "bem_estar_animal", label: "Bem-Estar Animal" },
     { value: "educacao_ambiental", label: "Educação Ambiental" },
-    { value: "gabinete", label: "Gabinete (Super Admin/Dev)" },
+    { value: "gabinete", label: "Gabinete (Super Admin)" },
 ];
 
 export default function ManageUsersPage() {
@@ -72,12 +72,12 @@ export default function ManageUsersPage() {
         }
     }
 
-    if (currentUser?.role !== 'superAdmin' && currentUser?.role !== 'Dev') {
+    if (currentUser?.role !== 'superAdmin') {
         return (
             <div className="flex flex-col items-center justify-center h-full text-center">
                 <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
                 <h1 className="text-2xl font-bold">Acesso Negado</h1>
-                <p className="text-muted-foreground">Apenas Super Administradores e Desenvolvedores podem acessar esta página.</p>
+                <p className="text-muted-foreground">Apenas Super Administradores podem acessar esta página.</p>
             </div>
         );
     }
@@ -147,7 +147,6 @@ export default function ManageUsersPage() {
                                             <SelectContent>
                                                 <SelectItem value="admin">Admin de Setor</SelectItem>
                                                 <SelectItem value="superAdmin">Super Admin</SelectItem>
-                                                <SelectItem value="Dev">Dev</SelectItem>
                                                 <SelectItem value="citizen">Cidadão (remover privilégios)</SelectItem>
                                             </SelectContent>
                                         </Select>

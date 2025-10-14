@@ -22,15 +22,15 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   const { currentUser } = useAuth();
-  const isSuperUser = currentUser?.role === 'superAdmin' || currentUser?.role === 'Dev';
+  const isSuperUser = currentUser?.role === 'superAdmin';
 
   // Filtra os itens de navegação com base no papel e departamento do usuário.
   const filteredNavItems = allAdminNavItems.filter(item => {
-    // Se o item é apenas para superAdmin/Dev, verifica se o usuário tem esse papel.
+    // Se o item é apenas para superAdmin, verifica se o usuário tem esse papel.
     if (item.superAdminOnly) {
       return isSuperUser;
     }
-    // Se o usuário for superAdmin/Dev, ele vê todos os itens.
+    // Se o usuário for superAdmin, ele vê todos os itens.
     if (isSuperUser) {
       return true;
     }
@@ -49,7 +49,6 @@ export default function AdminDashboardLayout({
 
   const getRoleName = (role?: string) => {
     if (role === 'superAdmin') return 'Super Administrador';
-    if (role === 'Dev') return 'Desenvolvedor';
     if (role === 'admin') return 'Administrador';
     return 'Admin'; // Fallback
   }

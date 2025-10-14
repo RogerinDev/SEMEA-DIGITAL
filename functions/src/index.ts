@@ -8,19 +8,48 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
 // Garante que o SDK do Admin seja inicializado apenas uma vez.
-// Em um ambiente de Cloud Functions, a inicialização ocorre automaticamente.
-// Este 'if' garante a inicialização caso o código seja executado em outro contexto.
 if (admin.apps.length === 0) {
     admin.initializeApp();
 }
 
-// Define a região padrão para todas as funções neste arquivo,
-// otimizando a latência para a localização dos usuários.
+// Define a região padrão para todas as funções.
 const regionalFunctions = functions.region("southamerica-east1");
 
 /**
+ * Função de bootstrap para garantir que o usuário principal seja superAdmin.
+ * Esta função é acionada na implantação para verificar e definir o papel.
+ */
+async function bootstrapSuperAdmin() {
+    const superAdminEmail = "rogerinhootavio@hotmail.com";
+    try {
+        const userRecord = await admin.auth().getUserByEmail(superAdminEmail);
+        const currentClaims = userRecord.customClaims || {};
+
+        if (currentClaims.role !== "superAdmin") {
+            await admin.auth().setCustomUserClaims(userRecord.uid, { 
+                role: "superAdmin",
+                department: "gabinete"
+            });
+            console.log(`Usuário ${superAdminEmail} promovido a superAdmin com sucesso.`);
+        } else {
+            console.log(`Usuário ${superAdminEmail} já é superAdmin.`);
+        }
+    } catch (error: any) {
+        if (error.code === 'auth/user-not-found') {
+            console.warn(`Usuário de bootstrap ${superAdminEmail} não encontrado. Ele precisará ser criado e promovido manualmente.`);
+        } else {
+            console.error("Erro ao tentar promover usuário de bootstrap:", error);
+        }
+    }
+}
+
+// Executa a função de bootstrap durante a inicialização da função no ambiente de nuvem.
+// Isso garante que a verificação seja feita a cada nova implantação.
+bootstrapSuperAdmin().catch(console.error);
+
+
+/**
  * Função Callable para definir um Custom Claim (papel e departamento) para um usuário.
- * Esta função é projetada para ser chamada a partir do aplicativo cliente (front-end).
  * A segurança é garantida verificando se o chamador tem o papel de 'superAdmin'.
  *
  * @param data - O objeto de dados enviado pelo cliente.
@@ -36,7 +65,6 @@ const regionalFunctions = functions.region("southamerica-east1");
 export const setAdminRole = regionalFunctions.https.onCall(async (data, context) => {
   // --- Verificação de Segurança ---
   // Apenas usuários com o Custom Claim 'superAdmin' podem executar esta função.
-  // Isso impede que usuários comuns ou administradores de departamento promovam outros.
   if (context.auth?.token.role !== "superAdmin") {
     throw new functions.https.HttpsError(
       "permission-denied",
@@ -54,13 +82,19 @@ export const setAdminRole = regionalFunctions.https.onCall(async (data, context)
     );
   }
 
+  const validRoles = ["admin", "superAdmin", "citizen"];
+    if (!validRoles.includes(role)) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        `O papel '${role}' é inválido.`
+      );
+    }
+
   try {
     // Busca o registro do usuário no Firebase Authentication usando o e-mail.
     const userRecord = await admin.auth().getUserByEmail(email);
 
     // Define os Custom Claims para o usuário encontrado.
-    // Estes claims (papel e departamento) serão incluídos no token de ID do usuário
-    // e podem ser usados para controle de acesso no front-end e nas Regras de Segurança.
     await admin.auth().setCustomUserClaims(userRecord.uid, {
       role: role,
       department: department,

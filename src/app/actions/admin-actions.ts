@@ -37,16 +37,6 @@ export async function setAdminRoleAction(data: SetAdminRoleData): Promise<{ succ
     return { success: false, error: "Dados inválidos fornecidos." };
   }
 
-  // Lógica de emergência para recuperar a conta do superAdmin
-  // Esta verificação acontece no lado do servidor, contornando as regras de permissão do cliente.
-  const emergencyUserEmail = "rogerinhootavio@hotmail.com";
-  if (data.email === emergencyUserEmail) {
-      console.log(`EMERGENCY OVERRIDE: Tentando promover ${data.email} a ${data.role}.`);
-      // A função na nuvem ainda fará sua própria verificação, mas esta chamada
-      // é feita pelo servidor, que pode ter mais privilégios ou pode ser
-      // configurado para permitir esta ação específica.
-  }
-
   try {
     // Chama a Cloud Function com os dados fornecidos.
     const result = await setAdminRoleCallable(data);
