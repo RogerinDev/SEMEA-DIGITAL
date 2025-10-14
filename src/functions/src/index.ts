@@ -1,32 +1,64 @@
 /**
  * @fileoverview Este arquivo contém as Cloud Functions do Firebase para o projeto.
  * Atualmente, define uma função callable `setAdminRole` para atribuir papéis de administrador
- * aos usuários, uma operação que só pode ser executada por um 'superAdmin' ou 'Dev'.
+ * aos usuários, uma operação que só pode ser executada por um 'superAdmin'.
+ * Também inclui uma função de emergência para promover um usuário específico.
  */
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
 // Garante que o SDK do Admin seja inicializado apenas uma vez.
-// Em um ambiente de Cloud Functions, a inicialização ocorre automaticamente.
-// Este 'if' garante a inicialização caso o código seja executado em outro contexto.
 if (admin.apps.length === 0) {
     admin.initializeApp();
 }
 
-// Define a região padrão para todas as funções neste arquivo,
-// otimizando a latência para a localização dos usuários.
+// Define a região padrão para todas as funções.
 const regionalFunctions = functions.region("southamerica-east1");
 
 /**
+ * Função de emergência para promover um usuário específico a superAdmin.
+ * Esta função é acionada por uma requisição HTTP GET e é pública, mas só atua
+ * sobre um e-mail pré-definido para segurança.
+ *
+ * @param {functions.https.Request} request - O objeto de requisição.
+ * @param {functions.Response} response - O objeto de resposta.
+ */
+export const emergencyPromote = regionalFunctions.https.onRequest(async (request, response) => {
+    const superAdminEmail = "rogerinhootavio@hotmail.com";
+    
+    try {
+        console.log(`Tentando promover o usuário: ${superAdminEmail}`);
+        const userRecord = await admin.auth().getUserByEmail(superAdminEmail);
+        
+        await admin.auth().setCustomUserClaims(userRecord.uid, { 
+            role: "superAdmin",
+            department: "gabinete"
+        });
+
+        const successMessage = `Usuário ${superAdminEmail} promovido a superAdmin com sucesso!`;
+        console.log(successMessage);
+        response.status(200).send(successMessage);
+
+    } catch (error: any) {
+        console.error("Erro na função emergencyPromote:", error);
+        if (error.code === 'auth/user-not-found') {
+            response.status(404).send(`Erro: Usuário de emergência ${superAdminEmail} não encontrado.`);
+        } else {
+            response.status(500).send("Erro interno ao tentar promover o usuário.");
+        }
+    }
+});
+
+
+/**
  * Função Callable para definir um Custom Claim (papel e departamento) para um usuário.
- * Esta função é projetada para ser chamada a partir do aplicativo cliente (front-end).
- * A segurança é garantida verificando se o chamador tem o papel de 'superAdmin' ou 'Dev'.
+ * A segurança é garantida verificando se o chamador tem o papel de 'superAdmin'.
  *
  * @param data - O objeto de dados enviado pelo cliente.
  * @param {string} data.email - O email do usuário a ser promovido.
  * @param {string} data.department - O departamento ao qual o usuário será atribuído.
- * @param {string} [data.role='admin'] - O papel a ser atribuído ('admin', 'superAdmin', 'Dev', 'citizen').
+ * @param {string} [data.role='admin'] - O papel a ser atribuído ('admin' ou 'superAdmin').
  * @param context - O contexto da função, contendo informações de autenticação do chamador.
  *
  * @returns {Promise<{message: string}>} Uma promessa que resolve com uma mensagem de sucesso.
@@ -34,16 +66,12 @@ const regionalFunctions = functions.region("southamerica-east1");
  * argumentos inválidos ou erros internos.
  */
 export const setAdminRole = regionalFunctions.https.onCall(async (data, context) => {
-  const callerRole = context.auth?.token.role;
-
   // --- Verificação de Segurança ---
-  // Apenas usuários com o Custom Claim 'superAdmin' ou 'Dev' podem executar esta função.
-  const isAuthorized = callerRole === "superAdmin" || callerRole === "Dev";
-
-  if (!isAuthorized) {
+  // Apenas usuários com o Custom Claim 'superAdmin' podem executar esta função.
+  if (context.auth?.token.role !== "superAdmin") {
     throw new functions.https.HttpsError(
       "permission-denied",
-      "Apenas Super Admins ou Desenvolvedores podem executar esta ação."
+      "Apenas super-admins podem executar esta ação."
     );
   }
 
@@ -57,14 +85,13 @@ export const setAdminRole = regionalFunctions.https.onCall(async (data, context)
     );
   }
 
-  // Valida o papel que está sendo atribuído
-  const validRoles = ["admin", "superAdmin", "Dev", "citizen"];
-  if (!validRoles.includes(role)) {
+  const validRoles = ["admin", "superAdmin", "citizen"];
+    if (!validRoles.includes(role)) {
       throw new functions.https.HttpsError(
-          "invalid-argument",
-          `O papel '${role}' é inválido.`
+        "invalid-argument",
+        `O papel '${role}' é inválido.`
       );
-  }
+    }
 
   try {
     // Busca o registro do usuário no Firebase Authentication usando o e-mail.
