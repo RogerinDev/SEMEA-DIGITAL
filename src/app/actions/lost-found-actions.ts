@@ -11,8 +11,9 @@ import type { LostFoundAnimal } from '@/types';
 import { revalidatePath } from 'next/cache';
 
 // Interface para os dados de um novo post, onde a data vem como string do formulário.
-interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'dateExpiration'> {
+interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'dateExpiration' | 'citizenId'> {
   date: string; 
+  citizenId: string; // Citizen ID is required
 }
 
 /**

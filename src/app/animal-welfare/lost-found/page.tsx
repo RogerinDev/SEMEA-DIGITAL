@@ -117,7 +117,6 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
         contactName: values.contactName,
         contactPhone: values.contactPhone,
         photoUrl,
-        status: 'ativo',
         citizenId: currentUser.uid,
       });
 
