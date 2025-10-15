@@ -3,10 +3,7 @@
 # Este arquivo é gerado automaticamente e pode ser personalizado.
 # Saiba mais em https://firebase.google.com/docs/hosting/app-hosting/apphosting-yaml
 build:
-  run:
-    # O buildpack do Next.js é usado para construir e implantar aplicativos Next.js.
-    # Saiba mais em https://github.com/GoogleCloudPlatform/buildpacks/blob/main/builders/gcp/base/README.md
-    name: gcr.io/buildpacks/builder:v1
+  run: npm install && npm run build
 runConfig:
   # O App Hosting permite que você defina variáveis de ambiente que são lidas do seu aplicativo.
   # Para gerenciar variáveis de forma segura, o App Hosting se integra com o Google Cloud Secret Manager.
