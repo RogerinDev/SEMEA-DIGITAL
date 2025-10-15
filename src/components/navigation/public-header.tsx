@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -24,7 +25,6 @@ const mainNavItems = [
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
     { href: '/info/education', label: 'Educação Ambiental', icon: GraduationCap },
     { href: '/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
-    { href: '/info/education/events', label: 'Eventos', icon: CalendarDays },
 ];
 const servicesNavItem = { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase };
 

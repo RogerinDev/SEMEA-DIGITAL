@@ -1,6 +1,7 @@
+
 /**
  * @fileoverview Arquivo de dados estáticos para a seção de Educação Ambiental.
- * Centraliza as informações sobre projetos, palestras e eventos, facilitando a manutenção.
+ * Centraliza as informações sobre projetos e palestras, facilitando a manutenção.
  */
 
 import type { EducationalProject, ThematicLecture, EnvironmentalEvent } from '@/types';
@@ -112,10 +113,5 @@ export const thematicLectures: ThematicLecture[] = [
   { id: 'bicho_chama_bicho', title: 'BICHO QUE CHAMA BICHO (CONTAÇÃO DE ESTÓRIA)', category: 'Projetos' },
 ];
 
-// Lista de eventos ambientais (dados de exemplo).
-export const environmentalEvents: EnvironmentalEvent[] = [
-  { id: '1', name: 'Semana do Meio Ambiente 2024', type: 'feira_ambiental', date: new Date(2024, 5, 5, 9, 0).toISOString(), location: 'Praça Central de Varginha', description: 'Palestras, workshops e atividades educativas para todas as idades celebrando o meio ambiente.', imageUrl: 'https://picsum.photos/seed/env-fair/600/400', dataAiHint: 'environmental fair' },
-  { id: '2', name: 'Workshop de Plantio de Hortas Urbanas', type: 'workshop', date: new Date(2024, 7, 12, 14, 0).toISOString(), location: 'Parque Novo Horizonte', description: 'Aprenda técnicas de cultivo de alimentos em pequenos espaços e contribua para uma cidade mais verde.', imageUrl: 'https://picsum.photos/seed/urban-garden/600/400', dataAiHint: 'urban gardening' },
-  { id: '3', name: 'Trilha Ecológica Guiada no Parque São Francisco', type: 'trilha_guiada_ecologica', date: new Date(2024, 8, 3, 8, 0).toISOString(), location: 'Parque São Francisco', description: 'Explore a fauna e flora local com guias especializados. Inscrições limitadas.', imageUrl: 'https://picsum.photos/seed/nature-trail/600/400', dataAiHint: 'nature trail' },
-  { id: '4', name: 'Dia da Árvore - Plantio Comunitário', type: 'palestra', date: new Date(2024, 8, 21, 9, 0).toISOString(), location: 'Parque Centenário', description: 'Celebre o Dia da Árvore participando de um plantio de mudas nativas.', imageUrl: 'https://picsum.photos/seed/tree-planting/600/400', dataAiHint: 'tree planting community' },
-];
+// A lista de eventos foi removida, pois a funcionalidade não será mais implementada.
+export const environmentalEvents: EnvironmentalEvent[] = [];
