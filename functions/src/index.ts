@@ -16,39 +16,6 @@ if (admin.apps.length === 0) {
 const regionalFunctions = functions.region("southamerica-east1");
 
 /**
- * Função de bootstrap para garantir que o usuário principal seja superAdmin.
- * Esta função é acionada na implantação para verificar e definir o papel.
- */
-async function bootstrapSuperAdmin() {
-    const superAdminEmail = "rogerinhootavio@hotmail.com";
-    try {
-        const userRecord = await admin.auth().getUserByEmail(superAdminEmail);
-        const currentClaims = userRecord.customClaims || {};
-
-        if (currentClaims.role !== "superAdmin") {
-            await admin.auth().setCustomUserClaims(userRecord.uid, { 
-                role: "superAdmin",
-                department: "gabinete"
-            });
-            console.log(`Usuário ${superAdminEmail} promovido a superAdmin com sucesso.`);
-        } else {
-            console.log(`Usuário ${superAdminEmail} já é superAdmin.`);
-        }
-    } catch (error: any) {
-        if (error.code === 'auth/user-not-found') {
-            console.warn(`Usuário de bootstrap ${superAdminEmail} não encontrado. Ele precisará ser criado e promovido manualmente.`);
-        } else {
-            console.error("Erro ao tentar promover usuário de bootstrap:", error);
-        }
-    }
-}
-
-// Executa a função de bootstrap durante a inicialização da função no ambiente de nuvem.
-// Isso garante que a verificação seja feita a cada nova implantação.
-bootstrapSuperAdmin().catch(console.error);
-
-
-/**
  * Função Callable para definir um Custom Claim (papel e departamento) para um usuário.
  * A segurança é garantida verificando se o chamador tem o papel de 'superAdmin'.
  *
