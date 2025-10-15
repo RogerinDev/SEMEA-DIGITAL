@@ -25,7 +25,7 @@ export function Logo({ className, iconSize = 24, textSize = "text-lg" }: LogoPro
     <Link href="/" className={cn('flex items-center gap-2', className)}>
       {/* Componente Image do Next.js para otimização da imagem do logo. */}
       <Image 
-        src="/semea-logo-yellow-blue.png" 
+        src="/semea-logo.png" 
         alt="SEMEA Digital Logo" 
         width={iconSize}
         height={iconSize} 
