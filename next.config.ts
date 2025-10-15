@@ -7,6 +7,15 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
+  // Configurações de desenvolvimento para permitir requisições do Firebase Studio.
+  experimental: {
+    // Adiciona a origem do ambiente de desenvolvimento à lista de permissões.
+    // Isso é necessário para que o servidor de desenvolvimento do Next.js aceite
+    // requisições de dentro do ambiente do Firebase Studio.
+    allowedDevOrigins: [
+      "6000-firebase-studio-1748953010086.cluster-m7tpz3bmgjgoqrktlvd4ykrc2m.cloudworkstations.dev",
+    ],
+  },
   // Configurações do TypeScript.
   typescript: {
     // Ignora erros de build do TypeScript. Útil em desenvolvimento,
