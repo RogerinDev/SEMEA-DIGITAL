@@ -135,7 +135,7 @@ export function PublicHeader() {
                             <TooltipTrigger asChild>
                                 <Button asChild variant="ghost" size="icon" aria-label={link.tooltip}>
                                     <Link href={link.href}>
-                                        <link.icon className="h-5 w-5" />
+                                        <link.icon className="h-5 w-5 text-primary" />
                                     </Link>
                                 </Button>
                             </TooltipTrigger>
