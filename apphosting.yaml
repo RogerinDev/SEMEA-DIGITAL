@@ -1,6 +1,15 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
 
+# The build section specifies how to build the application.
+build:
+  # The command to run to build the application.
+  # This command is run in the root of the repository.
+  # The buildpack will be automatically detected.
+  run:
+    # Use the latest version of the Next.js buildpack.
+    id: 'nextjs'
+
 # The runConfig block specifies runtime configurations for the backend.
 runConfig:
   # Increase this value if you'd like to automatically spin up
