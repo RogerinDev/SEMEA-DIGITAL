@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -123,10 +122,14 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <Logo />
+      <div className="container flex h-16 items-center justify-between">
+        {/* Left Section */}
+        <div className="flex items-center">
+            <Logo />
+        </div>
         
-        <nav className="hidden lg:flex flex-1 justify-center">
+        {/* Center Section (Desktop) */}
+        <nav className="hidden lg:flex justify-center">
             <ul className="flex items-center gap-4">
                 <TooltipProvider>
                 {navLinks.map((link) => (
@@ -149,7 +152,8 @@ export function PublicHeader() {
             </ul>
         </nav>
 
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        {/* Right Section */}
+        <div className="flex items-center justify-end space-x-2">
            <div className="hidden lg:flex items-center gap-2">
              <AuthButtons />
            </div>
@@ -158,6 +162,7 @@ export function PublicHeader() {
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
 
+          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="lg:hidden">
               <Button variant="outline" size="icon">
