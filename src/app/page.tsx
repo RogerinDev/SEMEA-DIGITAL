@@ -80,27 +80,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#0a0f0a] text-white py-16 px-6">
+      <section className="bg-background text-foreground py-16 px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-green-400">Nossos Principais Serviços</h2>
+          <h2 className="text-4xl font-bold text-primary dark:text-green-400">Nossos Principais Serviços</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <div key={service.title} className="bg-[#101810] rounded-xl p-8 text-center flex flex-col hover:shadow-lg hover:shadow-green-400/10 transition">
+              <div key={service.title} className="bg-card dark:bg-[#101810] rounded-xl p-8 text-center flex flex-col shadow-md dark:hover:shadow-lg dark:hover:shadow-green-400/10 transition">
                 <div className="flex-grow">
                   <div className="flex justify-center mb-4">
-                    <Icon className="text-green-400 h-10 w-10" />
+                    <div className="bg-primary/10 dark:bg-green-900/50 p-3 rounded-xl">
+                      <Icon className="text-primary dark:text-green-400 h-10 w-10" />
+                    </div>
                   </div>
-                  <h3 className="text-green-400 text-xl font-bold mb-3">{service.title}</h3>
-                  <p className="text-gray-300 text-sm mb-6">
+                  <h3 className="text-primary dark:text-green-400 text-xl font-bold mb-3">{service.title}</h3>
+                  <p className="text-muted-foreground dark:text-gray-300 text-sm mb-6">
                     {service.description}
                   </p>
                 </div>
                 <div className="mt-auto">
-                    <Button asChild variant="outline" className="border-green-400 text-green-400 hover:bg-green-400 hover:text-black">
+                    <Button asChild variant="outline" className="border-primary dark:border-green-400 text-primary dark:text-green-400 hover:bg-primary dark:hover:bg-green-400 hover:text-primary-foreground dark:hover:text-black">
                         <Link href={service.link}>
                             {service.buttonText} <span className="ml-2">→</span>
                         </Link>
@@ -114,3 +116,4 @@ export default function HomePage() {
     </PublicLayout>
   );
 }
+
