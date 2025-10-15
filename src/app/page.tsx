@@ -83,7 +83,7 @@ export default function HomePage() {
             {services.map((service) => (
                 <Card key={service.title} className="flex flex-col text-center items-center shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-transform duration-300 bg-card">
                   <CardHeader>
-                    <div className="bg-primary/10 p-4 rounded-full mb-4">
+                    <div className="bg-primary/10 p-3 rounded-xl mb-4 inline-flex">
                         <service.icon className="h-8 w-8 text-primary" />
                     </div>
                     <CardTitle className="text-xl text-foreground">{service.title}</CardTitle>
