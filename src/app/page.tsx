@@ -16,26 +16,30 @@ export default function HomePage() {
     {
       icon: TreePine,
       title: 'Arborização Urbana',
-      description: 'Solicite podas, remoção de árvores em risco e plantio de novas mudas.',
+      description: 'Solicite podas, remoção de árvores em risco e plantio de novas mudas. Cuidamos do verde da nossa cidade para um ambiente mais saudável e agradável para todos.',
       link: '/info/urban-afforestation',
+      buttonText: 'Acessar Serviços',
     },
     {
       icon: Recycle,
       title: 'Gestão de Resíduos',
-      description: 'Informe-se sobre a coleta seletiva e o descarte correto de resíduos.',
+      description: 'Informe-se sobre a coleta seletiva, descarte corretamente seus resíduos e denuncie o descarte irregular. Juntos, mantemos nossa cidade limpa e sustentável.',
       link: '/info/waste-management',
+      buttonText: 'Ver Coletas',
     },
     {
       icon: PawPrint,
       title: 'Bem-Estar Animal',
-      description: 'Encontre um amigo para adoção, solicite castração e ajude animais perdidos.',
+      description: 'Encontre um amigo para adoção, solicite castração gratuita de cães e gatos e ajude a reportar casos de maus-tratos.',
       link: '/animal-welfare',
+      buttonText: 'Conhecer',
     },
     {
       icon: GraduationCap,
       title: 'Educação Ambiental',
-      description: 'Participe de palestras, oficinas e projetos de conscientização.',
+      description: 'Participe de palestras, oficinas e projetos de conscientização. Aprenda práticas sustentáveis e ajude a construir um futuro mais verde.',
       link: '/info/education',
+      buttonText: 'Saiba Mais',
     },
   ];
 
@@ -64,7 +68,7 @@ export default function HomePage() {
             Sua plataforma online para serviços e informações da Secretaria Municipal de Meio Ambiente de Varginha - MG.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" variant="primary" asChild>
+            <Button size="lg" asChild>
               <Link href="/dashboard/citizen">
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
@@ -76,33 +80,35 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-primary">Nossos Principais Serviços</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((service) => (
-                <Card key={service.title} className="flex flex-col text-center items-center shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-transform duration-300 bg-card">
-                  <CardHeader>
-                    <div className="bg-primary/10 p-3 rounded-xl mb-4 inline-flex">
-                        <service.icon className="h-8 w-8 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl text-foreground">{service.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <p className="text-muted-foreground text-sm">{service.description}</p>
-                  </CardContent>
-                  <div className="p-6 pt-0 w-full">
-                    <Button variant="link" className="text-primary" asChild>
-                      <Link href={service.link}>
-                        <span className="flex items-center">
-                          Saiba Mais <ArrowRight className="ml-2 h-4 w-4" />
-                        </span>
-                      </Link>
-                    </Button>
+      <section className="bg-[#0a0f0a] text-white py-16 px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-green-400">Nossos Principais Serviços</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {services.map((service) => {
+            const Icon = service.icon;
+            return (
+              <div key={service.title} className="bg-[#101810] rounded-xl p-8 text-center flex flex-col hover:shadow-lg hover:shadow-green-400/10 transition">
+                <div className="flex-grow">
+                  <div className="flex justify-center mb-4">
+                    <Icon className="text-green-400 h-10 w-10" />
                   </div>
-                </Card>
-              ))}
-          </div>
+                  <h3 className="text-green-400 text-xl font-bold mb-3">{service.title}</h3>
+                  <p className="text-gray-300 text-sm mb-6">
+                    {service.description}
+                  </p>
+                </div>
+                <div className="mt-auto">
+                    <Button asChild variant="outline" className="border-green-400 text-green-400 hover:bg-green-400 hover:text-black">
+                        <Link href={service.link}>
+                            {service.buttonText} <span className="ml-2">→</span>
+                        </Link>
+                    </Button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </PublicLayout>
