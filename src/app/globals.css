@@ -13,45 +13,39 @@
     --popover: 120 10% 15%;
     --popover-foreground: 100 15% 85%;
 
-    --primary: 120 50% 55%; /* Verde Principal (dark) */
-    --primary-foreground: 0 0% 100%; 
+    --primary: 100 45% 55%; /* Verde Principal (vibrante) */
+    --primary-foreground: 100 20% 10%; /* Texto escuro para contraste com verde vibrante */
 
-    --secondary: 120 45% 50%; /* Verde Secundário (dark) */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 100 35% 45%; /* Verde Secundário (mais escuro) */
+    --secondary-foreground: 0 0% 98%;
 
     --muted: 120 10% 20%; /* Verde escuro suave para fundos muted */
     --muted-foreground: 100 15% 70%; 
 
-    --accent: 49 80% 55%; /* Amarelo (dark) */
-    --accent-foreground: 100 30% 10%; 
+    --accent: 100 40% 50%; /* Verde para acentos */
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 120 10% 25%; /* Verde escuro para bordas */
     --input: 120 10% 22%; /* Verde escuro para inputs */
-    --ring: 120 50% 55%; /* Verde Principal (dark) para anéis de foco */
+    --ring: 100 45% 55%; /* Verde Principal para anéis de foco */
     
     --radius: 0.5rem;
 
     /* Sidebar specific colors for dark mode */
-    --sidebar-background: 120 35% 20%; /* Verde escuro mais profundo para sidebar */
-    --sidebar-foreground: 0 0% 92%; /* Texto claro para sidebar */
+    --sidebar-background: 120 10% 12%; 
+    --sidebar-foreground: 0 0% 92%;
     
-    --sidebar-primary: 49 80% 55%; /* Amarelo Principal (dark) - para itens ativos */
-    --sidebar-primary-foreground: 100 30% 10%; /* Verde bem escuro para contraste em amarelo */
+    --sidebar-primary: 100 45% 55%; /* Verde vibrante para itens ativos */
+    --sidebar-primary-foreground: 100 20% 10%;
     
-    --sidebar-accent: 91 35% 45%; /* Verde secundário (logo) mais escuro para hover */
+    --sidebar-accent: 100 35% 45%;
     --sidebar-accent-foreground: 0 0% 95%; 
     
-    --sidebar-border: 120 35% 15%; /* Verde ainda mais escuro para borda da sidebar */
-    --sidebar-ring: 49 80% 55%; /* Amarelo Principal (dark) */
-
-    --chart-1: 120 50% 55%;
-    --chart-2: 120 40% 60%; 
-    --chart-3: 49 80% 55%;
-    --chart-4: 91 35% 50%;
-    --chart-5: 100 15% 75%;
+    --sidebar-border: 120 10% 20%;
+    --sidebar-ring: 100 45% 55%;
   }
 
   .dark {
@@ -64,42 +58,36 @@
     --popover: 120 10% 15%;
     --popover-foreground: 100 15% 85%;
 
-    --primary: 120 50% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 100 45% 55%;
+    --primary-foreground: 100 20% 10%;
 
-    --secondary: 120 45% 50%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 100 35% 45%;
+    --secondary-foreground: 0 0% 98%;
 
     --muted: 120 10% 20%;
     --muted-foreground: 100 15% 70%;
 
-    --accent: 49 80% 55%;
-    --accent-foreground: 100 30% 10%;
+    --accent: 100 40% 50%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 120 10% 25%;
     --input: 120 10% 22%;
-    --ring: 120 50% 55%;
+    --ring: 100 45% 55%;
 
-    --sidebar-background: 120 35% 20%;
+    --sidebar-background: 120 10% 12%; 
     --sidebar-foreground: 0 0% 92%;
     
-    --sidebar-primary: 49 80% 55%;
-    --sidebar-primary-foreground: 100 30% 10%;
+    --sidebar-primary: 100 45% 55%;
+    --sidebar-primary-foreground: 100 20% 10%;
     
-    --sidebar-accent: 91 35% 45%;
-    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-accent: 100 35% 45%;
+    --sidebar-accent-foreground: 0 0% 95%; 
     
-    --sidebar-border: 120 35% 15%;
-    --sidebar-ring: 49 80% 55%;
-    
-    --chart-1: 120 50% 55%;
-    --chart-2: 120 40% 60%; 
-    --chart-3: 49 80% 55%;
-    --chart-4: 91 35% 50%;
-    --chart-5: 100 15% 75%;
+    --sidebar-border: 120 10% 20%;
+    --sidebar-ring: 100 45% 55%;
   }
 }
 
@@ -108,11 +96,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
-    transition-property: background-color, color;
-    transition-duration: 0.3s;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-headline;
+    @apply bg-background text-foreground;
   }
 }

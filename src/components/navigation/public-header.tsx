@@ -4,7 +4,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -24,20 +23,12 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { Menu, Sun, Moon, TreePine, Recycle, PawPrint, GraduationCap, Building, LogIn, UserPlus, Info, Droplets } from 'lucide-react';
+import { Menu, Sun, Moon, TreePine, Recycle, PawPrint, GraduationCap, Info } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useAuth } from '@/contexts/auth-context';
 import { useTheme } from '@/contexts/theme-context';
 import { Skeleton } from "../ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navLinks = [
   {
@@ -113,12 +104,12 @@ const AuthButtons = () => {
 
     return (
         <div className="flex items-center gap-2">
-            <Button asChild variant="default" className="bg-green-500 hover:bg-green-600 text-white">
+            <Button asChild variant="primary" size="sm">
                 <Link href="/login">
                     Entrar
                 </Link>
             </Button>
-            <Button asChild variant="secondary" className="bg-green-700 hover:bg-green-800 text-white">
+            <Button asChild variant="secondary" size="sm">
                 <Link href="/register">
                     Registrar
                 </Link>
@@ -137,15 +128,24 @@ export function PublicHeader() {
         
         <nav className="hidden lg:flex flex-1 justify-center">
             <ul className="flex items-center gap-4">
+                <TooltipProvider>
                 {navLinks.map((link) => (
                     <li key={link.href}>
-                         <Button asChild variant="ghost" size="icon" aria-label={link.tooltip}>
-                            <Link href={link.href}>
-                                <link.icon className="h-5 w-5" />
-                            </Link>
-                        </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button asChild variant="ghost" size="icon" aria-label={link.tooltip}>
+                                    <Link href={link.href}>
+                                        <link.icon className="h-5 w-5" />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{link.tooltip}</p>
+                            </TooltipContent>
+                        </Tooltip>
                     </li>
                 ))}
+                </TooltipProvider>
             </ul>
         </nav>
 
@@ -188,4 +188,3 @@ export function PublicHeader() {
     </header>
   );
 }
-
