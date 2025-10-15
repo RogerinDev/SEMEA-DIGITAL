@@ -4,7 +4,7 @@
 import PublicLayout from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, TreePine, Recycle, PawPrint, GraduationCap } from 'lucide-react';
+import { ArrowRight, TreePine, Recycle, PawPrint, GraduationCap, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
@@ -41,6 +41,12 @@ export default function HomePage() {
       link: '/info/education',
       buttonText: 'Saiba Mais',
     },
+  ];
+
+  const benefits = [
+    "Facilidade no acesso aos serviços ambientais.",
+    "Transparência nas ações da secretaria.",
+    "Contribuição direta para um meio ambiente mais saudável."
   ];
 
   return (
@@ -80,7 +86,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-background text-foreground py-16 px-6">
+      <section className="bg-background dark:bg-[#0a0f0a] text-foreground py-16 px-6">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-primary dark:text-green-400">Nossos Principais Serviços</h2>
         </div>
@@ -102,7 +108,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-auto">
-                    <Button asChild variant="outline" className="border-primary dark:border-green-400 text-primary dark:text-green-400 hover:bg-primary dark:hover:bg-green-400 hover:text-primary-foreground dark:hover:text-black">
+                    <Button asChild variant="outline" className="border-primary text-primary dark:border-green-400 dark:text-green-400 hover:bg-primary dark:hover:bg-green-400 hover:text-primary-foreground dark:hover:text-black">
                         <Link href={service.link}>
                             {service.buttonText} <span className="ml-2">→</span>
                         </Link>
@@ -113,7 +119,43 @@ export default function HomePage() {
           })}
         </div>
       </section>
+
+      {!currentUser && (
+        <section className="bg-secondary/50 dark:bg-secondary/10 py-16 px-6">
+          <div className="container mx-auto grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <h2 className="text-4xl font-bold text-primary dark:text-green-300">
+                Participe da Construção de uma Varginha Mais Verde!
+              </h2>
+              <p className="text-muted-foreground">
+                Utilize nossos canais digitais para solicitar serviços, registrar denúncias e se informar sobre as ações ambientais em nosso município. Sua participação é fundamental.
+              </p>
+              <ul className="space-y-3">
+                {benefits.map((benefit, index) => (
+                  <li key={index} className="flex items-center gap-3">
+                    <CheckCircle className="h-6 w-6 text-primary dark:text-green-400" />
+                    <span className="text-foreground">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="pt-4">
+                <Button size="lg" asChild>
+                  <Link href="/register">Crie sua Conta Agora</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="relative aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
+              <Image 
+                src="https://picsum.photos/seed/green-globe/600/450" 
+                alt="Árvore em uma esfera de vidro" 
+                layout="fill"
+                objectFit="cover"
+                data-ai-hint="tree glass globe"
+              />
+            </div>
+          </div>
+        </section>
+      )}
     </PublicLayout>
   );
 }
-
