@@ -1,4 +1,6 @@
 
+"use client";
+
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +9,8 @@ import { Building2, Clock, Users, Mail, Phone, PawPrint, HeartHandshake, Stethos
 import Link from 'next/link';
 import React from 'react';
 import Image from 'next/image';
+import { useAuth } from '@/contexts/auth-context';
+import { useRouter } from 'next/navigation';
 
 const teamMembers = [
     { role: "Supervisora de Serviço de Bem Estar Animal", name: "Gabriela Pelegrini Batista", phone: "(35) 3690-2019 / (35) 3690-2276", email: "bemestaranimal@varginha.mg.gov.br" },
@@ -26,6 +30,17 @@ const pillars = [
 ];
 
 export default function AnimalWelfareInfoPage() {
+  const { currentUser } = useAuth();
+  const router = useRouter();
+
+  const handleServiceRequestClick = () => {
+    if (currentUser) {
+      router.push('/dashboard/citizen/requests/new');
+    } else {
+      router.push('/login');
+    }
+  };
+
   return (
     <>
       <PageTitle
@@ -96,12 +111,10 @@ export default function AnimalWelfareInfoPage() {
             <div className="p-4 bg-secondary/20 rounded-md">
                 <h4 className="font-semibold text-primary flex items-center mb-1"><Stethoscope className="mr-2 h-5 w-5"/>Serviços Veterinários e Castração</h4>
                 <p className="text-sm text-foreground">
-                Todos os cidadãos de Varginha têm direito a solicitar serviços de castração para seus animais, conforme disponibilidade.
+                O atendimento veterinário em Varginha é um serviço gratuito e um direito de todo cidadão. Moradores da cidade podem solicitar consultas e o serviço de castração para seus cães e gatos, com atendimento realizado de acordo com a disponibilidade.
                 </p>
-                 <Button asChild size="sm" className="mt-3">
-                    <Link href="/dashboard/citizen/requests/new?type=castracao_animal">
-                        Solicitar Castração
-                    </Link>
+                 <Button onClick={handleServiceRequestClick} size="sm" className="mt-3">
+                    Solicitar Serviço
                 </Button>
             </div>
              <div className="p-4 bg-secondary/20 rounded-md">
