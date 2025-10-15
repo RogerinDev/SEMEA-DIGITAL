@@ -15,13 +15,9 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getRequestByIdAction, updateRequestStatusAction } from '@/app/actions/requests-actions';
+import { getRequestByIdAction, getRequestsForAdminAction, updateRequestStatusAction } from '@/app/actions/requests-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// Mock resolved tickets that could be passed to the AI component
-const mockAvailableResolvedTickets: ResolvedTicket[] = [];
-
 
 const statusOptions: { value: ServiceRequest['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'pendente', label: 'Pendente', icon: Clock },
@@ -49,22 +45,39 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<ServiceRequestStatus>();
   const [notes, setNotes] = useState('');
+  const [resolvedTickets, setResolvedTickets] = useState<ResolvedTicket[]>([]);
   
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    async function fetchRequest() {
+    async function fetchRequestData() {
       setLoading(true);
-      const fetchedRequest = await getRequestByIdAction(params.id);
+      
+      const [fetchedRequest, allRequests] = await Promise.all([
+          getRequestByIdAction(params.id),
+          getRequestsForAdminAction({}) // Fetch all requests for AI context
+      ]);
+
       if (fetchedRequest) {
         setRequest(fetchedRequest);
         setSelectedStatus(fetchedRequest.status);
         setNotes(fetchedRequest.notes || '');
+
+        // Prepare data for AI: filter resolved tickets of the same type
+        const similarResolved = allRequests
+          .filter(req => req.status === 'concluido' && req.type === fetchedRequest.type && req.id !== fetchedRequest.id)
+          .map(req => ({
+            ticketId: req.protocol,
+            description: req.description,
+            resolution: req.notes || "Solicitação marcada como concluída sem notas detalhadas.",
+          }));
+        setResolvedTickets(similarResolved);
+
       }
       setLoading(false);
     }
-    fetchRequest();
+    fetchRequestData();
   }, [params.id]);
   
   const handleUpdate = async () => {
@@ -227,7 +240,7 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
         <div className="md:col-span-1">
           <SimilarTicketsSuggestions 
             currentTicket={{ description: request.description, type: request.type }}
-            availableResolvedTickets={mockAvailableResolvedTickets}
+            availableResolvedTickets={resolvedTickets}
           />
           {/* Placeholder for Histórico de Status */}
           <Card className="mt-6">

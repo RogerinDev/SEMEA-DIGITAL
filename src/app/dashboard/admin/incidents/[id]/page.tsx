@@ -10,14 +10,15 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2, Camera, Video, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { IncidentReport, IncidentStatus } from '@/types';
+import type { IncidentReport, IncidentStatus, ResolvedTicket } from '@/types';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getIncidentByIdAction, updateIncidentStatusAction } from '@/app/actions/incidents-actions';
+import { getIncidentByIdAction, updateIncidentStatusAction, getIncidentsForAdminAction } from '@/app/actions/incidents-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SimilarTicketsSuggestions } from '@/components/ai/similar-tickets-suggestions';
 
 const statusOptions: { value: IncidentReport['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'recebida', label: 'Recebida', icon: Clock },
@@ -46,23 +47,40 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
   const [selectedStatus, setSelectedStatus] = useState<IncidentStatus>();
   const [notes, setNotes] = useState('');
   const [inspector, setInspector] = useState('');
+  const [resolvedTickets, setResolvedTickets] = useState<ResolvedTicket[]>([]);
 
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    async function fetchIncident() {
+    async function fetchIncidentData() {
       setLoading(true);
-      const fetchedIncident = await getIncidentByIdAction(params.id);
+      
+      const [fetchedIncident, allIncidents] = await Promise.all([
+          getIncidentByIdAction(params.id),
+          getIncidentsForAdminAction() // Fetch all incidents for IA context
+      ]);
+      
       if (fetchedIncident) {
         setIncident(fetchedIncident);
         setSelectedStatus(fetchedIncident.status);
         setNotes(fetchedIncident.notes || '');
         setInspector(fetchedIncident.inspector || '');
+
+        // Prepare data for AI: filter resolved incidents of the same type
+        const similarResolved = allIncidents
+          .filter(inc => inc.status === 'resolvida' && inc.type === fetchedIncident.type && inc.id !== fetchedIncident.id)
+          .map(inc => ({
+            ticketId: inc.protocol,
+            description: inc.description,
+            resolution: inc.notes || "Denúncia marcada como resolvida sem notas detalhadas.",
+          }));
+        setResolvedTickets(similarResolved);
+
       }
       setLoading(false);
     }
-    fetchIncident();
+    fetchIncidentData();
   }, [params.id]);
 
   const handleUpdate = async () => {
@@ -251,6 +269,10 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
            </Card>
         </div>
         <div className="md:col-span-1 space-y-6">
+          <SimilarTicketsSuggestions 
+            currentTicket={{ description: incident.description, type: incident.type }}
+            availableResolvedTickets={resolvedTickets}
+          />
           <Card>
             <CardHeader>
                 <CardTitle>Histórico de Ações</CardTitle>
