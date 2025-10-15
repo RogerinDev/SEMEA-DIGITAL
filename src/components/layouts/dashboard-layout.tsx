@@ -34,7 +34,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { LogOut, Loader2, Edit, Lock, ChevronUp } from 'lucide-react';
+import { LogOut, Loader2, Edit, Lock, ChevronUp, User } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 
 // Interface para definir a estrutura de um item de navegação.
@@ -150,6 +150,12 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-[calc(var(--sidebar-width)_-_1rem)] mb-2 bg-background border-border shadow-lg">
+                  <DropdownMenuItem asChild>
+                    <Link href={profileBaseUrl}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Meu Perfil</span>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href={profileBaseUrl}>
                         <Edit className="mr-2 h-4 w-4" />

@@ -17,7 +17,6 @@ const citizenNavItems: NavItem[] = [
   { href: '/dashboard/citizen', label: 'Painel', icon: LayoutDashboard, matchExact: true },
   { href: '/dashboard/citizen/requests', label: 'Solicitações', icon: FileText },
   { href: '/dashboard/citizen/incidents', label: 'Denúncias', icon: AlertTriangle },
-  { href: '/dashboard/citizen/profile', label: 'Meu Perfil', icon: User },
 ];
 
 const SidebarActions = () => (
