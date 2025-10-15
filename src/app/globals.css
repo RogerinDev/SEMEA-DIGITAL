@@ -4,57 +4,6 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* Branco */
-    --foreground: 100 30% 25%; /* Verde Contorno/Detalhe (#2A402A) */
-
-    --card: 0 0% 100%; /* Branco */
-    --card-foreground: 100 30% 25%; /* Verde Contorno/Detalhe */
-
-    --popover: 0 0% 100%; /* Branco */
-    --popover-foreground: 100 30% 25%; /* Verde Contorno/Detalhe */
-
-    --primary: 120 60% 35%; /* Verde Principal (#248F24) */
-    --primary-foreground: 0 0% 100%; /* Branco - Texto sobre Verde Principal */
-
-    --secondary: 120 55% 45%; /* Verde Secundário (#36A236) */
-    --secondary-foreground: 0 0% 100%; /* Branco - Texto sobre Verde Secundário */
-
-    --muted: 120 60% 95%; /* Verde Principal muito claro (#E6F5E6) */
-    --muted-foreground: 100 25% 40%; /* Verde Contorno/Detalhe mais suave (#4D664D) */
-
-    --accent: 49 100% 50%; /* Amarelo Principal (#FFD700) */
-    --accent-foreground: 100 40% 15%; /* Verde bem escuro para contraste em amarelo (#132613) */
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 120 30% 88%; /* Verde Contorno/Detalhe bem claro para bordas (#D1E7D1) */
-    --input: 120 30% 96%; /* Verde Contorno/Detalhe muito claro para inputs (#EFF7EF) */
-    --ring: 120 60% 35%; /* Verde Principal para anéis de foco */
-
-    --radius: 0.5rem;
-
-    /* Sidebar specific colors */
-    --sidebar-background: 120 60% 35%; /* Verde Principal */
-    --sidebar-foreground: 0 0% 90%; /* Branco suave / Cinza muito claro */
-    
-    --sidebar-primary: 49 100% 50%; /* Amarelo Principal - para itens ativos */
-    --sidebar-primary-foreground: 100 40% 15%; /* Verde bem escuro para contraste em amarelo */
-    
-    --sidebar-accent: 91 52% 70%; /* Verde Secundário (logo) mais claro para hover (#A8DDA5) */
-    --sidebar-accent-foreground: 100 40% 15%; /* Verde bem escuro para contraste em verde claro */
-    
-    --sidebar-border: 100 30% 25%; /* Verde Contorno/Detalhe */
-    --sidebar-ring: 49 100% 50%; /* Amarelo Principal */
-
-    --chart-1: 120 60% 35%; /* Verde Principal */
-    --chart-2: 120 50% 50%;  /* Verde médio */
-    --chart-3: 49 100% 50%; /* Amarelo Principal */
-    --chart-4: 91 52% 70%;  /* Verde Secundário (logo) mais claro */
-    --chart-5: 100 30% 25%; /* Verde Contorno/Detalhe */
-  }
-
-  .dark {
     --background: 120 10% 10%; /* Verde muito escuro para fundo */
     --foreground: 100 15% 85%; /* Verde claro para texto */
 
@@ -83,6 +32,8 @@
     --input: 120 10% 22%; /* Verde escuro para inputs */
     --ring: 120 50% 55%; /* Verde Principal (dark) para anéis de foco */
     
+    --radius: 0.5rem;
+
     /* Sidebar specific colors for dark mode */
     --sidebar-background: 120 35% 20%; /* Verde escuro mais profundo para sidebar */
     --sidebar-foreground: 0 0% 92%; /* Texto claro para sidebar */
@@ -96,6 +47,54 @@
     --sidebar-border: 120 35% 15%; /* Verde ainda mais escuro para borda da sidebar */
     --sidebar-ring: 49 80% 55%; /* Amarelo Principal (dark) */
 
+    --chart-1: 120 50% 55%;
+    --chart-2: 120 40% 60%; 
+    --chart-3: 49 80% 55%;
+    --chart-4: 91 35% 50%;
+    --chart-5: 100 15% 75%;
+  }
+
+  .dark {
+    --background: 120 10% 10%;
+    --foreground: 100 15% 85%;
+
+    --card: 120 10% 15%;
+    --card-foreground: 100 15% 85%;
+
+    --popover: 120 10% 15%;
+    --popover-foreground: 100 15% 85%;
+
+    --primary: 120 50% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 120 45% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 120 10% 20%;
+    --muted-foreground: 100 15% 70%;
+
+    --accent: 49 80% 55%;
+    --accent-foreground: 100 30% 10%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 120 10% 25%;
+    --input: 120 10% 22%;
+    --ring: 120 50% 55%;
+
+    --sidebar-background: 120 35% 20%;
+    --sidebar-foreground: 0 0% 92%;
+    
+    --sidebar-primary: 49 80% 55%;
+    --sidebar-primary-foreground: 100 30% 10%;
+    
+    --sidebar-accent: 91 35% 45%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    
+    --sidebar-border: 120 35% 15%;
+    --sidebar-ring: 49 80% 55%;
+    
     --chart-1: 120 50% 55%;
     --chart-2: 120 40% 60%; 
     --chart-3: 49 80% 55%;

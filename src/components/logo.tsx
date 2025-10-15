@@ -6,6 +6,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 // Propriedades do componente Logo.
 interface LogoProps {
@@ -21,17 +22,17 @@ interface LogoProps {
  */
 export function Logo({ className, iconSize = 24, textSize = "text-lg" }: LogoProps) {
   return (
-    <Link href="/" className={`flex items-center gap-2 ${className}`}>
+    <Link href="/" className={cn('flex items-center gap-2', className)}>
       {/* Componente Image do Next.js para otimização da imagem do logo. */}
       <Image 
-        src="/semea-hero-logo.png" 
+        src="/semea-logo-yellow-blue.png" 
         alt="SEMEA Digital Logo" 
         width={iconSize}
         height={iconSize} 
         className="object-contain" // Garante que a imagem não seja cortada.
       />
       {/* Texto do logo. */}
-      <span className={`font-bold ${textSize} text-foreground`}>
+      <span className={cn('font-bold', textSize)}>
         SEMEA Digital
       </span>
     </Link>
