@@ -1,4 +1,3 @@
-
 "use client";
 
 import PublicLayout from '@/components/layouts/public-layout';
@@ -108,7 +107,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-auto">
-                    <Button asChild variant="outline" className="border-primary text-primary dark:border-green-400 dark:text-green-400 hover:bg-primary dark:hover:bg-green-400 hover:text-primary-foreground dark:hover:text-black">
+                    <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-black">
                         <Link href={service.link}>
                             {service.buttonText} <span className="ml-2">→</span>
                         </Link>
@@ -146,11 +145,10 @@ export default function HomePage() {
             </div>
             <div className="relative aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
               <Image 
-                src="https://picsum.photos/seed/green-globe/600/450" 
-                alt="Árvore em uma esfera de vidro" 
+                src="/varginha-verde.png" 
+                alt="Participe da Construção de uma Varginha mais verde!" 
                 layout="fill"
                 objectFit="cover"
-                data-ai-hint="tree glass globe"
               />
             </div>
           </div>
