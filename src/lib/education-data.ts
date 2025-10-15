@@ -11,7 +11,7 @@ export const educationalProjects: EducationalProject[] = [
     id: '1',
     slug: 'escola-verde-educacao-climatica',
     title: 'ESCOLA VERDE - EDUCAÇÃO CLIMÁTICA',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://picsum.photos/seed/school-planting/600/400',
     dataAiHint: 'school children planting',
     introduction: 'Um projeto para destacar a importância das árvores e ampliar a arborização urbana, começando pelas escolas.',
     objectives: [
@@ -30,7 +30,7 @@ export const educationalProjects: EducationalProject[] = [
     id: '2',
     slug: 'educacao-lixo-zero',
     title: 'EDUCAÇÃO LIXO ZERO',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://picsum.photos/seed/recycling-bins/600/400',
     dataAiHint: 'recycling bins community',
     introduction: 'Capacitação sobre destinação correta de resíduos, consumo consciente e o conceito Lixo Zero.',
     objectives: [
@@ -49,7 +49,7 @@ export const educationalProjects: EducationalProject[] = [
     id: '3',
     slug: 'botanica-no-parque',
     title: 'BOTÂNICA NO PARQUE',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://picsum.photos/seed/nature-park/600/400',
     dataAiHint: 'students nature park',
     introduction: 'Aulas práticas de botânica nos parques da cidade para estimular a conexão com a natureza.',
     objectives: [
@@ -70,7 +70,7 @@ export const educationalProjects: EducationalProject[] = [
     id: '4',
     slug: 'conexao-animal',
     title: 'CONEXÃO ANIMAL',
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: 'https://picsum.photos/seed/pet-animal/600/400',
     dataAiHint: 'children pet animal',
     introduction: 'Promovendo o bem-estar animal, adoção responsável e coexistência com animais silvestres.',
     objectives: [
@@ -114,8 +114,8 @@ export const thematicLectures: ThematicLecture[] = [
 
 // Lista de eventos ambientais (dados de exemplo).
 export const environmentalEvents: EnvironmentalEvent[] = [
-  { id: '1', name: 'Semana do Meio Ambiente 2024', type: 'feira_ambiental', date: new Date(2024, 5, 5, 9, 0).toISOString(), location: 'Praça Central de Varginha', description: 'Palestras, workshops e atividades educativas para todas as idades celebrando o meio ambiente.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'environmental fair' },
-  { id: '2', name: 'Workshop de Plantio de Hortas Urbanas', type: 'workshop', date: new Date(2024, 7, 12, 14, 0).toISOString(), location: 'Parque Novo Horizonte', description: 'Aprenda técnicas de cultivo de alimentos em pequenos espaços e contribua para uma cidade mais verde.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'urban gardening' },
-  { id: '3', name: 'Trilha Ecológica Guiada no Parque São Francisco', type: 'trilha_guiada_ecologica', date: new Date(2024, 8, 3, 8, 0).toISOString(), location: 'Parque São Francisco', description: 'Explore a fauna e flora local com guias especializados. Inscrições limitadas.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'nature trail' },
-  { id: '4', name: 'Dia da Árvore - Plantio Comunitário', type: 'palestra', date: new Date(2024, 8, 21, 9, 0).toISOString(), location: 'Parque Centenário', description: 'Celebre o Dia da Árvore participando de um plantio de mudas nativas.', imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'tree planting community' },
+  { id: '1', name: 'Semana do Meio Ambiente 2024', type: 'feira_ambiental', date: new Date(2024, 5, 5, 9, 0).toISOString(), location: 'Praça Central de Varginha', description: 'Palestras, workshops e atividades educativas para todas as idades celebrando o meio ambiente.', imageUrl: 'https://picsum.photos/seed/env-fair/600/400', dataAiHint: 'environmental fair' },
+  { id: '2', name: 'Workshop de Plantio de Hortas Urbanas', type: 'workshop', date: new Date(2024, 7, 12, 14, 0).toISOString(), location: 'Parque Novo Horizonte', description: 'Aprenda técnicas de cultivo de alimentos em pequenos espaços e contribua para uma cidade mais verde.', imageUrl: 'https://picsum.photos/seed/urban-garden/600/400', dataAiHint: 'urban gardening' },
+  { id: '3', name: 'Trilha Ecológica Guiada no Parque São Francisco', type: 'trilha_guiada_ecologica', date: new Date(2024, 8, 3, 8, 0).toISOString(), location: 'Parque São Francisco', description: 'Explore a fauna e flora local com guias especializados. Inscrições limitadas.', imageUrl: 'https://picsum.photos/seed/nature-trail/600/400', dataAiHint: 'nature trail' },
+  { id: '4', name: 'Dia da Árvore - Plantio Comunitário', type: 'palestra', date: new Date(2024, 8, 21, 9, 0).toISOString(), location: 'Parque Centenário', description: 'Celebre o Dia da Árvore participando de um plantio de mudas nativas.', imageUrl: 'https://picsum.photos/seed/tree-planting/600/400', dataAiHint: 'tree planting community' },
 ];
