@@ -24,6 +24,7 @@ const mainNavItems = [
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
     { href: '/info/education', label: 'Educação Ambiental', icon: GraduationCap },
     { href: '/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
+    { href: '/info/education/events', label: 'Eventos', icon: CalendarDays },
 ];
 const servicesNavItem = { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase };
 
@@ -129,7 +130,7 @@ const AdminDashboardIcon = () => (
 export function PublicHeader() {
   const { theme, toggleTheme } = useTheme();
   const { currentUser, logout } = useAuth();
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superAdmin' || currentUser?.role === 'Dev';
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superAdmin';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

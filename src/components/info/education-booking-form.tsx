@@ -4,7 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,13 +31,11 @@ import { educationalProjects, thematicLectures } from "@/lib/education-data";
 import { useAuth } from "@/contexts/auth-context";
 import { addRequestAction } from "@/app/actions/requests-actions";
 
-const projectEnumValues = educationalProjects.map(p => p.title);
-const ageEnumValues = ["Crianças (3 a 10 anos)", "Adolescentes (11 a 15 anos)", "Jovens (16 a 24 anos)"];
-
-// Ensure there's at least one value for z.enum, using a fallback if necessary (though current data is non-empty)
-const safeProjectTitles = projectEnumValues.length > 0 ? projectEnumValues : [""]; 
-const safeAgeRanges = ageEnumValues.length > 0 ? ageEnumValues : [""];
-
+// Memoize derived constants to prevent recalculation on every render
+const projectTitles = educationalProjects.map(p => p.title);
+const safeProjectTitles = projectTitles.length > 0 ? projectTitles : [""];
+const ageRanges = ["Crianças (3 a 10 anos)", "Adolescentes (11 a 15 anos)", "Jovens (16 a 24 anos)"];
+const safeAgeRanges = ageRanges.length > 0 ? ageRanges : [""];
 
 const bookingFormSchema = z.object({
   responsibleName: z.string().min(3, "Nome do responsável é obrigatório."),
@@ -64,37 +62,27 @@ export function EducationBookingForm({ preselectedProject }: EducationBookingFor
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const initialProjectOfInterest = (preselectedProject && safeProjectTitles.includes(preselectedProject) 
-                                      ? preselectedProject 
-                                      : (safeProjectTitles[0] || undefined)) as (typeof safeProjectTitles)[number] | undefined;
-
-  const initialAudienceAgeRange = (safeAgeRanges[0] || undefined) as (typeof safeAgeRanges)[number] | undefined;
-
-
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       responsibleName: "",
       contactPhone: "",
       institutionName: "",
-      projectOfInterest: initialProjectOfInterest,
+      projectOfInterest: (preselectedProject && projectTitles.includes(preselectedProject)) ? preselectedProject : undefined,
       selectedLectures: [],
-      requestedDate: undefined, // Calendar component handles undefined well
+      requestedDate: undefined,
       requestedTime: "",
-      estimatedAudience: undefined, // Input type number handles undefined (becomes empty)
-      audienceAgeRange: initialAudienceAgeRange,
+      estimatedAudience: undefined,
+      audienceAgeRange: undefined,
       additionalInfo: "",
     },
   });
 
   useEffect(() => {
-    if (preselectedProject && safeProjectTitles.includes(preselectedProject)) {
-      form.setValue('projectOfInterest', preselectedProject as (typeof safeProjectTitles)[number]);
-    } else if (safeProjectTitles.length > 0 && !form.getValues('projectOfInterest')) {
-       // If no valid preselection and current value is falsy, set to first default
-       // form.setValue('projectOfInterest', safeProjectTitles[0] as typeof safeProjectTitles[number]); // Already handled by defaultValues
+    if (preselectedProject && projectTitles.includes(preselectedProject)) {
+      form.setValue('projectOfInterest', preselectedProject as any);
     }
-  }, [preselectedProject, form, safeProjectTitles]);
+  }, [preselectedProject, form]);
 
   async function onSubmit(data: BookingFormValues) {
     if (!currentUser) {
@@ -135,23 +123,7 @@ Solicitação de Ação de Educação Ambiental (Formulário Simplificado):
         description: `Obrigado, ${data.responsibleName}. Sua solicitação (Protocolo: ${result.protocol}) foi registrada. Entraremos em contato em breve.`,
         variant: "default",
       });
-      
-      const resetProjectOfInterest = (preselectedProject && safeProjectTitles.includes(preselectedProject)
-                                    ? preselectedProject
-                                    : (safeProjectTitles[0] || undefined)) as (typeof safeProjectTitles)[number] | undefined;
-      
-      form.reset({
-          responsibleName: "",
-          contactPhone: "",
-          institutionName: "",
-          projectOfInterest: resetProjectOfInterest,
-          selectedLectures: [],
-          requestedDate: undefined,
-          requestedTime: "",
-          estimatedAudience: undefined,
-          audienceAgeRange: (safeAgeRanges[0] || undefined) as typeof safeAgeRanges[number] | undefined,
-          additionalInfo: "",
-      });
+      form.reset();
     } else {
         toast({
             title: "Erro ao Enviar",
@@ -163,7 +135,17 @@ Solicitação de Ação de Educação Ambiental (Formulário Simplificado):
   }
   
   const watchedProject = form.watch("projectOfInterest");
-  const lecturesForCheckboxes = thematicLectures; 
+  const lecturesForCheckboxes = thematicLectures;
+
+  const associatedLecturesText = useMemo(() => {
+    if (!watchedProject) return "Selecione um projeto acima para ver sugestões ou escolha da lista completa.";
+    const project = educationalProjects.find(p => p.title === watchedProject);
+    const lectures = project?.associatedLectures;
+    if (lectures && lectures.length > 0) {
+      return `Palestras sugeridas para ${watchedProject}: ${lectures.join(', ')}.`;
+    }
+    return `Nenhuma palestra específica sugerida para ${watchedProject}. Sinta-se à vontade para escolher da lista abaixo.`;
+  }, [watchedProject]);
 
   return (
     <Form {...form}>
@@ -198,10 +180,10 @@ Solicitação de Ação de Educação Ambiental (Formulário Simplificado):
             <FormControl>
               <RadioGroup 
                 onValueChange={field.onChange} 
-                value={field.value || ""} // Ensure string value for RadioGroup
+                value={field.value || ""}
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
               >
-                {(safeProjectTitles[0] === "" ? [] : safeProjectTitles).map((projectTitle) => ( // Avoid rendering if fallback "" is the only option
+                {projectTitles.map((projectTitle) => (
                   <FormItem key={projectTitle} className="flex items-center space-x-3 space-y-0">
                     <FormControl>
                       <RadioGroupItem value={projectTitle} />
@@ -217,21 +199,16 @@ Solicitação de Ação de Educação Ambiental (Formulário Simplificado):
         
         <FormItem>
             <FormLabel>Cardápio de Palestras (selecione as desejadas)</FormLabel>
-            <FormDescription>
-              {watchedProject 
-                ? `Palestras sugeridas para ${watchedProject}: ${educationalProjects.find(p=>p.title === watchedProject)?.associatedLectures?.join(', ') || 'Nenhuma específica.'}`
-                : "Selecione um projeto acima para ver sugestões ou escolha da lista completa."}
-            </FormDescription>
+            <FormDescription>{associatedLecturesText}</FormDescription>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 mt-2 max-h-60 overflow-y-auto border p-3 rounded-md">
-                {(lecturesForCheckboxes || []).map((lecture) => {
+                {lecturesForCheckboxes.map((lecture) => {
                     const isAssociated = watchedProject && educationalProjects.find(p=>p.title === watchedProject)?.associatedLectures?.includes(lecture.title);
                     return (
                     <FormField
                         key={lecture.id}
                         control={form.control}
                         name="selectedLectures"
-                        render={({ field }) => {
-                        return (
+                        render={({ field }) => (
                             <FormItem className={cn("flex flex-row items-start space-x-3 space-y-0", isAssociated && "font-semibold")}>
                             <FormControl>
                                 <Checkbox
@@ -249,8 +226,7 @@ Solicitação de Ação de Educação Ambiental (Formulário Simplificado):
                                 {lecture.title}
                             </FormLabel>
                             </FormItem>
-                        );
-                        }}
+                        )}
                     />
                     );
                 })}
@@ -301,10 +277,10 @@ Solicitação de Ação de Educação Ambiental (Formulário Simplificado):
             <FormControl>
               <RadioGroup 
                 onValueChange={field.onChange} 
-                value={field.value || ""}  // Ensure string value for RadioGroup
+                value={field.value || ""}
                 className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-4"
               >
-                {(safeAgeRanges[0] === "" ? [] : safeAgeRanges).map((range) => ( // Avoid rendering if fallback "" is only option
+                {ageRanges.map((range) => (
                   <FormItem key={range} className="flex items-center space-x-3 space-y-0">
                     <FormControl><RadioGroupItem value={range} /></FormControl>
                     <FormLabel className="font-normal">{range}</FormLabel>

@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { getRequestsCountAction } from '@/app/actions/requests-actions';
 import { getIncidentsCountAction } from '@/app/actions/incidents-actions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { subDays, startOfMonth } from 'date-fns';
 
 
 export default function AdminDashboardPage() {
@@ -29,9 +30,7 @@ export default function AdminDashboardPage() {
       setLoading(true);
       
       const department = currentUser.role === 'admin' ? currentUser.department : undefined;
-      
-      const date = new Date();
-      const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+      const firstDayOfMonth = startOfMonth(new Date());
 
       const [pendingRequestsCount, newIncidentsCount, completedRequestsCount, resolvedIncidentsCount] = await Promise.all([
         getRequestsCountAction({ department, status: 'pendente' }),
@@ -55,7 +54,7 @@ export default function AdminDashboardPage() {
   const overviewCards = [
     { title: 'Solicitações Pendentes', value: counts.pendingRequests, icon: Clock, color: 'text-yellow-500', link: '/dashboard/admin/requests?status=pendente', loading },
     { title: 'Denúncias Novas', value: counts.newIncidents, icon: AlertTriangle, color: 'text-red-500', link: '/dashboard/admin/incidents?status=recebida', loading },
-    { title: 'Serviços Concluídos (Mês)', value: counts.completedThisMonth, icon: CheckSquare, color: 'text-green-500', link: '/dashboard/admin/requests?status=concluido', loading },
+    { title: 'Concluídos este Mês', value: counts.completedThisMonth, icon: CheckSquare, color: 'text-green-500', link: '/dashboard/admin/performance', loading },
   ];
 
   return (

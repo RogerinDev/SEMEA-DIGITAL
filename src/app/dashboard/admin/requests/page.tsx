@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,12 +10,14 @@ import Link from 'next/link';
 import type { ServiceRequest, ServiceRequestType } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from '@/contexts/auth-context';
-import { getRequestsForAdminAction, getRequestsCountAction } from '@/app/actions/requests-actions';
+import { getRequestsForAdminAction } from '@/app/actions/requests-actions';
 import { Input } from '@/components/ui/input';
 import { SERVICE_REQUEST_TYPES } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
+import { useSearchParams } from 'next/navigation';
+import { debounce } from 'lodash';
 
 function getStatusVariant(status: ServiceRequest['status']): "default" | "secondary" | "destructive" | "outline" {
    switch (status) {
@@ -52,52 +54,54 @@ interface Filters {
 
 export default function AdminRequestsPage() {
   const { currentUser } = useAuth();
-  const [allRequests, setAllRequests] = useState<ServiceRequest[]>([]);
+  const searchParams = useSearchParams();
+  
+  const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<Filters>({});
+  const [filters, setFilters] = useState<Filters>({
+    status: searchParams.get('status') as ServiceRequest['status'] | undefined,
+  });
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0); // Assuming we might get total count from backend later
 
-  useEffect(() => {
-    async function fetchRequests() {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedFetch = useCallback(
+    debounce(async (appliedFilters: Filters, page: number) => {
       if (!currentUser || !currentUser.role) return;
       setLoading(true);
       
       const department = currentUser.role === 'admin' ? currentUser.department : undefined;
-      const fetchedRequests = await getRequestsForAdminAction({ department });
       
-      setAllRequests(fetchedRequests);
+      const fetchedRequests = await getRequestsForAdminAction({ 
+        department,
+        ...appliedFilters,
+        page,
+        limit: ITEMS_PER_PAGE,
+      });
+      
+      setRequests(fetchedRequests);
+      // In a real scenario, you'd also fetch the total count based on filters
+      // For now, we'll estimate or just manage the pages based on returned items
+      setTotalItems(fetchedRequests.length < ITEMS_PER_PAGE ? (page - 1) * ITEMS_PER_PAGE + fetchedRequests.length : page * ITEMS_PER_PAGE + 1);
       setLoading(false);
-    }
-    fetchRequests();
-  }, [currentUser]);
+    }, 300),
+    [currentUser]
+  );
 
-  const filteredRequests = useMemo(() => {
-    return allRequests.filter(req => {
-        return (
-            (!filters.protocol || req.protocol.toLowerCase().includes(filters.protocol.toLowerCase())) &&
-            (!filters.citizenName || req.citizenName?.toLowerCase().includes(filters.citizenName.toLowerCase())) &&
-            (!filters.type || req.type === filters.type) &&
-            (!filters.status || req.status === filters.status)
-        );
-    });
-  }, [allRequests, filters]);
+  useEffect(() => {
+    debouncedFetch(filters, currentPage);
+  }, [filters, currentPage, debouncedFetch]);
 
-  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
-  const paginatedRequests = filteredRequests.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
-  const handleFilterChange = (newFilters: Filters) => {
-    setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
-  };
+  if (!currentUser?.role || currentUser.role === 'citizen') {
+     return <div className="text-center py-10"><ShieldAlert className="mx-auto h-10 w-10 text-destructive mb-2"/> <h2 className="text-xl font-semibold">Acesso Negado</h2><p>Você não tem permissão para ver esta página.</p></div>;
+  }
 
   const clearFilters = () => {
     setFilters({});
     setCurrentPage(1);
   };
-  
-  if (!currentUser?.role || currentUser.role === 'citizen') {
-     return <div className="text-center py-10"><ShieldAlert className="mx-auto h-10 w-10 text-destructive mb-2"/> <h2 className="text-xl font-semibold">Acesso Negado</h2><p>Você não tem permissão para ver esta página.</p></div>;
-  }
 
   return (
     <>
@@ -116,15 +120,15 @@ export default function AdminRequestsPage() {
                 <div className="space-y-4 py-4">
                     <div>
                         <Label htmlFor="protocol-filter">Protocolo</Label>
-                        <Input id="protocol-filter" value={filters.protocol || ''} onChange={e => handleFilterChange({...filters, protocol: e.target.value})} />
+                        <Input id="protocol-filter" value={filters.protocol || ''} onChange={e => setFilters({...filters, protocol: e.target.value})} />
                     </div>
                      <div>
                         <Label htmlFor="citizen-filter">Nome do Solicitante</Label>
-                        <Input id="citizen-filter" value={filters.citizenName || ''} onChange={e => handleFilterChange({...filters, citizenName: e.target.value})} />
+                        <Input id="citizen-filter" value={filters.citizenName || ''} onChange={e => setFilters({...filters, citizenName: e.target.value})} />
                     </div>
                     <div>
                         <Label htmlFor="type-filter">Tipo de Serviço</Label>
-                        <Select value={filters.type} onValueChange={(value) => handleFilterChange({...filters, type: value as ServiceRequestType})}>
+                        <Select value={filters.type} onValueChange={(value) => setFilters({...filters, type: value as ServiceRequestType})}>
                             <SelectTrigger><SelectValue placeholder="Todos os tipos" /></SelectTrigger>
                             <SelectContent>
                                 {SERVICE_REQUEST_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
@@ -133,7 +137,7 @@ export default function AdminRequestsPage() {
                     </div>
                     <div>
                         <Label htmlFor="status-filter">Status</Label>
-                        <Select value={filters.status} onValueChange={(value) => handleFilterChange({...filters, status: value as ServiceRequest['status']})}>
+                        <Select value={filters.status} onValueChange={(value) => setFilters({...filters, status: value as ServiceRequest['status']})}>
                             <SelectTrigger><SelectValue placeholder="Todos os status" /></SelectTrigger>
                             <SelectContent>
                                 {Object.entries(statusTranslations).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
@@ -173,7 +177,7 @@ export default function AdminRequestsPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {paginatedRequests.length > 0 ? paginatedRequests.map((request) => (
+                        {requests.length > 0 ? requests.map((request) => (
                         <TableRow key={request.id}>
                             <TableCell className="font-medium">{request.protocol}</TableCell>
                             <TableCell>{request.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TableCell>
@@ -200,7 +204,7 @@ export default function AdminRequestsPage() {
                 </div>
                  <div className="flex items-center justify-between space-x-2 p-4 border-t">
                     <div className="text-sm text-muted-foreground">
-                        Mostrando {paginatedRequests.length} de {filteredRequests.length} solicitações.
+                        Página {currentPage} de {totalPages > 0 ? totalPages : 1}
                     </div>
                     <div className="space-x-2">
                         <Button
@@ -214,8 +218,8 @@ export default function AdminRequestsPage() {
                         <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(prev => prev + 1)}
+                        disabled={requests.length < ITEMS_PER_PAGE}
                         >
                         Próxima
                         </Button>

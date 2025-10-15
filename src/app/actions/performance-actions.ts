@@ -32,37 +32,33 @@ export async function getPerformanceDataAction(
   // Set time to end of day for 'to' date to ensure full day is included in interval
   const toDate = new Date(dateRange.to);
   toDate.setHours(23, 59, 59, 999);
+  
+  const fromDateISO = dateRange.from.toISOString();
+  const toDateISO = toDate.toISOString();
 
 
   try {
-    // 1. Fetch ALL completed service requests and filter by date in the backend.
-    // This avoids a complex Firestore query that requires a composite index.
+    // 1. Fetch completed service requests within the date range.
+    // This query requires a composite index on `status` and `dateUpdated`.
     const requestsSnapshot = await db
       .collection('service_requests')
       .where('status', '==', 'concluido')
+      .where('dateUpdated', '>=', fromDateISO)
+      .where('dateUpdated', '<=', toDateISO)
       .get();
     
-    const completedRequests = requestsSnapshot.docs
-      .map(doc => doc.data() as ServiceRequest)
-      .filter(req => {
-        if (!req.dateUpdated) return false;
-        const updatedDate = parseISO(req.dateUpdated);
-        return isValid(updatedDate) && isWithinInterval(updatedDate, { start: dateRange.from, end: toDate });
-      });
+    const completedRequests = requestsSnapshot.docs.map(doc => doc.data() as ServiceRequest);
 
-    // 2. Fetch ALL resolved incidents and filter by date in the backend.
+    // 2. Fetch resolved incidents within the date range.
+    // This query requires a composite index on `status` and `dateUpdated`.
     const incidentsSnapshot = await db
       .collection('incidents')
       .where('status', '==', 'resolvida')
+      .where('dateUpdated', '>=', fromDateISO)
+      .where('dateUpdated', '<=', toDateISO)
       .get();
       
-    const resolvedIncidents = incidentsSnapshot.docs
-        .map(doc => doc.data() as IncidentReport)
-        .filter(inc => {
-            if (!inc.dateUpdated) return false;
-            const updatedDate = parseISO(inc.dateUpdated);
-            return isValid(updatedDate) && isWithinInterval(updatedDate, { start: dateRange.from, end: toDate });
-        });
+    const resolvedIncidents = incidentsSnapshot.docs.map(doc => doc.data() as IncidentReport);
 
     const allCompleted = [...completedRequests, ...resolvedIncidents];
 
@@ -101,7 +97,7 @@ export async function getPerformanceDataAction(
     // 4. Prepare data for charts
     const dailyTrend = allCompleted.reduce((acc, item) => {
         if(!item.dateUpdated) return acc;
-        const dateStr = format(parseISO(item.dateUpdated), 'dd/MM');
+        const dateStr = format(parseISO(item.dateUpdated), 'dd/MM', { locale: ptBR });
         const existing = acc.find(d => d.date === dateStr);
         if (existing) {
             existing.count++;
@@ -144,6 +140,11 @@ export async function getPerformanceDataAction(
     };
   } catch (error: any) {
     console.error("Error fetching performance data:", error);
-    return { success: false, error: "Falha ao buscar dados do banco de dados." };
+    // Adiciona log para facilitar a criação de índices
+    if (error.message && error.message.includes('requires an index')) {
+        console.error("----- Firestore Index Required -----");
+        console.error("The performance queries need a composite index. Create it in your Firebase console:", error.message);
+    }
+    return { success: false, error: "Falha ao buscar dados do banco de dados. Um índice pode ser necessário." };
   }
 }

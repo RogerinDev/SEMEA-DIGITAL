@@ -169,41 +169,64 @@ export async function getRequestCountByCitizenAction(citizenId: string): Promise
 
 interface GetRequestsForAdminParams {
   department?: Department;
-  // Adicionado para suportar paginação
+  protocol?: string;
+  citizenName?: string;
+  type?: ServiceRequestType;
+  status?: ServiceRequestStatus;
   page?: number; 
   limit?: number;
 }
 
-
 /**
  * Server Action para buscar solicitações para a visão do administrador.
- * @param department - Opcional. Filtra as denúncias por departamento.
+ * @param params - Parâmetros de filtro e paginação.
  * @returns Uma lista de solicitações para o painel administrativo.
  */
-export async function getRequestsForAdminAction({ department, page = 1, limit = 10 }: GetRequestsForAdminParams): Promise<ServiceRequest[]> {
+export async function getRequestsForAdminAction({ 
+  department, 
+  protocol,
+  citizenName,
+  type,
+  status,
+  page = 1, 
+  limit = 10 
+}: GetRequestsForAdminParams): Promise<ServiceRequest[]> {
   const { db } = getFirebaseAdmin();
   try {
     let query: admin.firestore.Query = db.collection("service_requests");
     
-    if (department) {
-      query = query.where("department", "==", department);
-    }
+    if (department) query = query.where("department", "==", department);
+    if (protocol) query = query.where("protocol", "==", protocol);
+    if (type) query = query.where("type", "==", type);
+    if (status) query = query.where("status", "==", status);
+
+    // O filtro por nome não pode ser feito com where('==') pois precisa ser busca parcial.
+    // A filtragem por nome será feita no cliente ou precisaria de um serviço de busca como Algolia.
+    // Por simplicidade, vamos buscar e filtrar no servidor se o nome for fornecido.
     
     query = query.orderBy("dateCreated", "desc");
     
-    // Lógica de Paginação removida temporariamente para simplificar e buscar todos os dados para filtragem no cliente
-    // const offset = (page - 1) * limit;
-    // query = query.limit(limit).offset(offset);
-
     const querySnapshot = await query.get();
-    const requests: ServiceRequest[] = [];
+    
+    let requests: ServiceRequest[] = [];
     querySnapshot.forEach((doc) => {
         requests.push({
             id: doc.id,
             ...doc.data(),
         } as ServiceRequest);
     });
-    return requests;
+
+    // Filtro pós-busca para citizenName (busca parcial)
+    if (citizenName) {
+        requests = requests.filter(req => 
+            req.citizenName?.toLowerCase().includes(citizenName.toLowerCase())
+        );
+    }
+    
+    // Paginação no servidor após a filtragem
+    const offset = (page - 1) * limit;
+    return requests.slice(offset, offset + limit);
+
   } catch (error) {
     console.error("Error fetching requests for admin: ", error);
     return [];
