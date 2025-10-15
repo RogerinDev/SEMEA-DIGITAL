@@ -5,9 +5,10 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ]
-  },
-  "apphosting": {
-    "backends": ["semea-digital"]
+    ],
+    "frameworksBackend": {
+      "id": "semea-digital",
+      "region": "us-central1"
+    }
   }
 }
