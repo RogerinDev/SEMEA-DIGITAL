@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -7,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
@@ -122,14 +125,14 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 items-center">
         {/* Left Section */}
-        <div className="flex items-center">
+        <div className="flex-1 flex justify-start">
             <Logo />
         </div>
         
         {/* Center Section (Desktop) */}
-        <nav className="hidden lg:flex justify-center">
+        <nav className="hidden lg:flex flex-1 justify-center">
             <ul className="flex items-center gap-4">
                 <TooltipProvider>
                 {navLinks.map((link) => (
@@ -153,7 +156,7 @@ export function PublicHeader() {
         </nav>
 
         {/* Right Section */}
-        <div className="flex items-center justify-end space-x-2">
+        <div className="flex flex-1 items-center justify-end space-x-2">
            <div className="hidden lg:flex items-center gap-2">
              <AuthButtons />
            </div>
@@ -171,9 +174,12 @@ export function PublicHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
-                <div className="p-4">
-                    <Logo />
-                </div>
+                <SheetHeader>
+                    <SheetTitle className="sr-only">Menu Principal</SheetTitle>
+                    <div className="p-4 -ml-4 -mt-2">
+                        <Logo />
+                    </div>
+                </SheetHeader>
                 <div className="flex flex-col space-y-2 p-4">
                     {navLinks.map((link) => (
                         <Link key={link.href} href={link.href} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
@@ -183,7 +189,7 @@ export function PublicHeader() {
                     ))}
                     <Link href="/info/sobre" className="flex items-center gap-2 p-2 rounded-md hover:bg-muted"><Info className="h-5 w-5"/> Sobre a SEMEA</Link>
                 </div>
-                <div className="p-4 border-t">
+                <div className="p-4 border-t absolute bottom-0 w-full left-0">
                   <AuthButtons />
                 </div>
             </SheetContent>
