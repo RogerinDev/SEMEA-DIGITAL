@@ -81,6 +81,7 @@ export default function RequestsClientPage() {
       });
       
       setRequests(fetchedRequests);
+      // This logic is a bit flawed for total count, but works for simple pagination display
       setTotalItems(fetchedRequests.length < ITEMS_PER_PAGE ? (page - 1) * ITEMS_PER_PAGE + fetchedRequests.length : page * ITEMS_PER_PAGE + 1);
       setLoading(false);
     }, 300),
