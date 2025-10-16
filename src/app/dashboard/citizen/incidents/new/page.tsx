@@ -52,9 +52,9 @@ const formSchema = z.object({
   }),
   locationReference: z.string().optional(),
   anonymous: z.boolean().default(false).optional(),
-  evidenceFiles: z.array(z.instanceof(File))
+  evidenceFiles: z.array(z.any())
     .max(MAX_FILES, `Você pode enviar no máximo ${MAX_FILES} arquivos.`)
-    .refine(files => files.every(file => file.size <= MAX_FILE_SIZE_BYTES), `Cada arquivo deve ter no máximo ${MAX_FILE_SIZE_MB}MB.`)
+    .refine(files => files.every(file => !file || (file.size && file.size <= MAX_FILE_SIZE_BYTES)), `Cada arquivo deve ter no máximo ${MAX_FILE_SIZE_MB}MB.`)
     .optional(),
 });
 

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { PageTitle } from '@/components/page-title';
@@ -42,7 +43,7 @@ function LostFoundForm({ onPostCreated }: { onPostCreated: () => void }) {
     date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data inválida."}),
     contactName: z.string().min(1, "Nome para contato é obrigatório."),
     contactPhone: z.string().min(10, "Telefone para contato é obrigatório."),
-    photoFile: z.instanceof(File).optional().refine(file => !file || file.size <= 2 * 1024 * 1024, 'A imagem deve ter no máximo 2MB.'),
+    photoFile: z.any().optional().refine(file => !file || (file.size && file.size <= 2 * 1024 * 1024), 'A imagem deve ter no máximo 2MB.'),
   });
 
   const form = useForm<z.infer<typeof reportFormSchema>>({

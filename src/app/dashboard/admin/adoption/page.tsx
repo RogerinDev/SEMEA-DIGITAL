@@ -55,7 +55,7 @@ const animalFormSchema = z.object({
   age: z.string().min(1, "Idade é obrigatória."),
   description: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres."),
   status: z.enum(["disponivel", "processo_adocao_em_andamento", "adotado"], { required_error: "Selecione um status."}),
-  photoFile: z.instanceof(File).optional().refine(file => !file || file.size <= 2 * 1024 * 1024, 'A imagem deve ter no máximo 2MB.'),
+  photoFile: z.any().optional().refine(file => !file || (file.size && file.size <= 2 * 1024 * 1024), 'A imagem deve ter no máximo 2MB.'),
 });
 
 function AddAnimalDialog({ onAnimalAdded }: { onAnimalAdded: () => void }) {
