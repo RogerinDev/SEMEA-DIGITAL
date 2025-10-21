@@ -7,7 +7,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory, type StatusHistoryEntry } from '@/types';
 import { revalidatePath } from 'next/cache';
 import type admin from 'firebase-admin';
 
@@ -61,11 +61,19 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
     return { success: false, error: "Categoria de serviço não encontrada." };
   }
   const department = mapServiceCategoryToDepartment(serviceTypeInfo.category);
-
+  const now = new Date().toISOString();
+  
   try {
     // Gera um protocolo único.
     const protocol = `SOL${Date.now().toString().slice(-6)}`;
     
+    const initialHistoryEntry: StatusHistoryEntry = {
+        status: 'pendente',
+        date: now,
+        updatedBy: data.citizenName,
+        notes: 'Solicitação criada pelo cidadão.',
+    };
+
     // Monta o objeto da nova solicitação.
     const newRequest: Omit<ServiceRequest, 'id'> = {
       protocol: protocol,
@@ -77,9 +85,10 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       citizenId: data.citizenId,
       citizenName: data.citizenName,
       status: 'pendente',
-      dateCreated: new Date().toISOString(),
-      dateUpdated: new Date().toISOString(),
+      dateCreated: now,
+      dateUpdated: now,
       notes: "",
+      history: [initialHistoryEntry],
     };
 
     // Adiciona o documento ao Firestore.
@@ -114,6 +123,7 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
     const requests: ServiceRequest[] = querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
+      history: doc.data().history || [],
     } as ServiceRequest));
     return requests;
   } catch (error) {
@@ -135,9 +145,12 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
         const docSnap = await docRef.get();
 
         if (docSnap.exists) {
+            const data = docSnap.data();
+            if (!data) return null;
             return {
                 id: docSnap.id,
-                ...docSnap.data(),
+                ...data,
+                history: data.history || [],
             } as ServiceRequest;
         } else {
             console.log("No such document!");
@@ -188,8 +201,8 @@ export async function getRequestsForAdminAction({
   citizenName,
   type,
   status,
-  page = 1, 
-  limit = 10 
+  page, 
+  limit,
 }: GetRequestsForAdminParams): Promise<ServiceRequest[]> {
   const { db } = getFirebaseAdmin();
   try {
@@ -199,33 +212,34 @@ export async function getRequestsForAdminAction({
     if (protocol) query = query.where("protocol", "==", protocol);
     if (type) query = query.where("type", "==", type);
     if (status) query = query.where("status", "==", status);
-
-    // O filtro por nome não pode ser feito com where('==') pois precisa ser busca parcial.
-    // A filtragem por nome será feita no cliente ou precisaria de um serviço de busca como Algolia.
-    // Por simplicidade, vamos buscar e filtrar no servidor se o nome for fornecido.
     
     query = query.orderBy("dateCreated", "desc");
+
+    // Apply pagination if provided
+    if (page && limit) {
+      const offset = (page - 1) * limit;
+      query = query.limit(limit).offset(offset);
+    }
     
     const querySnapshot = await query.get();
     
     let requests: ServiceRequest[] = [];
     querySnapshot.forEach((doc) => {
+        const data = doc.data();
         requests.push({
             id: doc.id,
-            ...doc.data(),
+            ...data,
+            history: data.history || [],
         } as ServiceRequest);
     });
 
-    // Filtro pós-busca para citizenName (busca parcial)
     if (citizenName) {
         requests = requests.filter(req => 
             req.citizenName?.toLowerCase().includes(citizenName.toLowerCase())
         );
     }
     
-    // Paginação no servidor após a filtragem
-    const offset = (page - 1) * limit;
-    return requests.slice(offset, offset + limit);
+    return requests;
 
   } catch (error) {
     console.error("Error fetching requests for admin: ", error);
@@ -273,6 +287,7 @@ interface UpdateRequestData {
     id: string;
     status: ServiceRequestStatus;
     notes?: string;
+    updatedBy: string;
 }
 
 /**
@@ -282,17 +297,27 @@ interface UpdateRequestData {
  */
 export async function updateRequestStatusAction(data: UpdateRequestData): Promise<{ success: boolean; error?: string }> {
   const { db } = getFirebaseAdmin();
-  const { id, status, notes } = data;
+  const { id, status, notes, updatedBy } = data;
   if (!id || !status) {
     return { success: false, error: "ID da solicitação e novo status são obrigatórios." };
   }
 
   try {
     const requestRef = db.collection('service_requests').doc(id);
+    const now = new Date().toISOString();
+    
+    const newHistoryEntry: StatusHistoryEntry = {
+        status: status,
+        date: now,
+        updatedBy: updatedBy,
+        notes: notes || `Status alterado para: ${status}`,
+    };
+
     await requestRef.update({
       status: status,
       notes: notes ?? "",
-      dateUpdated: new Date().toISOString(),
+      dateUpdated: now,
+      history: admin.firestore.FieldValue.arrayUnion(newHistoryEntry)
     });
 
     // Invalida o cache das páginas relevantes.

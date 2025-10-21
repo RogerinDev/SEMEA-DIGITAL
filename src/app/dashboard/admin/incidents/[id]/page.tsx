@@ -7,10 +7,10 @@ import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2, Camera, Video, ExternalLink } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2, Camera, Video, ExternalLink, History } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { IncidentReport, IncidentStatus, ResolvedTicket } from '@/types';
+import type { IncidentReport, IncidentStatus, ResolvedTicket, StatusHistoryEntry } from '@/types';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -19,6 +19,7 @@ import { getIncidentByIdAction, updateIncidentStatusAction, getIncidentsForAdmin
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SimilarTicketsSuggestions } from '@/components/ai/similar-tickets-suggestions';
+import { useAuth } from '@/contexts/auth-context';
 
 const statusOptions: { value: IncidentReport['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'recebida', label: 'Recebida', icon: Clock },
@@ -51,6 +52,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
 
   const router = useRouter();
   const { toast } = useToast();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     async function fetchIncidentData() {
@@ -84,7 +86,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
   }, [params.id]);
 
   const handleUpdate = async () => {
-    if (!incident || !selectedStatus) return;
+    if (!incident || !selectedStatus || !currentUser) return;
 
     setIsUpdating(true);
     const result = await updateIncidentStatusAction({
@@ -92,6 +94,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
       status: selectedStatus,
       notes,
       inspector,
+      updatedBy: currentUser.displayName || currentUser.email || 'Admin',
     });
     setIsUpdating(false);
 
@@ -275,16 +278,35 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
           />
           <Card>
             <CardHeader>
-                <CardTitle>Histórico de Ações</CardTitle>
+                <CardTitle className="flex items-center">
+                    <History className="mr-2 h-5 w-5 text-primary"/>
+                    Histórico de Status
+                </CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-sm text-muted-foreground">O histórico de ações e mudanças de status aparecerá aqui.</p>
-                 {/* Example:
-                <ul className="space-y-2 text-sm">
-                    <li className="text-sm"><strong>Em Verificação</strong> - 18/08/2024 por Admin - Denúncia encaminhada para o fiscal.</li>
-                    <li className="text-sm"><strong>Recebida</strong> - 17/08/2024 - Sistema registrou a denúncia.</li>
-                </ul>
-                 */}
+                {incident.history && incident.history.length > 0 ? (
+                    <ul className="space-y-4">
+                        {incident.history.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry, index) => (
+                            <li key={index} className="flex gap-3">
+                                <div className="flex flex-col items-center">
+                                    <div className="bg-primary rounded-full p-1.5">
+                                        <CheckCircle className="h-4 w-4 text-primary-foreground" />
+                                    </div>
+                                    {index < incident.history.length - 1 && (
+                                        <div className="w-px flex-grow bg-border mt-2"></div>
+                                    )}
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
+                                    <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
+                                    <p className="text-sm mt-1">{entry.notes}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-muted-foreground">Nenhum histórico de status para exibir.</p>
+                )}
             </CardContent>
           </Card>
         </div>

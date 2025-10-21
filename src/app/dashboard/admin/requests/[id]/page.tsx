@@ -7,7 +7,7 @@ import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FileText, UserCircle, CalendarDays, Edit3, MessageSquare, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, FileText, UserCircle, CalendarDays, Edit3, MessageSquare, CheckCircle, XCircle, Clock, Loader2, History } from 'lucide-react';
 import Link from 'next/link';
 import type { ServiceRequest, ServiceRequestStatus, ResolvedTicket } from '@/types';
 import { SimilarTicketsSuggestions } from '@/components/ai/similar-tickets-suggestions';
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getRequestByIdAction, getRequestsForAdminAction, updateRequestStatusAction } from '@/app/actions/requests-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/contexts/auth-context';
 
 const statusOptions: { value: ServiceRequest['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'pendente', label: 'Pendente', icon: Clock },
@@ -49,6 +50,7 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
   
   const router = useRouter();
   const { toast } = useToast();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     async function fetchRequestData() {
@@ -81,13 +83,14 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
   }, [params.id]);
   
   const handleUpdate = async () => {
-    if (!request || !selectedStatus) return;
+    if (!request || !selectedStatus || !currentUser) return;
     
     setIsUpdating(true);
     const result = await updateRequestStatusAction({
         id: request.id,
         status: selectedStatus,
         notes: notes,
+        updatedBy: currentUser.displayName || currentUser.email || 'Admin',
     });
     setIsUpdating(false);
     
@@ -237,24 +240,42 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
            </Card>
         </div>
 
-        <div className="md:col-span-1">
+        <div className="md:col-span-1 space-y-6">
           <SimilarTicketsSuggestions 
             currentTicket={{ description: request.description, type: request.type }}
             availableResolvedTickets={resolvedTickets}
           />
-          {/* Placeholder for Histórico de Status */}
-          <Card className="mt-6">
+          <Card>
             <CardHeader>
-                <CardTitle>Histórico de Status</CardTitle>
+                <CardTitle className="flex items-center">
+                    <History className="mr-2 h-5 w-5 text-primary"/>
+                    Histórico de Status
+                </CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-sm text-muted-foreground">O histórico de alterações de status apareceria aqui.</p>
-                {/* Example:
-                <ul className="space-y-2">
-                    <li className="text-sm"><strong>Concluído</strong> - 05/04/2024 por Admin - Serviço finalizado.</li>
-                    <li className="text-sm"><strong>Aprovado</strong> - 25/05/2024 por Técnico Ambiental - Vistoria OK.</li>
-                </ul>
-                 */}
+                {request.history && request.history.length > 0 ? (
+                    <ul className="space-y-4">
+                        {request.history.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry, index) => (
+                            <li key={index} className="flex gap-3">
+                                <div className="flex flex-col items-center">
+                                    <div className="bg-primary rounded-full p-1.5">
+                                        <CheckCircle className="h-4 w-4 text-primary-foreground" />
+                                    </div>
+                                    {index < request.history.length - 1 && (
+                                        <div className="w-px flex-grow bg-border mt-2"></div>
+                                    )}
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
+                                    <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
+                                    <p className="text-sm mt-1">{entry.notes}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-muted-foreground">Nenhum histórico de status para exibir.</p>
+                )}
             </CardContent>
           </Card>
         </div>

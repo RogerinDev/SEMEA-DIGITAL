@@ -7,7 +7,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus } from '@/types';
+import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus, type StatusHistoryEntry } from '@/types';
 import { revalidatePath } from 'next/cache';
 import type admin from 'firebase-admin';
 
@@ -81,6 +81,14 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
   try {
     // Gera um protocolo único baseado no timestamp.
     const protocol = `DEN${Date.now().toString().slice(-6)}`;
+    const now = new Date().toISOString();
+
+    const initialHistoryEntry: StatusHistoryEntry = {
+        status: 'recebida',
+        date: now,
+        updatedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
+        notes: 'Denúncia criada pelo cidadão.',
+    };
     
     // Monta o objeto da nova denúncia.
     const newIncident: Omit<IncidentReport, 'id'> = {
@@ -93,11 +101,12 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
       citizenId: data.isAnonymous ? null : data.citizenId,
       reportedBy: data.isAnonymous ? 'Anônimo' : data.citizenName,
       status: 'recebida',
-      dateCreated: new Date().toISOString(),
-      dateUpdated: new Date().toISOString(),
+      dateCreated: now,
+      dateUpdated: now,
       evidenceUrls: data.evidenceUrls,
       notes: "",
       inspector: "",
+      history: [initialHistoryEntry],
     };
 
     // Adiciona o documento ao Firestore.
@@ -147,6 +156,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
                 notes: data.notes,
                 inspector: data.inspector,
                 evidenceUrls: data.evidenceUrls || [],
+                history: data.history || [],
             };
         });
         return incidents;
@@ -187,6 +197,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
                 notes: data.notes,
                 inspector: data.inspector,
                 evidenceUrls: data.evidenceUrls || [],
+                history: data.history || [],
             };
         } else {
             console.log("No such incident document!");
@@ -254,6 +265,7 @@ export async function getIncidentsForAdminAction(department?: Department): Promi
         notes: data.notes,
         inspector: data.inspector,
         evidenceUrls: data.evidenceUrls || [],
+        history: data.history || [],
       });
     });
     return incidents;
@@ -305,6 +317,7 @@ interface UpdateIncidentData {
     status: IncidentStatus;
     notes?: string;
     inspector?: string;
+    updatedBy: string; // Nome do admin que está atualizando
 }
 
 /**
@@ -314,18 +327,28 @@ interface UpdateIncidentData {
  */
 export async function updateIncidentStatusAction(data: UpdateIncidentData): Promise<{ success: boolean; error?: string }> {
   const { db } = getFirebaseAdmin();
-  const { id, status, notes, inspector } = data;
+  const { id, status, notes, inspector, updatedBy } = data;
   if (!id || !status) {
     return { success: false, error: "ID da denúncia e novo status são obrigatórios." };
   }
 
   try {
     const incidentRef = db.collection('incidents').doc(id);
+    const now = new Date().toISOString();
+
+    const newHistoryEntry: StatusHistoryEntry = {
+        status: status,
+        date: now,
+        updatedBy: updatedBy,
+        notes: notes || `Status alterado para: ${status}`,
+    };
+
     await incidentRef.update({
       status,
       notes: notes ?? "",
       inspector: inspector ?? "",
-      dateUpdated: new Date().toISOString(),
+      dateUpdated: now,
+      history: admin.firestore.FieldValue.arrayUnion(newHistoryEntry)
     });
     
     // Invalida o cache de todas as páginas que exibem esta denúncia.

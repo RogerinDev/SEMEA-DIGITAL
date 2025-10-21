@@ -18,6 +18,14 @@ export interface AppUser extends FirebaseUser {
 // Define os departamentos da secretaria.
 export type Department = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental' | 'gabinete';
 
+// Define a estrutura para uma entrada no histórico de status.
+export interface StatusHistoryEntry {
+  status: ServiceRequestStatus | IncidentStatus;
+  date: string; // ISO string date
+  updatedBy: string; // Nome do usuário que fez a atualização
+  notes?: string;
+}
+
 // Define os status possíveis para uma solicitação de serviço.
 export type ServiceRequestStatus = "pendente" | "em_analise" | "vistoria_agendada" | "aguardando_documentacao" | "aprovado" | "rejeitado" | "concluido" | "cancelado_pelo_usuario";
 
@@ -52,6 +60,7 @@ export interface ServiceRequest {
   address?: string;
   contactPhone?: string;
   notes?: string; // Notas internas do administrador.
+  history: StatusHistoryEntry[];
 }
 
 // Define as categorias de serviço, que agrupam os tipos de serviço.
@@ -126,6 +135,7 @@ export interface IncidentReport {
   notes?: string; // Notas internas do administrador/fiscal.
   inspector?: string; // Nome do fiscal responsável.
   evidenceUrls?: string[]; // URLs das fotos/vídeos.
+  history: StatusHistoryEntry[];
 }
 
 // Estrutura para descrever um tipo de denúncia.
