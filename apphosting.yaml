@@ -1,10 +1,9 @@
-
 # O apphosting.yaml é o arquivo de configuração do Firebase App Hosting.
 # O App Hosting usa o Cloud Build para criar e implantar o código-fonte do seu aplicativo.
 # Este arquivo é gerado automaticamente e pode ser personalizado.
 # Saiba mais em https://firebase.google.com/docs/hosting/app-hosting/apphosting-yaml
 build:
-  run: npm install && npm run build
+  run: npm install --no-cache && npm run build
 runConfig:
   # O App Hosting permite que você defina variáveis de ambiente que são lidas do seu aplicativo.
   # Para gerenciar variáveis de forma segura, o App Hosting se integra com o Google Cloud Secret Manager.
