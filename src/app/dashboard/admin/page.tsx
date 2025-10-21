@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { getRequestsCountAction } from '@/app/actions/requests-actions';
 import { getIncidentsCountAction } from '@/app/actions/incidents-actions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { subDays, startOfMonth } from 'date-fns';
+import { startOfMonth } from 'date-fns';
 
 
 export default function AdminDashboardPage() {

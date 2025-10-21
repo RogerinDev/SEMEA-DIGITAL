@@ -1,9 +1,10 @@
 
+
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import type { PerformanceData, ServiceRequest, IncidentReport, Department } from '@/types';
-import { differenceInDays, format, isValid, parseISO, isWithinInterval } from 'date-fns';
+import { differenceInDays, format, isValid, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface DateRange {
@@ -29,7 +30,6 @@ export async function getPerformanceDataAction(
 
   const { db } = getFirebaseAdmin();
   
-  // Set time to end of day for 'to' date to ensure full day is included in interval
   const toDate = new Date(dateRange.to);
   toDate.setHours(23, 59, 59, 999);
   
@@ -38,29 +38,30 @@ export async function getPerformanceDataAction(
 
 
   try {
-    // 1. Fetch completed service requests within the date range.
-    // This query requires a composite index on `status` and `dateUpdated`.
-    const requestsSnapshot = await db
-      .collection('service_requests')
-      .where('status', '==', 'concluido')
-      .where('dateUpdated', '>=', fromDateISO)
-      .where('dateUpdated', '<=', toDateISO)
-      .get();
-    
-    const completedRequests = requestsSnapshot.docs.map(doc => doc.data() as ServiceRequest);
+    // 1. Fetch completed service requests and resolved incidents separately
+    const requestsRef = db.collection('service_requests');
+    const incidentsRef = db.collection('incidents');
 
-    // 2. Fetch resolved incidents within the date range.
-    // This query requires a composite index on `status` and `dateUpdated`.
-    const incidentsSnapshot = await db
-      .collection('incidents')
-      .where('status', '==', 'resolvida')
-      .where('dateUpdated', '>=', fromDateISO)
-      .where('dateUpdated', '<=', toDateISO)
+    const completedRequestsSnapshot = await requestsRef
+      .where('status', '==', 'concluido')
       .get();
       
-    const resolvedIncidents = incidentsSnapshot.docs.map(doc => doc.data() as IncidentReport);
+    const resolvedIncidentsSnapshot = await incidentsRef
+      .where('status', '==', 'resolvida')
+      .get();
 
-    const allCompleted = [...completedRequests, ...resolvedIncidents];
+    const allCompletedRaw = [
+      ...completedRequestsSnapshot.docs.map(doc => doc.data() as ServiceRequest),
+      ...resolvedIncidentsSnapshot.docs.map(doc => doc.data() as IncidentReport)
+    ];
+
+    // 2. Filter by date range in code
+    const allCompleted = allCompletedRaw.filter(item => {
+        if (!item.dateUpdated) return false;
+        const updatedDate = parseISO(item.dateUpdated);
+        return isValid(updatedDate) && updatedDate >= dateRange.from && updatedDate <= toDate;
+    });
+
 
     if (allCompleted.length === 0) {
         return { success: true, data: {
@@ -84,7 +85,7 @@ export async function getPerformanceDataAction(
       }
       return sum;
     }, 0);
-    const avgResolutionTime = totalCompleted > 0 ? totalResolutionTime / totalCompleted : 0;
+    const avgResolutionTime = totalCompleted > 0 ? Math.max(0, totalResolutionTime / totalCompleted) : 0;
 
     const categoryCounts = allCompleted.reduce((acc, item) => {
       const typeName = item.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -140,11 +141,10 @@ export async function getPerformanceDataAction(
     };
   } catch (error: any) {
     console.error("Error fetching performance data:", error);
-    // Adiciona log para facilitar a criação de índices
     if (error.message && error.message.includes('requires an index')) {
         console.error("----- Firestore Index Required -----");
         console.error("The performance queries need a composite index. Create it in your Firebase console:", error.message);
     }
-    return { success: false, error: "Falha ao buscar dados do banco de dados. Um índice pode ser necessário." };
+    return { success: false, error: "Falha ao buscar dados do banco de dados. Verifique os logs para detalhes." };
   }
 }
