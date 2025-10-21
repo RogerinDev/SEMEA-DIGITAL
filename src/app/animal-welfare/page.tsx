@@ -33,11 +33,11 @@ export default function AnimalWelfareInfoPage() {
   const { currentUser } = useAuth();
   const router = useRouter();
 
-  const handleServiceRequestClick = () => {
+  const handleRedirect = (path: string) => {
     if (currentUser) {
-      router.push('/dashboard/citizen/requests/new');
+      router.push(path);
     } else {
-      router.push('/login');
+      router.push('/register');
     }
   };
 
@@ -113,7 +113,7 @@ export default function AnimalWelfareInfoPage() {
                 <p className="text-sm text-foreground">
                 O atendimento veterinário em Varginha é um serviço gratuito e um direito de todo cidadão. Moradores da cidade podem solicitar consultas e o serviço de castração para seus cães e gatos, com atendimento realizado de acordo com a disponibilidade.
                 </p>
-                 <Button onClick={handleServiceRequestClick} size="sm" className="mt-3">
+                 <Button onClick={() => handleRedirect('/dashboard/citizen/requests/new')} size="sm" className="mt-3">
                     Solicitar Serviço
                 </Button>
             </div>
@@ -122,10 +122,8 @@ export default function AnimalWelfareInfoPage() {
                 <p className="text-sm text-foreground">
                 Agende uma consulta veterinária básica para o seu animal. Verifique os horários disponíveis e faça sua solicitação.
                 </p>
-                 <Button asChild size="sm" className="mt-3">
-                    <Link href="/animal-welfare/consultations">
-                        Agendar uma Consulta
-                    </Link>
+                 <Button onClick={() => handleRedirect('/animal-welfare/consultations')} size="sm" className="mt-3">
+                    Agendar uma Consulta
                 </Button>
             </div>
             <p className="text-muted-foreground">

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import Link from 'next/link';
 import type { AnimalForAdoption, AnimalSpecies } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { getAnimalsForAdoptionAction } from '@/app/actions/adoption-actions';
+import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 
 
@@ -41,6 +43,8 @@ export default function AnimalAdoptionPage() {
   const [filter, setFilter] = useState<"all" | AnimalSpecies>('all');
   const [animals, setAnimals] = useState<AnimalForAdoption[]>([]);
   const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchAnimals() {
@@ -51,6 +55,14 @@ export default function AnimalAdoptionPage() {
     }
     fetchAnimals();
   }, []);
+  
+  const handleInterestClick = (path: string) => {
+    if (currentUser) {
+      router.push(path);
+    } else {
+      router.push('/register');
+    }
+  };
 
 
   const filteredAnimals = animals.filter(animal => {
@@ -75,10 +87,8 @@ export default function AnimalAdoptionPage() {
       </div>
       
       <div className="mb-8 text-center">
-          <Button size="lg" asChild>
-              <Link href="/dashboard/citizen/requests/new?type=solicitacao_adocao_animal">
-                  <span className="flex items-center"><Heart className="mr-2 h-5 w-5"/> Quero Adotar! (Formulário de Interesse)</span>
-              </Link>
+          <Button size="lg" onClick={() => handleInterestClick('/dashboard/citizen/requests/new?type=solicitacao_adocao_animal')}>
+              <span className="flex items-center"><Heart className="mr-2 h-5 w-5"/> Quero Adotar! (Formulário de Interesse)</span>
           </Button>
       </div>
 
@@ -90,6 +100,8 @@ export default function AnimalAdoptionPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAnimals.map((animal) => {
             const AnimalIcon = getAnimalIcon(animal.species);
+            const interestPath = `/dashboard/citizen/requests/new?type=solicitacao_adocao_animal&animal_name=${encodeURIComponent(animal.name)}`;
+            
             return (
             <Card key={animal.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -115,12 +127,14 @@ export default function AnimalAdoptionPage() {
                 <p className="text-sm text-muted-foreground line-clamp-3">{animal.description}</p>
                 </CardContent>
                 <CardFooter>
-                <Button asChild className="w-full" disabled={animal.status !== 'disponivel'}>
-                    <Link href={animal.status === 'disponivel' ? `/dashboard/citizen/requests/new?type=solicitacao_adocao_animal&animal_name=${encodeURIComponent(animal.name)}` : '#'}>
+                <Button 
+                    className="w-full" 
+                    disabled={animal.status !== 'disponivel'} 
+                    onClick={() => animal.status === 'disponivel' && handleInterestClick(interestPath)}
+                >
                     <span className="flex items-center"> <Info className="mr-2 h-4 w-4" />
                       {animal.status === 'disponivel' ? 'Tenho Interesse' : 'Indisponível'}
                     </span>
-                    </Link>
                 </Button>
                 </CardFooter>
             </Card>
