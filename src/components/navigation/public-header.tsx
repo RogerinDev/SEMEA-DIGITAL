@@ -25,7 +25,7 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { Menu, Sun, Moon, TreePine, Recycle, PawPrint, GraduationCap, Info, LayoutDashboard } from 'lucide-react';
+import { Menu, Sun, Moon, TreePine, Recycle, PawPrint, GraduationCap, Info, LayoutDashboard, LogOut } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useAuth } from '@/contexts/auth-context';
 import { useTheme } from '@/contexts/theme-context';
@@ -57,7 +57,7 @@ const navLinks = [
 
 
 const AuthButtons = () => {
-    const { currentUser, loading } = useAuth();
+    const { currentUser, loading, logout } = useAuth();
     const pathname = usePathname();
 
     if (loading) {
@@ -72,11 +72,11 @@ const AuthButtons = () => {
     if (currentUser) {
         const isAdmin = currentUser.role === 'admin' || currentUser.role === 'superAdmin';
         const dashboardPath = isAdmin ? '/dashboard/admin' : '/dashboard/citizen';
-        const dashboardLabel = isAdmin ? 'Painel de Controle' : 'Solicitações';
+        const dashboardLabel = isAdmin ? 'Painel de Controle' : 'Minhas Solicitações';
 
         return (
             <div className="flex items-center gap-2">
-                <Button asChild variant="ghost" size="sm">
+                 <Button asChild variant="ghost" size="sm">
                     <Link href={dashboardPath}>
                         <LayoutDashboard className="mr-2 h-4 w-4"/>
                         {dashboardLabel}
@@ -105,7 +105,8 @@ const AuthButtons = () => {
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => useAuth.getState().logout()}>
+                        <DropdownMenuItem onClick={logout}>
+                            <LogOut className="mr-2 h-4 w-4" />
                             Sair
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -116,7 +117,7 @@ const AuthButtons = () => {
 
     return (
         <div className="flex items-center gap-2">
-            <Button asChild variant="primary" size="sm">
+            <Button asChild variant="default" size="sm">
                 <Link href="/login">
                     Entrar
                 </Link>
