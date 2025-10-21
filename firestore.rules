@@ -1,51 +1,27 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Regra geral: por padrão, nega acesso a tudo, a menos que uma regra específica permita.
+    // Regras do Firestore podem ser adicionadas aqui no futuro.
+    // Por enquanto, permite leitura e escrita se o usuário estiver autenticado.
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if request.auth != null;
     }
+  }
+}
 
-    // Permite que qualquer usuário (autenticado ou não) leia os animais para adoção.
-    // Apenas administradores podem criar, atualizar ou deletar.
-    match /animals_for_adoption/{animalId} {
-      allow read: if true;
-      allow write: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
-    }
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Regra geral: Permite a leitura de todos os arquivos por qualquer pessoa.
+    // Isso é útil para exibir imagens públicas no site (ex: fotos de animais).
+    allow read;
 
-    // Permite que qualquer usuário leia posts de perdidos e achados.
-    // Apenas o cidadão que criou pode criar o seu próprio post. Admins podem gerenciar.
-    match /lost_found_posts/{postId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.citizenId;
-      allow update, delete: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
-    }
-
-    // Regras para Solicitações de Serviço
-    // Um usuário autenticado pode criar uma solicitação para si mesmo.
-    // Um usuário só pode ler as suas próprias solicitações.
-    // Administradores podem ler e escrever em qualquer solicitação.
-    match /service_requests/{requestId} {
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.citizenId;
-      allow read: if request.auth != null && (resource.data.citizenId == request.auth.uid || request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin');
-      allow write: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
-    }
-
-    // Regras para Denúncias
-    // Um usuário autenticado pode criar uma denúncia (anônima ou não).
-    // Um usuário só pode ler as suas próprias denúncias (se não forem anônimas).
-    // Administradores podem ler e escrever em qualquer denúncia.
-    match /incidents/{incidentId} {
-      allow create: if request.auth != null;
-      allow read: if (request.auth != null && resource.data.citizenId == request.auth.uid && resource.data.isAnonymous == false) || request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
-      allow write: if request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
-    }
-
-    // Coleção de teste
-    match /test_collection/{testId} {
-        allow read, write: if true;
-    }
+    // Regra específica para uploads:
+    // Permite que um usuário autenticado escreva (faça upload) em qualquer caminho.
+    // A segurança é aprimorada ao restringir os caminhos de upload no código do cliente,
+    // por exemplo, usando o UID do usuário no nome do arquivo/caminho para garantir
+    // que eles só possam "sobrescrever" seus próprios uploads potenciais.
+    allow write: if request.auth != null;
   }
 }
