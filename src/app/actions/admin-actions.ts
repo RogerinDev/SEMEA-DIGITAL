@@ -39,14 +39,19 @@ export async function setAdminRoleAction(data: SetAdminRoleData): Promise<{ succ
 
   try {
     // Chama a Cloud Function com os dados fornecidos.
+    // A autenticação agora é gerenciada pelo SDK do cliente que envia o token do usuário logado automaticamente.
     const result = await setAdminRoleCallable(data);
     // Retorna um objeto de sucesso com a mensagem retornada pela função.
     return { success: true, message: result.data.message };
   } catch (error: any) {
     console.error("Error calling setAdminRole function:", error);
 
-    // Retorna a mensagem de erro exata da função callable, que geralmente é amigável,
-    // ou uma mensagem de erro genérica se nenhuma outra condição for atendida.
+    // O SDK de callable functions do Firebase já fornece mensagens de erro amigáveis para permission-denied.
+    if (error.code === 'functions/permission-denied') {
+        return { success: false, error: error.message || "Você não tem permissão para realizar esta ação." };
+    }
+    
+    // Retorna a mensagem de erro da função callable ou uma mensagem de erro genérica.
     return { success: false, error: error.message || "Ocorreu um erro desconhecido ao chamar a função." };
   }
 }
