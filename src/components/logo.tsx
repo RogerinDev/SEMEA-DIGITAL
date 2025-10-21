@@ -22,7 +22,7 @@ interface LogoProps {
  */
 export function Logo({ className, iconSize = 24, textSize = "text-lg" }: LogoProps) {
   return (
-    <Link href="/" className={cn('flex items-center gap-2', className)}>
+    <Link href="/" className={cn('flex items-center gap-2 ml-2', className)}>
       {/* Componente Image do Next.js para otimização da imagem do logo. */}
       <Image 
         src="/semea-logo.png" 

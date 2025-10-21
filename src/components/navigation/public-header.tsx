@@ -25,7 +25,7 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { Menu, Sun, Moon, TreePine, Recycle, PawPrint, GraduationCap, Info } from 'lucide-react';
+import { Menu, Sun, Moon, TreePine, Recycle, PawPrint, GraduationCap, Info, LayoutDashboard } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useAuth } from '@/contexts/auth-context';
 import { useTheme } from '@/contexts/theme-context';
@@ -57,50 +57,60 @@ const navLinks = [
 
 
 const AuthButtons = () => {
-    const { currentUser, loading, logout } = useAuth();
+    const { currentUser, loading } = useAuth();
     const pathname = usePathname();
-    const baseProfilePath = pathname.startsWith('/dashboard/admin') ? '/dashboard/admin' : '/dashboard/citizen';
 
     if (loading) {
         return (
             <div className="flex items-center gap-2">
-                <Skeleton className="h-10 w-20" />
                 <Skeleton className="h-10 w-24" />
+                <Skeleton className="h-10 w-10 rounded-full" />
             </div>
         )
     }
-
+    
     if (currentUser) {
+        const isAdmin = currentUser.role === 'admin' || currentUser.role === 'superAdmin';
+        const dashboardPath = isAdmin ? '/dashboard/admin' : '/dashboard/citizen';
+        const dashboardLabel = isAdmin ? 'Painel de Controle' : 'Solicitações';
+
         return (
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2">
-                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || ''}/>
-                            <AvatarFallback>{currentUser.displayName?.charAt(0).toUpperCase() || currentUser.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <span>{currentUser.displayName || 'Painel'}</span>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                    <DropdownMenuLabel>{currentUser.displayName || currentUser.email}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href={currentUser.role === 'admin' || currentUser.role === 'superAdmin' ? '/dashboard/admin' : '/dashboard/citizen'}>
-                            Meu Painel
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href={`${baseProfilePath}/profile`}>
-                            Editar Perfil
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>
-                        Sair
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-2">
+                <Button asChild variant="ghost" size="sm">
+                    <Link href={dashboardPath}>
+                        <LayoutDashboard className="mr-2 h-4 w-4"/>
+                        {dashboardLabel}
+                    </Link>
+                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || ''}/>
+                                <AvatarFallback>{currentUser.displayName?.charAt(0).toUpperCase() || currentUser.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{currentUser.displayName}</p>
+                                <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href={`${dashboardPath}/profile`}>
+                                Meu Perfil
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => useAuth.getState().logout()}>
+                            Sair
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
         )
     }
 
@@ -128,7 +138,7 @@ export function PublicHeader() {
       <div className="container flex h-16 items-center">
         {/* Left Section */}
         <div className="flex-1 flex justify-start">
-            <Logo />
+            <Logo className="ml-2"/>
         </div>
         
         {/* Center Section (Desktop) */}
