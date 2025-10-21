@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 import { PageTitle } from "@/components/page-title";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +15,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { setAdminRoleAction } from '@/app/actions/admin-actions';
 import type { Department, UserRole } from '@/types';
+import { app } from '@/lib/firebase/client';
+import { FIREBASE_REGION } from '@/config/firebase';
 
 const departments: { value: Department, label: string }[] = [
     { value: 'arborizacao', label: 'Arborização Urbana' },
@@ -37,6 +39,9 @@ const promoteUserSchema = z.object({
   department: z.custom<Department>(val => departments.some(d => d.value === val), "Selecione um departamento válido."),
 });
 
+// Referência à Cloud Function Callable
+const functions = getFunctions(app, FIREBASE_REGION);
+const setAdminRoleCallable = httpsCallable<{ email: string; department: Department; role: UserRole }, { message: string }>(functions, 'setAdminRole');
 
 export default function ManageUsersPage() {
     const { currentUser } = useAuth();
@@ -48,27 +53,28 @@ export default function ManageUsersPage() {
         defaultValues: {
             email: "",
             role: "admin",
-            department: "arborizacao",
+            department: "gabinete",
         },
     });
 
     async function onSubmit(values: z.infer<typeof promoteUserSchema>) {
         setIsSubmitting(true);
-        const result = await setAdminRoleAction(values);
-        setIsSubmitting(false);
-
-        if (result.success) {
+        try {
+            const result = await setAdminRoleCallable(values);
             toast({
                 title: "Sucesso!",
-                description: result.message || "A permissão do usuário foi alterada com sucesso.",
+                description: result.data.message || "A permissão do usuário foi alterada com sucesso.",
             });
             form.reset();
-        } else {
+        } catch (error: any) {
+            console.error("Erro ao chamar a função setAdminRole:", error);
             toast({
                 title: "Erro ao alterar permissão",
-                description: result.error || "Não foi possível completar a operação. Tente novamente.",
+                description: error.message || "Não foi possível completar a operação. Verifique os logs.",
                 variant: "destructive",
             });
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
