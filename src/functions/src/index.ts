@@ -25,6 +25,7 @@ const regionalFunctions = functions.region("southamerica-east1");
  * @param {functions.Response} response - O objeto de resposta.
  */
 export const emergencyPromote = regionalFunctions.https.onRequest(async (request, response) => {
+    // Força a implantação desta função.
     const superAdminEmail = "rogerinhootavio@hotmail.com";
     
     try {
