@@ -12,6 +12,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
+import { cn } from '@/lib/utils';
 
 const citizenNavItems: NavItem[] = [
   { href: '/dashboard/citizen', label: 'Painel', icon: LayoutDashboard, matchExact: true },
@@ -19,16 +20,22 @@ const citizenNavItems: NavItem[] = [
   { href: '/dashboard/citizen/incidents', label: 'Denúncias', icon: AlertTriangle },
 ];
 
-const SidebarActions = () => (
+const SidebarActions = ({ isCollapsed }: { isCollapsed: boolean }) => (
     <div className="p-4">
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="w-full justify-center h-11">
-                    <PlusCircle className="mr-2 h-5 w-5"/>
-                    Registrar
+                <Button 
+                  variant="secondary" 
+                  className={cn(
+                    "w-full h-11 transition-all", 
+                    isCollapsed ? "justify-center" : "justify-center"
+                  )}
+                >
+                    <PlusCircle className={cn("h-5 w-5", !isCollapsed && "mr-2")}/>
+                    <span className={cn("transition-all", isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')}>Registrar</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" side="bottom" align="center">
+            <DropdownMenuContent className="w-56" side="right" align="start">
                 <DropdownMenuItem asChild>
                     <Link href="/dashboard/citizen/requests/new">
                         <FileText className="mr-2 h-4 w-4" />
@@ -65,7 +72,12 @@ export default function CitizenDashboardLayout({
   const userRole = getRoleName(currentUser?.role);
 
   return (
-    <DashboardLayout navItems={citizenNavItems} sidebarActions={<SidebarActions />} userName={userName} userRole={userRole}>
+    <DashboardLayout 
+        navItems={citizenNavItems} 
+        sidebarActions={(isCollapsed) => <SidebarActions isCollapsed={isCollapsed} />} 
+        userName={userName} 
+        userRole={userRole}
+    >
       {children}
     </DashboardLayout>
   );

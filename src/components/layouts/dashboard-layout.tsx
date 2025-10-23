@@ -22,7 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { LogOut, Loader2, Edit, Lock, ChevronUp } from 'lucide-react';
+import { LogOut, Loader2, Edit, Lock } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar';
@@ -40,7 +40,7 @@ export interface NavItem {
 interface DashboardLayoutProps {
   children: React.ReactNode;
   navItems: NavItem[];
-  sidebarActions?: React.ReactNode;
+  sidebarActions?: (isCollapsed: boolean) => React.ReactNode;
   userName?: string; 
   userRole?: string; 
 }
@@ -64,12 +64,9 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
     }
   }, []);
   
-  const handleToggleCollapse = useCallback(() => {
-    setIsCollapsed(prevState => {
-        const newState = !prevState;
-        localStorage.setItem("sidebarCollapsed", JSON.stringify(newState));
-        return newState;
-    });
+  const handleToggleCollapse = useCallback((collapsedState: boolean) => {
+    setIsCollapsed(collapsedState);
+    localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsedState));
   }, []);
 
   // Efeito que verifica a autenticação.
@@ -95,8 +92,8 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
       <div className="flex min-h-screen">
         <Sidebar 
           isCollapsed={isCollapsed}
-          onMouseEnter={() => setIsCollapsed(false)}
-          onMouseLeave={() => setIsCollapsed(true)}
+          onMouseEnter={() => handleToggleCollapse(false)}
+          onMouseLeave={() => handleToggleCollapse(true)}
         >
           <SidebarHeader isCollapsed={isCollapsed}>
             <Logo iconSize={28} textSize="text-xl" isCollapsed={isCollapsed} />
@@ -106,7 +103,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
           <SidebarContent>
             <ScrollArea className="h-full">
-              {sidebarActions}
+              {sidebarActions && sidebarActions(isCollapsed)}
               <SidebarMenu>
                 {navItems.map((item) => {
                   const isActive = item.matchExact ? pathname === item.href : pathname.startsWith(item.href);
@@ -181,7 +178,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
         <main className={cn(
           "flex-1 flex flex-col transition-all duration-300 ease-in-out",
-          isCollapsed ? "pl-[5.5rem]" : "pl-[18rem]"
+          isCollapsed ? "pl-[5.5rem]" : "pl-72"
         )}>
           <div className="p-6 md:p-8">
             {children}
