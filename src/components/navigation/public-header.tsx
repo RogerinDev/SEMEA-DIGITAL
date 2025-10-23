@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Edit, Lock, LogOut, Menu, LayoutDashboard, Sun, Moon } from 'lucide-react';
+import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon, Edit, Lock, LogOut, Menu, LayoutDashboard } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
@@ -142,7 +142,7 @@ const ThemeToggleButton = () => {
     return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Alternar tema">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Alternar tema" className="hover:bg-transparent focus:bg-transparent">
               {theme === 'light' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
           </TooltipTrigger>
@@ -171,9 +171,9 @@ export function PublicHeader() {
           </div>
 
           <div className="flex items-center justify-end">
-            <ThemeToggleButton />
             {currentUser ? (
               <>
+                <ThemeToggleButton />
                 <div className="hidden sm:flex items-center">
                   {isAdmin && <AdminDashboardIcon />}
                   <ServicesIcon />
@@ -218,6 +218,7 @@ export function PublicHeader() {
             ) : (
               <>
                  <div className="hidden sm:flex items-center space-x-2">
+                    <ThemeToggleButton />
                     <Link
                         href="/login"
                         passHref
