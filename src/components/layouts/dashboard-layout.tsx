@@ -126,7 +126,6 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                   );
                 })}
               </SidebarMenu>
-               <Separator className="my-4 bg-sidebar-border" />
             </ScrollArea>
           </SidebarContent>
 
