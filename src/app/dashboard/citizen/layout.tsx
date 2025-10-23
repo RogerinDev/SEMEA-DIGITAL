@@ -1,3 +1,4 @@
+
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
@@ -27,8 +28,8 @@ const SidebarActions = ({ isCollapsed }: { isCollapsed: boolean }) => (
                 <Button 
                   variant="secondary" 
                   className={cn(
-                    "w-full h-11 transition-all", 
-                    isCollapsed ? "justify-center" : "justify-center"
+                    "w-full transition-all flex items-center", 
+                    isCollapsed ? "h-9 w-9 justify-center p-0" : "h-11 justify-center"
                   )}
                 >
                     <PlusCircle className={cn("h-5 w-5", !isCollapsed && "mr-2")}/>
