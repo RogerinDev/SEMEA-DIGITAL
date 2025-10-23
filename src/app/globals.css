@@ -29,16 +29,6 @@
     --chart-3: 180 55% 40%;
     --chart-4: 200 50% 45%;
     --chart-5: 220 45% 50%;
-
-    /* Sidebar Light Colors */
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 142.1 76.2% 36.3%;
-    --sidebar-primary-foreground: 355.7 100% 97.3%;
-    --sidebar-accent: 210 40% 94%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 142.1 76.2% 36.3%;
   }
 
   .dark {
@@ -66,16 +56,6 @@
     --chart-3: 170 60% 50%;
     --chart-4: 185 55% 50%;
     --chart-5: 200 50% 50%;
-
-    /* Sidebar Dark Colors */
-    --sidebar-background: 132 15% 15%;
-    --sidebar-foreground: 128 33% 91%;
-    --sidebar-primary: 145 58% 59%;
-    --sidebar-primary-foreground: 145 100% 10%;
-    --sidebar-accent: 140 25% 25%;
-    --sidebar-accent-foreground: 145 58% 59%;
-    --sidebar-border: 143 33% 28%;
-    --sidebar-ring: 145 58% 59%;
   }
 }
 
