@@ -74,12 +74,12 @@ export default function HomePage() {
             Sua plataforma online para serviços e informações da Secretaria Municipal de Meio Ambiente de Varginha - MG.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button size="lg" asChild>
               <Link href={currentUser ? "/dashboard/citizen" : "/register"}>
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 text-white hover:bg-white/20 dark:hover:bg-white/10 dark:text-white" asChild>
+            <Button size="lg" variant="outline" className="border-gray-300 text-white hover:bg-white/20 dark:hover:bg-white/10" asChild>
               <Link href="/info/sobre"><span>Saber Mais</span></Link>
             </Button>
           </div>
