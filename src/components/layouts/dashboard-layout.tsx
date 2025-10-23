@@ -101,7 +101,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
           </SidebarHeader>
 
           {/* Conteúdo principal da Sidebar com área de rolagem */}
-          <SidebarContent asChild>
+          <SidebarContent>
             <ScrollArea className="h-full">
               {sidebarActions /* Renderiza ações customizadas, como botões de "novo" */}
               <SidebarMenu className="p-4 pt-0">
@@ -163,7 +163,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} disabled={authLoading} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                  <DropdownMenuItem onClick={handleLogout} disabled={authLoading} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Sair</span>
                   </DropdownMenuItem>
@@ -174,7 +174,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
         {/* Área de conteúdo principal */}
         <SidebarInset>
-            <div className="flex flex-col h-full">
+             <div className="flex flex-col h-full">
                 <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6 md:justify-end">
                     {/* Botão de toggle da sidebar visível apenas em telas menores */}
                     <SidebarTrigger className="text-foreground hover:text-accent-foreground hover:bg-accent md:hidden" />
