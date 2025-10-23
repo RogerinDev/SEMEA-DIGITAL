@@ -4,32 +4,33 @@
 
 @layer base {
   :root {
-    --background: 240 10% 97%; /* Very light gray, almost white */
-    --foreground: 240 6% 10%; /* Dark gray, almost black */
+    /* New Light Theme with a pleasant light green background */
+    --background: 120 73% 94%; /* Soft light green */
+    --foreground: 120 25% 15%; /* Dark green for text */
 
-    --card: 240 10% 99%;
-    --card-foreground: 240 6% 10%;
+    --card: 120 60% 98%;
+    --card-foreground: 120 25% 15%;
 
-    --popover: 240 10% 99%;
-    --popover-foreground: 240 6% 10%;
+    --popover: 120 60% 98%;
+    --popover-foreground: 120 25% 15%;
 
-    --primary: 142.1 76.2% 36.3%; /* Vibrant Green */
+    --primary: 142.1 76.2% 36.3%;
     --primary-foreground: 355.7 100% 97.3%;
+    
+    --secondary: 130 30% 90%;
+    --secondary-foreground: 120 25% 15%;
 
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 240 6% 10%;
+    --muted: 130 30% 90%;
+    --muted-foreground: 120 15% 40%;
 
-    --muted: 220 13% 91%;
-    --muted-foreground: 240 4% 46%;
-
-    --accent: 220 13% 91%;
-    --accent-foreground: 240 6% 10%;
+    --accent: 130 30% 90%;
+    --accent-foreground: 120 25% 15%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 13% 85%;
-    --input: 220 13% 89%;
+    --border: 130 20% 80%;
+    --input: 130 20% 85%;
     --ring: 142.1 76.2% 36.3%;
     
     --radius: 0.5rem;
@@ -42,33 +43,34 @@
   }
 
   .dark {
-    --background: 120 8% 8%; /* Very dark, almost black with a hint of green */
-    --foreground: 120 5% 95%; /* Light gray for text */
+    /* Dark Theme based on the provided image */
+    --background: 140 8% 10%; /* Very dark, slightly green-tinted black */
+    --foreground: 140 10% 80%; /* Light gray for text */
 
-    --card: 120 7% 10%;
-    --card-foreground: 120 5% 95%;
+    --card: 140 7% 12%;
+    --card-foreground: 140 10% 80%;
 
-    --popover: 120 8% 8%;
-    --popover-foreground: 120 5% 95%;
+    --popover: 140 8% 10%;
+    --popover-foreground: 140 10% 80%;
     
-    --primary: 140 60% 50%; /* Brighter Green for dark mode */
+    --primary: 140 65% 55%; /* Vibrant Green for accents */
     --primary-foreground: 140 10% 10%;
 
-    --secondary: 130 10% 15%;
-    --secondary-foreground: 120 5% 95%;
+    --secondary: 140 10% 18%;
+    --secondary-foreground: 140 10% 90%;
 
-    --muted: 130 10% 15%;
-    --muted-foreground: 120 5% 65%;
+    --muted: 140 10% 18%;
+    --muted-foreground: 140 5% 55%;
 
-    --accent: 130 10% 15%;
-    --accent-foreground: 120 5% 95%;
+    --accent: 140 10% 18%;
+    --accent-foreground: 140 10% 90%;
     
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 130 10% 20%;
-    --input: 130 10% 20%;
-    --ring: 140 60% 50%;
+    --border: 140 10% 25%;
+    --input: 140 10% 25%;
+    --ring: 140 65% 55%;
 
     --chart-1: 140 60% 50%;
     --chart-2: 130 50% 60%;
