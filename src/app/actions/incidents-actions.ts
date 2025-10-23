@@ -332,26 +332,35 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
     return { success: false, error: "ID da denúncia e novo status são obrigatórios." };
   }
 
+  const incidentRef = db.collection('incidents').doc(id);
+
   try {
-    const incidentRef = db.collection('incidents').doc(id);
-    const now = new Date().toISOString();
+    await db.runTransaction(async (transaction) => {
+        const incidentDoc = await transaction.get(incidentRef);
+        if (!incidentDoc.exists) {
+            throw new Error("Denúncia não encontrada.");
+        }
+        const incidentData = incidentDoc.data() as IncidentReport;
+        
+        const now = new Date().toISOString();
+        const newHistoryEntry: StatusHistoryEntry = {
+            status: status,
+            date: now,
+            updatedBy: updatedBy,
+            notes: notes || `Status alterado para: ${status}`,
+        };
 
-    const newHistoryEntry: StatusHistoryEntry = {
-        status: status,
-        date: now,
-        updatedBy: updatedBy,
-        notes: notes || `Status alterado para: ${status}`,
-    };
-
-    await incidentRef.update({
-      status,
-      notes: notes ?? "",
-      inspector: inspector ?? "",
-      dateUpdated: now,
-      history: admin.firestore.FieldValue.arrayUnion(newHistoryEntry)
+        const newHistory = [...(incidentData.history || []), newHistoryEntry];
+        
+        transaction.update(incidentRef, {
+            status,
+            notes: notes ?? "",
+            inspector: inspector ?? "",
+            dateUpdated: now,
+            history: newHistory,
+        });
     });
-    
-    // Invalida o cache de todas as páginas que exibem esta denúncia.
+
     revalidatePath(`/dashboard/admin/incidents/${id}`);
     revalidatePath(`/dashboard/citizen/incidents/${id}`);
     revalidatePath('/dashboard/admin/incidents');

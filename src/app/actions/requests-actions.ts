@@ -313,29 +313,34 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     return { success: false, error: "ID da solicitação e novo status são obrigatórios." };
   }
 
-  try {
-    const requestRef = db.collection('service_requests').doc(id);
-    const now = new Date().toISOString();
-    
-    // Cria a nova entrada para o histórico
-    const newHistoryEntry: StatusHistoryEntry = {
-        status: status,
-        date: now,
-        updatedBy: updatedBy,
-        notes: notes || `Status alterado para: ${status}`, // Usa a nota fornecida ou uma padrão
-    };
+  const requestRef = db.collection('service_requests').doc(id);
 
-    // Prepara a atualização do documento
-    // O campo `notes` principal é atualizado com o último parecer técnico
-    // E o `history` é atualizado com a nova entrada.
-    await requestRef.update({
-      status: status,
-      notes: notes ?? "", // Atualiza o parecer técnico principal
-      dateUpdated: now,
-      history: admin.firestore.FieldValue.arrayUnion(newHistoryEntry) // Adiciona ao array de histórico
+  try {
+    await db.runTransaction(async (transaction) => {
+      const requestDoc = await transaction.get(requestRef);
+      if (!requestDoc.exists) {
+        throw new Error("Solicitação não encontrada.");
+      }
+      const requestData = requestDoc.data() as ServiceRequest;
+
+      const now = new Date().toISOString();
+      const newHistoryEntry: StatusHistoryEntry = {
+          status: status,
+          date: now,
+          updatedBy: updatedBy,
+          notes: notes || `Status alterado para: ${status}`,
+      };
+
+      const newHistory = [...(requestData.history || []), newHistoryEntry];
+      
+      transaction.update(requestRef, {
+        status: status,
+        notes: notes ?? "",
+        dateUpdated: now,
+        history: newHistory,
+      });
     });
 
-    // Invalida o cache das páginas relevantes.
     revalidatePath(`/dashboard/admin/requests/${id}`);
     revalidatePath(`/dashboard/citizen/requests/${id}`);
     revalidatePath('/dashboard/admin/requests');
