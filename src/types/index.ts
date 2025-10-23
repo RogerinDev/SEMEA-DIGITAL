@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview Arquivo central de definições de tipos (TypeScript) para toda a aplicação.
  * Isso garante consistência e reuso de tipos em diferentes partes do código.
@@ -59,7 +58,7 @@ export interface ServiceRequest {
   citizenName?: string; 
   address?: string;
   contactPhone?: string;
-  notes?: string; // Notas internas do administrador.
+  notes?: string; // Notas internas do administrador (PARECER TÉCNICO).
   history: StatusHistoryEntry[];
 }
 

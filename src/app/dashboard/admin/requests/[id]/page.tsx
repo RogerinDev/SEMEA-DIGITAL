@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, FileText, UserCircle, CalendarDays, Edit3, MessageSquare, CheckCircle, XCircle, Clock, Loader2, History } from 'lucide-react';
 import Link from 'next/link';
-import type { ServiceRequest, ServiceRequestStatus, ResolvedTicket } from '@/types';
+import type { ServiceRequest, ServiceRequestStatus, ResolvedTicket, StatusHistoryEntry } from '@/types';
 import { SimilarTicketsSuggestions } from '@/components/ai/similar-tickets-suggestions';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,12 +40,34 @@ function getStatusVariant(status: ServiceRequest['status']): "default" | "second
     }
 }
 
+function HistoryEntry({ entry }: { entry: StatusHistoryEntry }) {
+  const statusConfig = statusOptions.find(s => s.value === entry.status);
+  const Icon = statusConfig?.icon || Clock;
+
+  return (
+    <li className="flex gap-3">
+        <div className="flex flex-col items-center">
+            <div className="bg-primary rounded-full p-1.5">
+                <Icon className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <div className="w-px flex-grow bg-border my-1"></div>
+        </div>
+        <div>
+            <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
+            <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
+            {entry.notes && <p className="text-sm mt-1 bg-muted/50 p-2 rounded-md">{entry.notes}</p>}
+        </div>
+    </li>
+  )
+}
+
+
 export default function AdminRequestDetailPage({ params }: { params: { id: string } }) {
   const [request, setRequest] = useState<ServiceRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<ServiceRequestStatus>();
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(''); // Parecer técnico/observações
   const [resolvedTickets, setResolvedTickets] = useState<ResolvedTicket[]>([]);
   
   const router = useRouter();
@@ -99,11 +121,17 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
         const fetchedRequest = await getRequestByIdAction(params.id);
         if (fetchedRequest) {
             setRequest(fetchedRequest);
+            setNotes(''); // Limpa as notas após salvar no histórico
         }
     } else {
         toast({ title: "Erro", description: result.error, variant: "destructive" });
     }
   };
+
+  const isActionDisabled = !currentUser || 
+                           (currentUser.role !== 'superAdmin' && currentUser.department !== request?.department) ||
+                           request?.status === 'concluido' ||
+                           request?.status === 'cancelado_pelo_usuario';
 
   if (loading) {
     return (
@@ -199,44 +227,50 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
            <Card>
             <CardHeader>
                 <CardTitle>Processar Solicitação</CardTitle>
-                <CardDescription>Atualize o status e adicione observações.</CardDescription>
+                <CardDescription>
+                  {isActionDisabled 
+                    ? "As ações estão desabilitadas para esta solicitação (permissão ou status final)."
+                    : "Atualize o status e adicione um parecer técnico."}
+                </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                 <div>
-                    <Label htmlFor="status">Alterar Status</Label>
-                    <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as ServiceRequestStatus)}>
-                        <SelectTrigger id="status">
-                            <SelectValue placeholder="Selecione um novo status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {statusOptions.map(option => (
-                                <SelectItem key={option.value} value={option.value}>
-                                    <div className="flex items-center">
-                                        {option.icon && <option.icon className="h-4 w-4 mr-2 text-muted-foreground"/>}
-                                        {option.label}
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="notes">Parecer Técnico / Observações</Label>
-                    <Textarea 
-                        id="notes" 
-                        placeholder="Adicione notas sobre a vistoria, decisão, próximos passos..." 
-                        className="min-h-[100px]" 
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                    />
-                </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-                <Button onClick={handleUpdate} disabled={isUpdating}>
-                    {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Edit3 className="mr-2 h-4 w-4" />}
-                    Salvar Alterações
-                </Button>
-            </CardFooter>
+            <fieldset disabled={isActionDisabled}>
+              <CardContent className="space-y-4">
+                  <div>
+                      <Label htmlFor="status">Alterar Status</Label>
+                      <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as ServiceRequestStatus)}>
+                          <SelectTrigger id="status">
+                              <SelectValue placeholder="Selecione um novo status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              {statusOptions.map(option => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                      <div className="flex items-center">
+                                          {option.icon && <option.icon className="h-4 w-4 mr-2 text-muted-foreground"/>}
+                                          {option.label}
+                                      </div>
+                                  </SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div>
+                      <Label htmlFor="notes">Parecer Técnico / Observações</Label>
+                      <Textarea 
+                          id="notes" 
+                          placeholder="Adicione notas sobre a vistoria, decisão, próximos passos..." 
+                          className="min-h-[100px]" 
+                          value={notes}
+                          onChange={(e) => setNotes(e.target.value)}
+                      />
+                  </div>
+              </CardContent>
+              <CardFooter className="flex justify-end">
+                  <Button onClick={handleUpdate} disabled={isUpdating}>
+                      {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Edit3 className="mr-2 h-4 w-4" />}
+                      Salvar Alterações
+                  </Button>
+              </CardFooter>
+            </fieldset>
            </Card>
         </div>
 
@@ -254,23 +288,9 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
             </CardHeader>
             <CardContent>
                 {request.history && request.history.length > 0 ? (
-                    <ul className="space-y-4">
+                    <ul className="space-y-2 -ml-3">
                         {request.history.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry, index) => (
-                            <li key={index} className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="bg-primary rounded-full p-1.5">
-                                        <CheckCircle className="h-4 w-4 text-primary-foreground" />
-                                    </div>
-                                    {index < request.history.length - 1 && (
-                                        <div className="w-px flex-grow bg-border mt-2"></div>
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
-                                    <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
-                                    <p className="text-sm mt-1">{entry.notes}</p>
-                                </div>
-                            </li>
+                           <HistoryEntry key={index} entry={entry} />
                         ))}
                     </ul>
                 ) : (

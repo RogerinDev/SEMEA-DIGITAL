@@ -29,7 +29,18 @@ function isValidServiceRequestType(type: any): type is ServiceRequestType {
  * @returns O departamento correspondente.
  */
 function mapServiceCategoryToDepartment(category: ServiceCategory): Department {
-    return category;
+    switch (category) {
+        case 'arborizacao':
+            return 'arborizacao';
+        case 'residuos':
+            return 'residuos';
+        case 'bem_estar_animal':
+            return 'bem_estar_animal';
+        case 'educacao_ambiental':
+            return 'educacao_ambiental';
+        default:
+            return 'gabinete'; // Fallback para o gabinete
+    }
 }
 
 // Interface para os dados de uma nova solicitação.
@@ -87,7 +98,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
       status: 'pendente',
       dateCreated: now,
       dateUpdated: now,
-      notes: "",
+      notes: "", // Campo principal de notas/parecer é inicializado vazio
       history: [initialHistoryEntry],
     };
 
@@ -286,12 +297,12 @@ export async function getRequestsCountAction({
 interface UpdateRequestData {
     id: string;
     status: ServiceRequestStatus;
-    notes?: string;
-    updatedBy: string;
+    notes?: string; // Este campo é o "parecer técnico" ou "observações"
+    updatedBy: string; // Nome do usuário (admin ou cidadão) que está atualizando.
 }
 
 /**
- * Server Action para atualizar o status e notas de uma solicitação.
+ * Server Action para atualizar o status e notas de uma solicitação, registrando no histórico.
  * @param data Os dados para atualização.
  * @returns Um objeto com status de sucesso ou mensagem de erro.
  */
@@ -306,18 +317,22 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     const requestRef = db.collection('service_requests').doc(id);
     const now = new Date().toISOString();
     
+    // Cria a nova entrada para o histórico
     const newHistoryEntry: StatusHistoryEntry = {
         status: status,
         date: now,
         updatedBy: updatedBy,
-        notes: notes || `Status alterado para: ${status}`,
+        notes: notes || `Status alterado para: ${status}`, // Usa a nota fornecida ou uma padrão
     };
 
+    // Prepara a atualização do documento
+    // O campo `notes` principal é atualizado com o último parecer técnico
+    // E o `history` é atualizado com a nova entrada.
     await requestRef.update({
       status: status,
-      notes: notes ?? "",
+      notes: notes ?? "", // Atualiza o parecer técnico principal
       dateUpdated: now,
-      history: admin.firestore.FieldValue.arrayUnion(newHistoryEntry)
+      history: admin.firestore.FieldValue.arrayUnion(newHistoryEntry) // Adiciona ao array de histórico
     });
 
     // Invalida o cache das páginas relevantes.
