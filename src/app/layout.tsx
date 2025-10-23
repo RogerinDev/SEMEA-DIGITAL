@@ -42,17 +42,14 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        {/* Envolve a aplicação com os provedores de contexto. */}
         <ThemeProvider>
-          <AuthProvider>
-            <TooltipProvider>
-              {/* Renderiza o conteúdo da página atual */}
-              {children}
-            </TooltipProvider>
-          </AuthProvider>
+            <AuthProvider>
+                <TooltipProvider>
+                    {children}
+                </TooltipProvider>
+            </AuthProvider>
+            <Toaster />
         </ThemeProvider>
-        {/* O Toaster é colocado fora dos provedores principais para exibir notificações globais. */}
-        <Toaster />
       </body>
     </html>
   );
