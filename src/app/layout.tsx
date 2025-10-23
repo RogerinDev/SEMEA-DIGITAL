@@ -10,7 +10,6 @@ import './globals.css'; // Importa os estilos globais (Tailwind CSS).
 import { Toaster } from "@/components/ui/toaster"; // Componente para exibir notificações (toasts).
 import { TooltipProvider } from "@/components/ui/tooltip"; // Provedor para habilitar tooltips em toda a aplicação.
 import { AuthProvider } from "@/contexts/auth-context"; // Provedor de contexto para autenticação.
-import { ThemeProvider } from '@/contexts/theme-context'; // Provedor de contexto para o tema (light/dark).
 
 // Metadados da página, importantes para SEO e para o navegador.
 export const metadata: Metadata = {
@@ -33,8 +32,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Define o idioma da página e suprime avisos de hidratação do Next.js.
-    <html lang="pt-BR" suppressHydrationWarning>
+    // Define o idioma da página e aplica a classe 'dark' para forçar o modo escuro.
+    <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <head>
         {/* Importação das fontes do Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,14 +41,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <ThemeProvider>
-            <AuthProvider>
-                <TooltipProvider>
-                    {children}
-                </TooltipProvider>
-            </AuthProvider>
-            <Toaster />
-        </ThemeProvider>
+        <AuthProvider>
+            <TooltipProvider>
+                {children}
+            </TooltipProvider>
+        </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

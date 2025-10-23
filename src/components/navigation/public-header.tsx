@@ -4,10 +4,9 @@
 import Link from 'next/link';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Sun, Moon, Edit, Lock, LogOut, Menu, LayoutDashboard } from 'lucide-react';
+import { Briefcase, Info, LogIn, UserPlus, TreePine, Droplets, CalendarDays, GraduationCap, PawPrint, Edit, Lock, LogOut, Menu, LayoutDashboard } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/contexts/theme-context';
 import { useAuth } from '@/contexts/auth-context';
 import {
   DropdownMenu,
@@ -128,14 +127,8 @@ const AdminDashboardIcon = () => (
 
 
 export function PublicHeader() {
-  const { theme, toggleTheme } = useTheme();
   const { currentUser, logout } = useAuth();
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superAdmin' || currentUser?.role === 'Dev';
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -245,17 +238,6 @@ export function PublicHeader() {
                 </Tooltip>
               </>
             )}
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Alternar tema">
-                  {mounted ? (theme === 'light' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <div className="h-5 w-5" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{theme === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro'}</p>
-              </TooltipContent>
-            </Tooltip>
           </div>
         </div>
     </header>
