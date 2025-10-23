@@ -20,7 +20,7 @@ interface PublicLayoutProps {
  */
 export default function PublicLayout({ children }: PublicLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Renderiza o cabeçalho público no topo da página. */}
       <PublicHeader />
       

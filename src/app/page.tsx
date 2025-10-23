@@ -74,41 +74,41 @@ export default function HomePage() {
             Sua plataforma online para serviços e informações da Secretaria Municipal de Meio Ambiente de Varginha - MG.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" asChild className="text-black dark:text-primary-foreground">
+            <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Link href={currentUser ? "/dashboard/citizen" : "/register"}>
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 text-black dark:text-white hover:bg-white/10" asChild>
+            <Button size="lg" variant="outline" className="border-gray-300 text-white hover:bg-white/10" asChild>
               <Link href="/info/sobre"><span>Saber Mais</span></Link>
             </Button>
           </div>
         </div>
       </section>
 
-      <section className="bg-background dark:bg-[#0a0f0a] text-foreground py-16 px-6">
+      <section className="bg-background text-foreground py-16 px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-primary dark:text-green-400">Nossos Principais Serviços</h2>
+          <h2 className="text-4xl font-bold text-primary">Nossos Principais Serviços</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <div key={service.title} className="bg-card dark:bg-[#101810] rounded-xl p-8 text-center flex flex-col shadow-md dark:hover:shadow-lg dark:hover:shadow-green-400/10 transition">
+              <div key={service.title} className="bg-card rounded-xl p-8 text-center flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300">
                 <div className="flex-grow">
                   <div className="flex justify-center mb-4">
-                    <div className="bg-primary/10 dark:bg-green-900/50 p-3 rounded-xl">
-                      <Icon className="text-primary dark:text-green-400 h-10 w-10" />
+                    <div className="bg-primary/10 p-3 rounded-xl">
+                      <Icon className="text-primary h-10 w-10" />
                     </div>
                   </div>
-                  <h3 className="text-primary dark:text-green-400 text-xl font-bold mb-3">{service.title}</h3>
-                  <p className="text-muted-foreground dark:text-gray-300 text-sm mb-6">
+                  <h3 className="text-primary text-xl font-bold mb-3">{service.title}</h3>
+                  <p className="text-muted-foreground text-sm mb-6">
                     {service.description}
                   </p>
                 </div>
                 <div className="mt-auto">
-                    <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground dark:border-green-400 dark:text-green-400 dark:hover:bg-green-400 dark:hover:text-black">
+                    <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                         <Link href={service.link}>
                             {service.buttonText} <span className="ml-2">→</span>
                         </Link>
@@ -121,10 +121,10 @@ export default function HomePage() {
       </section>
 
       {!currentUser && (
-        <section className="bg-secondary/50 dark:bg-secondary/10 py-16 px-6">
+        <section className="bg-secondary/50 py-16 px-6">
           <div className="container mx-auto grid md:grid-cols-2 gap-8 items-center">
             <div className="space-y-6">
-              <h2 className="text-4xl font-bold text-primary dark:text-green-300">
+              <h2 className="text-4xl font-bold text-primary">
                 Participe da Construção de uma Varginha Mais Verde!
               </h2>
               <p className="text-muted-foreground">
@@ -133,7 +133,7 @@ export default function HomePage() {
               <ul className="space-y-3">
                 {benefits.map((benefit, index) => (
                   <li key={index} className="flex items-center gap-3">
-                    <CheckCircle className="h-6 w-6 text-primary dark:text-green-400" />
+                    <CheckCircle className="h-6 w-6 text-primary" />
                     <span className="text-foreground">{benefit}</span>
                   </li>
                 ))}
