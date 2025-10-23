@@ -5,7 +5,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "./button"
 import { Separator } from "./separator"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip"
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "./tooltip"
 import { ChevronRight } from "lucide-react"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -21,7 +21,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         ref={ref}
         className={cn(
           "fixed left-0 top-0 z-50 h-screen flex flex-col bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out",
-          isCollapsed ? "w-20" : "w-72",
+          isCollapsed ? "w-[5.5rem]" : "w-72",
           className
         )}
         onMouseEnter={onMouseEnter}
@@ -35,11 +35,23 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 )
 Sidebar.displayName = "Sidebar"
 
-const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex items-center border-b border-sidebar-border p-4 h-16", className)} {...props} />
+interface SidebarHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  isCollapsed: boolean;
+}
+
+const SidebarHeader = React.forwardRef<HTMLDivElement, SidebarHeaderProps>(
+    ({ className, children, isCollapsed, ...props }, ref) => (
+  <div ref={ref} className={cn(
+    "flex items-center p-4 h-16", 
+    isCollapsed ? "justify-center" : "justify-between",
+    className
+    )} 
+    {...props}>
+    {children}
+  </div>
 ))
 SidebarHeader.displayName = "SidebarHeader"
+
 
 const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
     ({ className, ...props }, ref) => (
@@ -47,8 +59,11 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
 ))
 SidebarContent.displayName = "SidebarContent"
 
-const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ className, ...props }, ref) => (
+interface SidebarFooterProps extends React.HTMLAttributes<HTMLDivElement> {
+  isCollapsed: boolean;
+}
+const SidebarFooter = React.forwardRef<HTMLDivElement, SidebarFooterProps>(
+    ({ className, isCollapsed, ...props }, ref) => (
   <div ref={ref} className={cn("mt-auto p-2", className)} {...props} />
 ))
 SidebarFooter.displayName = "SidebarFooter"
@@ -68,7 +83,7 @@ const SidebarMenu = React.forwardRef<HTMLUListElement, SidebarMenuProps>(
 )
 SidebarMenu.displayName = "SidebarMenu"
 
-interface SidebarMenuItemProps extends Omit<React.HTMLAttributes<HTMLLIElement>, 'label'> {
+interface SidebarMenuItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
     label: string;
     isCollapsed: boolean;
 }

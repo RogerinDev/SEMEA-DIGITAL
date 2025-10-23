@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview Layout principal para os painéis de controle (dashboards).
  * Este componente cria a estrutura com uma barra lateral de navegação (Sidebar)
@@ -96,12 +95,14 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
       <div className="flex min-h-screen">
         <Sidebar 
           isCollapsed={isCollapsed}
-          onMouseEnter={() => !isCollapsed && setIsCollapsed(false)}
-          onMouseLeave={() => isCollapsed && setIsCollapsed(true)}
+          onMouseEnter={() => setIsCollapsed(false)}
+          onMouseLeave={() => setIsCollapsed(true)}
         >
-          <SidebarHeader>
-            <Logo className="[&_span]:text-sidebar-foreground" isCollapsed={isCollapsed} />
+          <SidebarHeader isCollapsed={isCollapsed}>
+            <Logo iconSize={28} textSize="text-xl" isCollapsed={isCollapsed} />
           </SidebarHeader>
+          
+          <Separator className="bg-sidebar-border" />
 
           <SidebarContent>
             <ScrollArea className="h-full">
@@ -114,7 +115,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                         <Link href={item.href} className={cn(
                           "flex items-center gap-3 rounded-md p-3 text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                            isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground",
-                           isCollapsed ? "w-10 justify-center" : "w-full"
+                           isCollapsed ? "w-11 justify-center" : "w-full"
                         )}>
                             <item.icon className="h-5 w-5 shrink-0" />
                             <span className={cn("overflow-hidden transition-all", isCollapsed ? "w-0" : "w-full")}>
@@ -128,8 +129,9 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
             </ScrollArea>
           </SidebarContent>
 
-          <SidebarFooter>
-            <Separator className="my-2 bg-sidebar-border" />
+          <Separator className="my-2 bg-sidebar-border" />
+
+          <SidebarFooter isCollapsed={isCollapsed}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={cn(
@@ -179,7 +181,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
         <main className={cn(
           "flex-1 flex flex-col transition-all duration-300 ease-in-out",
-          isCollapsed ? "pl-[5rem]" : "pl-[18rem]"
+          isCollapsed ? "pl-[5.5rem]" : "pl-[18rem]"
         )}>
           <div className="p-6 md:p-8">
             {children}
