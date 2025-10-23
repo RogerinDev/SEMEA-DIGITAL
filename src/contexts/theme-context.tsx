@@ -2,6 +2,7 @@
  * @fileoverview Provedor de Contexto para gerenciamento do tema (light/dark).
  * Permite que componentes em qualquer lugar da árvore de componentes acessem
  * e modifiquem o tema atual, com persistência no `localStorage`.
+ * A lógica foi ajustada para evitar erros de hidratação no Next.js.
  */
 
 "use client";
@@ -14,6 +15,7 @@ type Theme = 'light' | 'dark';
 // Define a estrutura do contexto do tema.
 interface ThemeContextType {
   theme: Theme;
+  setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
 
@@ -26,35 +28,62 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  * @param {ReactNode} props.children - Os componentes filhos que terão acesso ao contexto.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // Estado para armazenar o tema atual.
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') {
-      return 'light'; // Padrão no servidor para evitar erros.
-    }
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
-      return storedTheme;
-    }
-    // Se não houver tema salvo, usa a preferência do sistema operacional.
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  const [theme, setThemeState] = useState<Theme>('light');
+  // Estado para garantir que a lógica do lado do cliente só rode após a montagem.
+  const [mounted, setMounted] = useState(false);
 
-  // Efeito que roda sempre que o estado `theme` muda no cliente.
+  // Efeito que roda uma vez na montagem do componente no cliente.
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    setMounted(true); // Marca que o componente foi montado.
+    try {
+      const storedTheme = localStorage.getItem('theme') as Theme | null;
+      if (storedTheme && ['light', 'dark'].includes(storedTheme)) {
+        setThemeState(storedTheme);
+      } else {
+        // Se não houver tema salvo, usa a preferência do sistema operacional.
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setThemeState(systemPrefersDark ? 'dark' : 'light');
+      }
+    } catch (error) {
+        // Em caso de erro (ex: localStorage indisponível), mantém o padrão 'light'.
+        setThemeState('light');
+    }
+  }, []); // O array vazio [] garante que este efeito rode apenas uma vez.
+
+  // Efeito que roda sempre que o estado `theme` muda.
+  useEffect(() => {
+    if (mounted) {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      try {
+        localStorage.setItem('theme', theme);
+      } catch (error) {
+        console.error("Failed to save theme to localStorage", error);
+      }
+    }
+  }, [theme, mounted]);
 
   // Função para alternar entre os temas 'light' e 'dark'.
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setThemeState((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
+  
+  // Função para definir um tema específico.
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+  };
+  
+  // Evita renderizar o conteúdo no servidor ou antes da hidratação para prevenir o erro.
+  if (!mounted) {
+    return null;
+  }
 
   // Fornece o estado e as funções para os componentes filhos.
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

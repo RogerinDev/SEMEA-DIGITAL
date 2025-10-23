@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const mainNavItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
@@ -131,6 +131,11 @@ export function PublicHeader() {
   const { theme, toggleTheme } = useTheme();
   const { currentUser, logout } = useAuth();
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superAdmin' || currentUser?.role === 'Dev';
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -244,7 +249,7 @@ export function PublicHeader() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Alternar tema">
-                  {theme === 'light' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  {mounted ? (theme === 'light' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <div className="h-5 w-5" />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
