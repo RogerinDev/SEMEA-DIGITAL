@@ -58,19 +58,8 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
   useEffect(() => {
     setIsMounted(true);
-    const storedState = localStorage.getItem('sidebar-collapsed');
-    if (storedState) {
-        setIsCollapsed(JSON.parse(storedState));
-    }
   }, []);
 
-  const toggleCollapse = useCallback(() => {
-    setIsCollapsed(prevState => {
-        const newState = !prevState;
-        localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
-        return newState;
-    });
-  }, []);
 
   // Efeito que verifica a autenticação.
   useEffect(() => {
@@ -93,7 +82,11 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
     return (
       <div className="flex min-h-screen">
-        <Sidebar isCollapsed={isCollapsed} onToggleCollapse={toggleCollapse}>
+        <Sidebar 
+          isCollapsed={isCollapsed}
+          onMouseEnter={() => setIsCollapsed(false)}
+          onMouseLeave={() => setIsCollapsed(true)}
+        >
           <SidebarHeader>
             <Logo className="[&_span]:text-sidebar-foreground" isCollapsed={isCollapsed} />
           </SidebarHeader>
@@ -120,6 +113,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                   );
                 })}
               </SidebarMenu>
+               <Separator className="my-4 bg-sidebar-border" />
             </ScrollArea>
           </SidebarContent>
 

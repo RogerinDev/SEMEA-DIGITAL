@@ -3,16 +3,13 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Button } from "./button";
-import { ChevronLeft } from "lucide-react";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
-  onToggleCollapse: () => void;
 }
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
-  ({ className, children, isCollapsed, onToggleCollapse, ...props }, ref) => {
+  ({ className, children, isCollapsed, ...props }, ref) => {
     return (
       <aside
         ref={ref}
@@ -24,7 +21,6 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         {...props}
       >
         {children}
-        <SidebarCollapseButton isCollapsed={isCollapsed} onToggle={onToggleCollapse} />
       </aside>
     )
   }
@@ -91,37 +87,6 @@ const SidebarMenuItem = React.forwardRef<HTMLLIElement, SidebarMenuItemProps>(
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 
-interface SidebarCollapseButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  isCollapsed: boolean;
-  onToggle: () => void;
-}
-
-const SidebarCollapseButton = React.forwardRef<HTMLButtonElement, SidebarCollapseButtonProps>(
-  ({ isCollapsed, onToggle, className, ...props }, ref) => {
-    return (
-      <Button
-        ref={ref}
-        variant="ghost"
-        size="icon"
-        className={cn(
-          "absolute -right-5 top-16 rounded-full border bg-background text-foreground hover:bg-background z-50",
-          className
-        )}
-        onClick={onToggle}
-        {...props}
-      >
-        <ChevronLeft
-          className={cn("h-4 w-4 transition-transform", {
-            "rotate-180": isCollapsed,
-          })}
-        />
-      </Button>
-    )
-  }
-)
-SidebarCollapseButton.displayName = "SidebarCollapseButton"
-
-
 export {
   Sidebar,
   SidebarHeader,
@@ -129,5 +94,4 @@ export {
   SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarCollapseButton
 }
