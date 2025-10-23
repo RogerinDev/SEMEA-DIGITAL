@@ -13,6 +13,7 @@ interface LogoProps {
   className?: string; // Classes CSS adicionais para o container do link.
   iconSize?: number;  // Tamanho (altura e largura) do ícone do logo.
   textSize?: string;  // Classe de tamanho do texto (ex: "text-lg", "text-2xl").
+  isCollapsed?: boolean; // Para controlar a visibilidade do texto
 }
 
 /**
@@ -20,19 +21,21 @@ interface LogoProps {
  * @param {LogoProps} props - As propriedades para customizar o logo.
  * @returns {React.ReactElement} O componente do logo.
  */
-export function Logo({ className, iconSize = 24, textSize = "text-lg" }: LogoProps) {
+export function Logo({ className, iconSize = 24, textSize = "text-lg", isCollapsed = false }: LogoProps) {
   return (
-    <Link href="/" className={cn('flex items-center gap-2 ml-2', className)}>
-      {/* Componente Image do Next.js para otimização da imagem do logo. */}
+    <Link href="/" className={cn('flex items-center gap-2', isCollapsed ? 'justify-center' : '', className)}>
       <Image 
         src="/semea-logo.png" 
         alt="SEMEA Digital Logo" 
         width={iconSize}
         height={iconSize} 
-        className="object-contain" // Garante que a imagem não seja cortada.
+        className="object-contain shrink-0"
       />
-      {/* Texto do logo. */}
-      <span className={cn('font-bold', textSize)}>
+      <span className={cn(
+        'font-bold transition-all duration-300 ease-in-out', 
+        textSize,
+        isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
+      )}>
         SEMEA Digital
       </span>
     </Link>

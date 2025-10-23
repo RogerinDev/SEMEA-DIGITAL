@@ -10,20 +10,8 @@
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarTrigger,
-  SidebarInset,
-} from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +24,8 @@ import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { LogOut, Loader2, Edit, Lock, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
+import { cn } from '@/lib/utils';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar';
 
 // Interface para definir a estrutura de um item de navegação.
 export interface NavItem {
@@ -49,7 +39,7 @@ export interface NavItem {
 interface DashboardLayoutProps {
   children: React.ReactNode;
   navItems: NavItem[];
-  sidebarActions?: React.ReactNode; // Componente opcional para ações na sidebar (ex: botão de "Novo Registro").
+  sidebarActions?: React.ReactNode;
   userName?: string; 
   userRole?: string; 
 }
@@ -60,23 +50,35 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, navItems, sidebarActions, userName = "Usuário", userRole = "Cidadão" }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, logout, loading: authLoading } = useAuth(); // Contexto de autenticação.
+  const { currentUser, logout, loading: authLoading } = useAuth();
+  
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Função para deslogar o usuário.
-  const handleLogout = async () => {
-    await logout();
-  };
+  useEffect(() => {
+    setIsMounted(true);
+    const storedState = localStorage.getItem('sidebar-collapsed');
+    if (storedState) {
+        setIsCollapsed(JSON.parse(storedState));
+    }
+  }, []);
 
-  // Efeito que verifica a autenticação. Se o usuário não estiver logado
-  // enquanto tenta acessar uma página do dashboard, ele é redirecionado para o login.
+  const toggleCollapse = useCallback(() => {
+    setIsCollapsed(prevState => {
+        const newState = !prevState;
+        localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
+        return newState;
+    });
+  }, []);
+
+  // Efeito que verifica a autenticação.
   useEffect(() => {
     if (!authLoading && !currentUser && pathname.startsWith('/dashboard/')) {
       router.push('/login');
     }
   }, [authLoading, currentUser, router, pathname]);
 
-  // Exibe uma tela de carregamento enquanto o estado de autenticação é verificado.
-  if (authLoading || (!currentUser && pathname.startsWith('/dashboard/'))) {
+  if (!isMounted || authLoading || (!currentUser && pathname.startsWith('/dashboard/'))) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -84,72 +86,68 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
     );
   }
 
-  // Se o usuário estiver logado, renderiza o layout do painel.
   if (currentUser) {
     const userInitials = (currentUser?.displayName || currentUser?.email || 'U').charAt(0).toUpperCase();
     const profileBaseUrl = userRole.toLowerCase().includes('admin') ? '/dashboard/admin/profile' : '/dashboard/citizen/profile';
 
     return (
-      <SidebarProvider defaultOpen>
-        <Sidebar>
-          {/* Cabeçalho da Sidebar com o logo e o botão de toggle para mobile */}
-          <SidebarHeader className="p-4 border-b border-sidebar-border">
-            <div className="flex items-center justify-between">
-              <Logo className="[&_span]:text-sidebar-foreground" />
-              <SidebarTrigger className="text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent md:hidden" />
-            </div>
+      <div className="flex min-h-screen">
+        <Sidebar isCollapsed={isCollapsed} onToggleCollapse={toggleCollapse}>
+          <SidebarHeader>
+            <Logo className="[&_span]:text-sidebar-foreground" isCollapsed={isCollapsed} />
           </SidebarHeader>
 
-          {/* Conteúdo principal da Sidebar com área de rolagem */}
           <SidebarContent>
             <ScrollArea className="h-full">
-              {sidebarActions /* Renderiza ações customizadas, como botões de "novo" */}
-              <SidebarMenu className="p-4 pt-0">
-                {navItems.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={item.matchExact ? pathname === item.href : pathname.startsWith(item.href)}
-                      className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
-                    >
-                      <Link href={item.href}>
-                        <item.icon />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+              {sidebarActions}
+              <SidebarMenu>
+                {navItems.map((item) => {
+                  const isActive = item.matchExact ? pathname === item.href : pathname.startsWith(item.href);
+                  return (
+                    <SidebarMenuItem key={item.label} label={item.label} isCollapsed={isCollapsed}>
+                        <Link href={item.href} className={cn(
+                          "flex items-center gap-3 rounded-md p-3 text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                           isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground",
+                           isCollapsed ? "w-10 justify-center" : "w-full"
+                        )}>
+                            <item.icon className="h-5 w-5 shrink-0" />
+                            <span className={cn("overflow-hidden transition-all", isCollapsed ? "w-0" : "w-full")}>
+                                {item.label}
+                            </span>
+                        </Link>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </ScrollArea>
           </SidebarContent>
 
-          {/* Rodapé da Sidebar com informações do usuário e menu de perfil */}
-          <SidebarFooter className="p-2 border-t border-sidebar-border mt-auto">
+          <SidebarFooter>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start h-auto p-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                  <div className="flex justify-between items-center w-full">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                          <Avatar className="h-9 w-9">
-                              <AvatarImage src={currentUser?.photoURL || undefined} alt={userName} />
-                              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground font-semibold">
-                                  {userInitials}
-                              </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col items-start overflow-hidden">
-                              <span className="text-sm font-medium text-sidebar-foreground truncate" title={userName}>
-                                  {userName}
-                              </span>
-                              <span className="text-xs text-sidebar-foreground/70">
-                                  {userRole}
-                              </span>
-                          </div>
+                <Button variant="ghost" className={cn(
+                  "w-full h-auto p-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  isCollapsed ? "justify-center" : "justify-start"
+                )}>
+                  <div className="flex items-center gap-2 overflow-hidden">
+                      <Avatar className="h-9 w-9 shrink-0">
+                          <AvatarImage src={currentUser?.photoURL || undefined} alt={userName} />
+                          <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground font-semibold">
+                              {userInitials}
+                          </AvatarFallback>
+                      </Avatar>
+                      <div className={cn("flex flex-col items-start transition-all overflow-hidden", isCollapsed ? "w-0" : "w-full")}>
+                          <span className="text-sm font-medium text-sidebar-foreground truncate" title={userName}>
+                              {userName}
+                          </span>
+                          <span className="text-xs text-sidebar-foreground/70">
+                              {userRole}
+                          </span>
                       </div>
-                      <ChevronUp className="h-4 w-4 text-sidebar-foreground/70 shrink-0" />
                   </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" align="start" className="w-[calc(var(--sidebar-width)_-_1rem)] mb-2 bg-background border-border shadow-lg">
+              <DropdownMenuContent side="right" align="start" className="mb-2 ml-2 bg-background border-border shadow-lg">
                   <DropdownMenuItem asChild>
                     <Link href={profileBaseUrl}>
                         <Edit className="mr-2 h-4 w-4" />
@@ -163,7 +161,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} disabled={authLoading} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                  <DropdownMenuItem onClick={logout} disabled={authLoading} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Sair</span>
                   </DropdownMenuItem>
@@ -172,23 +170,18 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
           </SidebarFooter>
         </Sidebar>
 
-        {/* Área de conteúdo principal */}
-        <SidebarInset>
-             <div className="flex flex-col h-full">
-                <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6 md:justify-end">
-                    {/* Botão de toggle da sidebar visível apenas em telas menores */}
-                    <SidebarTrigger className="text-foreground hover:text-accent-foreground hover:bg-accent md:hidden" />
-                </header>
-                <main className="flex-1 p-4 md:p-6 lg:p-8">
-                    {children}
-                </main>
-            </div>
-        </SidebarInset>
-      </SidebarProvider>
+        <main className={cn(
+          "flex-1 flex flex-col transition-all duration-300 ease-in-out",
+          isCollapsed ? "pl-[5.5rem]" : "pl-[18rem]"
+        )}>
+          <div className="p-6 md:p-8">
+            {children}
+          </div>
+        </main>
+      </div>
     );
   }
 
-  // Fallback caso algo dê errado com a verificação de autenticação.
   return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <p>Ocorreu um erro ao verificar a autenticação.</p>
