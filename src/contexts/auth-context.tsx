@@ -103,6 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setCurrentUser(appUser);
       
       toast({ title: "Login realizado com sucesso!" });
+      router.push('/'); // Redireciona para a página inicial
       return appUser;
     } catch (error) {
       const authError = error as AuthError;
@@ -140,6 +141,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setCurrentUser(appUser);
       toast({ title: "Login com Google realizado com sucesso!" });
+      router.push('/'); // Redireciona para a página inicial
       return appUser;
     } catch (error) {
       const authError = error as AuthError;

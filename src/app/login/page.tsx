@@ -45,30 +45,22 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   const handleLoginSuccess = (user: any) => {
-    if (user.role === 'admin' || user.role === 'superAdmin') {
-      router.push('/dashboard/admin');
-    } else {
-      router.push('/dashboard/citizen');
-    }
+    // A lógica de redirecionamento agora está centralizada no auth-context.
+    // Esta função pode ser removida ou usada para lógica adicional pós-login se necessário.
   };
 
   const handleEmailSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
-    const result = await login(email, password);
-    
-    if (typeof result !== 'string') {
-      handleLoginSuccess(result);
-    }
+    await login(email, password);
+    // Não é mais necessário chamar handleLoginSuccess ou router.push aqui.
     setIsSubmitting(false);
   };
   
   const handleGoogleSubmit = async () => {
     setIsSubmitting(true);
-    const result = await signInWithGoogle();
-    if(typeof result !== 'string') {
-      handleLoginSuccess(result);
-    }
+    await signInWithGoogle();
+    // Não é mais necessário chamar handleLoginSuccess ou router.push aqui.
     setIsSubmitting(false);
   }
 
