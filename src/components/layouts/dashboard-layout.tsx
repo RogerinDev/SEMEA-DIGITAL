@@ -60,19 +60,18 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
   useEffect(() => {
     setIsMounted(true);
     const savedState = localStorage.getItem("sidebarCollapsed");
-    if (savedState) {
-        setIsCollapsed(JSON.parse(savedState));
+    if (savedState !== null) {
+      setIsCollapsed(JSON.parse(savedState));
     }
   }, []);
-
-  const handleToggleCollapse = () => {
+  
+  const handleToggleCollapse = useCallback(() => {
     setIsCollapsed(prevState => {
         const newState = !prevState;
         localStorage.setItem("sidebarCollapsed", JSON.stringify(newState));
         return newState;
     });
-  }
-
+  }, []);
 
   // Efeito que verifica a autenticação.
   useEffect(() => {
@@ -97,8 +96,8 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
       <div className="flex min-h-screen">
         <Sidebar 
           isCollapsed={isCollapsed}
-          onMouseEnter={() => setIsCollapsed(false)}
-          onMouseLeave={() => setIsCollapsed(true)}
+          onMouseEnter={() => !isCollapsed && setIsCollapsed(false)}
+          onMouseLeave={() => isCollapsed && setIsCollapsed(true)}
         >
           <SidebarHeader>
             <Logo className="[&_span]:text-sidebar-foreground" isCollapsed={isCollapsed} />
@@ -111,7 +110,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
                 {navItems.map((item) => {
                   const isActive = item.matchExact ? pathname === item.href : pathname.startsWith(item.href);
                   return (
-                    <SidebarMenuItem key={item.label} label={item.label}>
+                    <SidebarMenuItem key={item.label} label={item.label} isCollapsed={isCollapsed}>
                         <Link href={item.href} className={cn(
                           "flex items-center gap-3 rounded-md p-3 text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                            isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground",
@@ -130,7 +129,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
           </SidebarContent>
 
           <SidebarFooter>
-             <Separator className="my-2 bg-sidebar-border" />
+            <Separator className="my-2 bg-sidebar-border" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={cn(
