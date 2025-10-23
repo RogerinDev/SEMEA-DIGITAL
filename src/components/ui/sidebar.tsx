@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -300,24 +301,25 @@ const SidebarCollapseButton = React.forwardRef<
 })
 SidebarCollapseButton.displayName = "SidebarCollapseButton"
 
-interface SidebarInsetProps extends SlotProps {}
-
-const SidebarInset = React.forwardRef<HTMLDivElement, SidebarInsetProps>(
-  (props, ref) => {
-    const { isCollapsed } = useSidebar()
-
+const SidebarInset = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    const { isCollapsed } = useSidebar();
     return (
-      <Slot
+      <div
         ref={ref}
-        className={cn("transition-all duration-300 ease-in-out", {
-          "md:ml-14": isCollapsed,
-          "md:ml-72": !isCollapsed,
-        })}
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          {
+            "md:ml-14": isCollapsed,
+            "md:ml-72": !isCollapsed,
+          },
+          className
+        )}
         {...props}
       />
-    )
+    );
   }
-)
+);
 SidebarInset.displayName = "SidebarInset"
 
 export {
