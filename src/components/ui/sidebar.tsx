@@ -2,14 +2,15 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
-  ({ className, children, isCollapsed, ...props }, ref) => {
+  ({ className, children, isCollapsed, onMouseEnter, onMouseLeave, ...props }, ref) => {
     return (
       <aside
         ref={ref}
@@ -18,6 +19,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           isCollapsed ? "w-20" : "w-72",
           className
         )}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
         {...props}
       >
         {children}
@@ -60,28 +63,14 @@ const SidebarMenu = React.forwardRef<HTMLUListElement, SidebarMenuProps>(
 )
 SidebarMenu.displayName = "SidebarMenu"
 
-interface SidebarMenuItemProps extends React.HTMLAttributes<HTMLLIElement> {
-    label: string;
-    isCollapsed: boolean;
-}
+interface SidebarMenuItemProps extends React.HTMLAttributes<HTMLLIElement> {}
 
 const SidebarMenuItem = React.forwardRef<HTMLLIElement, SidebarMenuItemProps>(
-    ({ className, children, label, isCollapsed, ...props }, ref) => {
+    ({ className, children, ...props }, ref) => {
     return (
-        <TooltipProvider delayDuration={100}>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <li ref={ref} className={cn("w-full", className)} {...props}>
-                        {children}
-                    </li>
-                </TooltipTrigger>
-                {isCollapsed && (
-                    <TooltipContent side="right" className="ml-2">
-                        <p>{label}</p>
-                    </TooltipContent>
-                )}
-            </Tooltip>
-        </TooltipProvider>
+        <li ref={ref} className={cn("w-full", className)} {...props}>
+            {children}
+        </li>
     )
 })
 SidebarMenuItem.displayName = "SidebarMenuItem"
