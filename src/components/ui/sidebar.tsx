@@ -70,10 +70,11 @@ SidebarMenu.displayName = "SidebarMenu"
 
 interface SidebarMenuItemProps extends Omit<React.HTMLAttributes<HTMLLIElement>, 'label'> {
     label: string;
+    isCollapsed: boolean;
 }
 
 const SidebarMenuItem = React.forwardRef<HTMLLIElement, SidebarMenuItemProps>(
-    ({ className, children, label, ...props }, ref) => {
+    ({ className, children, label, isCollapsed, ...props }, ref) => {
     return (
         <li ref={ref} className={cn("w-full", className)} {...props}>
             {children}
