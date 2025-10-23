@@ -1,27 +1,76 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Regras do Firestore podem ser adicionadas aqui no futuro.
-    // Por enquanto, permite leitura e escrita se o usuário estiver autenticado.
+
+    // Regra geral: por padrão, ninguém pode ler ou escrever, a menos que uma regra mais específica permita.
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
+    }
+
+    // Regras para a coleção 'service_requests'
+    match /service_requests/{requestId} {
+      // Permite que um usuário autenticado leia uma solicitação se o 'citizenId' no documento for o seu próprio UID.
+      allow read: if request.auth != null && request.auth.uid == resource.data.citizenId;
+      // Nega a escrita por padrão no lado do cliente para esta coleção. As escritas são feitas via Server Actions.
+      allow write: if false;
+    }
+
+    // Regras para a coleção 'incidents'
+    match /incidents/{incidentId} {
+      // Permite que um usuário autenticado leia uma denúncia se o 'citizenId' no documento for o seu próprio UID.
+      allow read: if request.auth != null && request.auth.uid == resource.data.citizenId;
+       // Nega a escrita por padrão no lado do cliente.
+      allow write: if false;
+    }
+
+    // Regras para coleções do Bem-Estar Animal
+    match /animals_for_adoption/{animalId} {
+      // Permite leitura pública dos animais para adoção.
+      allow read: if true;
+      // Nega a escrita por padrão no lado do cliente.
+      allow write: if false;
+    }
+     match /lost_found_posts/{postId} {
+      // Permite leitura pública dos posts de perdidos e achados.
+      allow read: if true;
+       // Nega a escrita por padrão no lado do cliente.
+      allow write: if false;
     }
   }
 }
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Regra geral: Permite a leitura de todos os arquivos por qualquer pessoa.
-    // Isso é útil para exibir imagens públicas no site (ex: fotos de animais).
-    allow read;
+    // Regra para permitir o upload de imagens de perfil.
+    // Apenas usuários autenticados podem escrever em seu próprio diretório.
+    match /profile_pictures/{userId}/{fileName} {
+      allow read: if true; // Permite que qualquer um leia as fotos de perfil.
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
 
-    // Regra específica para uploads:
-    // Permite que um usuário autenticado escreva (faça upload) em qualquer caminho.
-    // A segurança é aprimorada ao restringir os caminhos de upload no código do cliente,
-    // por exemplo, usando o UID do usuário no nome do arquivo/caminho para garantir
-    // que eles só possam "sobrescrever" seus próprios uploads potenciais.
-    allow write: if request.auth != null;
+    // Regra para permitir o upload de evidências de denúncias.
+    // Permite que usuários logados escrevam na pasta.
+    match /incident_evidence/{userId}/{fileName} {
+       allow read: if true; // Permite leitura pública.
+       allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regra para permitir o upload de imagens de animais para adoção.
+    match /adoption_images/{userId}/{fileName} {
+       allow read: if true;
+       allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Regra para permitir o upload de imagens de animais perdidos/achados.
+    match /lost_found_images/{userId}/{fileName} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Regra de fallback: nega acesso a todas as outras rotas do storage.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
   }
 }
