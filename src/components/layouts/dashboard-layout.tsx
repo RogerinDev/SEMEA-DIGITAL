@@ -67,7 +67,7 @@ const NavLink: React.FC<NavLinkProps> = ({ item, isCollapsed }) => {
           className={cn(
             'w-full justify-start',
             isCollapsed && 'justify-center',
-            isActive && 'text-sidebar-primary-foreground bg-sidebar-primary'
+            isActive ? 'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90' : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
           )}
           aria-label={item.label}
         >
@@ -109,7 +109,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ userName, userRole, userPhotoUrl, l
           variant="ghost"
           className={cn(
             'flex items-center gap-2 w-full p-2 h-auto',
-            isMobile ? 'justify-start' : 'justify-center'
+            'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+            isMobile ? 'justify-center' : 'justify-start'
           )}
         >
           <Avatar className="h-8 w-8">
@@ -216,10 +217,10 @@ export default function DashboardLayout({ children, navItems, userName, userRole
   }
 
   return (
-    <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+    <div className="grid min-h-screen w-full lg:grid-cols-[auto_1fr]">
       <aside className={cn(
         "hidden lg:flex flex-col border-r bg-sidebar text-sidebar-foreground transition-all duration-300",
-        isCollapsed ? 'lg:w-20' : 'lg:w-72'
+        isCollapsed ? 'w-20' : 'w-72'
       )}>
         <div className={cn(
             "flex items-center h-16 px-6 border-b border-sidebar-border",
@@ -244,11 +245,7 @@ export default function DashboardLayout({ children, navItems, userName, userRole
       </aside>
       <div className="flex flex-col">
         <header className="flex h-16 items-center gap-4 border-b bg-background px-6 sticky top-0 z-30">
-          {/* <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsCollapsed(!isCollapsed)}>
-              <PanelLeftOpen className="h-4 w-4" />
-          </Button> */}
            <div className="flex-1">
-               {/* Search bar could go here */}
            </div>
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

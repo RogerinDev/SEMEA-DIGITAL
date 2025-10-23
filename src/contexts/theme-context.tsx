@@ -27,45 +27,45 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  * @param {ReactNode} props.children - Os componentes filhos que terão acesso ao contexto.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // Estado para armazenar o tema atual. O padrão é 'light'.
-  const [theme, setThemeState] = useState<Theme>('light'); 
+  // Estado para armazenar o tema atual.
+  const [theme, setThemeState] = useState<Theme | null>(null);
 
   // Efeito que roda uma vez na montagem do componente no cliente.
   useEffect(() => {
-    // Tenta carregar o tema salvo no localStorage.
     const storedTheme = localStorage.getItem('theme') as Theme | null;
     if (storedTheme) {
       setThemeState(storedTheme);
     } else {
-      // Se não houver tema salvo, usa a preferência do sistema operacional.
       const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setThemeState(systemPrefersDark ? 'dark' : 'light');
     }
-  }, []); // O array vazio [] garante que este efeito rode apenas uma vez.
+  }, []);
 
   // Efeito que roda sempre que o estado `theme` muda.
   useEffect(() => {
-    // Adiciona ou remove a classe 'dark' do elemento <html> para aplicar os estilos do Tailwind CSS.
+    if (theme === null) return;
+    
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-    // Salva a nova preferência de tema no localStorage.
     localStorage.setItem('theme', theme);
-  }, [theme]); // Roda sempre que `theme` for alterado.
+  }, [theme]);
 
-  // Função para alternar entre os temas 'light' e 'dark'.
   const toggleTheme = () => {
     setThemeState((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
   
-  // Função para definir um tema específico.
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
   };
+  
+  if (theme === null) {
+      return null;
+  }
 
-  // Fornece o estado e as funções para os componentes filhos.
+
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
