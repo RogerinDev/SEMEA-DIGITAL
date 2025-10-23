@@ -20,29 +20,23 @@ interface ThemeContextType {
 // Cria o contexto com um valor inicial indefinido.
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Função auxiliar para obter o tema inicial de forma segura no lado do cliente
-const getInitialTheme = (): Theme => {
-    if (typeof window === 'undefined') {
-        return 'light'; // Padrão para SSR
-    }
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
-        return storedTheme;
-    }
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    return systemPrefersDark ? 'dark' : 'light';
-};
-
-
 /**
  * Componente Provedor que envolve a aplicação ou parte dela.
  * @param {object} props - Propriedades do componente.
  * @param {ReactNode} props.children - Os componentes filhos que terão acesso ao contexto.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [theme, setTheme] = useState<Theme>('light'); // Começa com um padrão seguro.
 
-  // Efeito para aplicar a classe ao elemento root e salvar no localStorage
+  // Efeito para buscar o tema salvo ou detectar o tema do sistema no cliente.
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme') as Theme | null;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = storedTheme || (systemPrefersDark ? 'dark' : 'light');
+    setTheme(initialTheme);
+  }, []);
+
+  // Efeito para aplicar a classe ao elemento root e salvar no localStorage.
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');

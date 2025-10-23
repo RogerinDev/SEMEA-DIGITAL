@@ -56,7 +56,7 @@
     --primary: 146 50% 59%; /* #4ADE80 (Verde de destaque) */
     --primary-foreground: 122 17% 10%; /* Preto esverdeado para texto em botões */
 
-    --secondary: 136 44% 63%; /* #22C55E (Verde dos botões) */
+    --secondary: 146 50% 59%;
     --secondary-foreground: 122 17% 10%;
 
     --muted: 138 23% 22%; /* Um pouco mais claro que o card */
