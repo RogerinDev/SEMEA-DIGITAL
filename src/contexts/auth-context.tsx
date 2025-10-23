@@ -75,6 +75,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => unsubscribe();
   }, []);
 
+  const handleLoginSuccess = (user: AppUser) => {
+    const isAdmin = user.role === 'admin' || user.role === 'superAdmin';
+    const targetPath = isAdmin ? '/dashboard/admin' : '/dashboard/citizen';
+    toast({ title: "Login realizado com sucesso!" });
+    router.push(targetPath);
+  };
+
   const login = async (email: string, pass: string): Promise<AppUser | string> => {
     setLoading(true);
     try {
@@ -97,13 +104,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const idTokenResult = await user.getIdTokenResult(true); 
       const claims = idTokenResult.claims;
       const appUser = user as AppUser;
-      appUser.role = claims.role as AppUser['role'];
+      appUser.role = claims.role as AppUser['role'] || 'citizen';
       appUser.department = claims.department as AppUser['department'];
 
       setCurrentUser(appUser);
-      
-      toast({ title: "Login realizado com sucesso!" });
-      router.push('/'); // Redireciona para a página inicial
+      handleLoginSuccess(appUser);
+
       return appUser;
     } catch (error) {
       const authError = error as AuthError;
@@ -140,8 +146,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       appUser.department = claims.department as AppUser['department'];
 
       setCurrentUser(appUser);
-      toast({ title: "Login com Google realizado com sucesso!" });
-      router.push('/'); // Redireciona para a página inicial
+      handleLoginSuccess(appUser);
+
       return appUser;
     } catch (error) {
       const authError = error as AuthError;

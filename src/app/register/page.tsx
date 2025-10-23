@@ -47,14 +47,7 @@ export default function RegisterPage() {
   
   const handleGoogleSubmit = async () => {
     setIsSubmitting(true);
-    const result = await signInWithGoogle();
-    if(typeof result !== 'string') {
-      if (result.role === 'admin' || result.role === 'superAdmin') {
-        router.push('/dashboard/admin');
-      } else {
-        router.push('/dashboard/citizen');
-      }
-    }
+    await signInWithGoogle();
     setIsSubmitting(false);
   }
 
@@ -78,7 +71,6 @@ export default function RegisterPage() {
             </Button>
             
             <div className="relative mb-6">
-              <Separator />
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>

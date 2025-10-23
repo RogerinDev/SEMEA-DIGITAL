@@ -27,7 +27,7 @@ import PublicLayout from '@/components/layouts/public-layout';
 import { Separator } from '@/components/ui/separator';
 
 const GoogleIcon = () => (
-  <svg className="mr-2 h-4 w-4 text-foreground" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+  <svg className="mr-2 h-4 w-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
     <path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 109.8 512 0 402.2 0 261.8 0 120.5 109.8 8.6 244 8.6c77.7 0 120.5 30.4 148.6 57.6l-64 63.3c-24-23.2-52.8-38.5-84.6-38.5-72.3 0-131.2 59.3-131.2 132.8s58.9 132.8 131.2 132.8c76 0 104.5-54.7 108.3-82.9H244v-66.2h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
   </svg>
 );
@@ -155,7 +155,6 @@ export default function LoginPage() {
             </form>
             
             <div className="relative my-6">
-              <Separator />
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
