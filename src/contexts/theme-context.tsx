@@ -14,8 +14,7 @@ type Theme = 'light' | 'dark';
 // Define a estrutura do contexto do tema.
 interface ThemeContextType {
   theme: Theme;
-  setTheme: (theme: Theme) => void; // Permite definir um tema diretamente.
-  toggleTheme: () => void; // Alterna entre os temas.
+  toggleTheme: () => void;
 }
 
 // Cria o contexto com um valor inicial indefinido.
@@ -27,47 +26,44 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  * @param {ReactNode} props.children - Os componentes filhos que terão acesso ao contexto.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // Estado para armazenar o tema atual.
-  const [theme, setThemeState] = useState<Theme | null>(null);
+  // Estado para armazenar o tema atual. Inicializa como null.
+  const [theme, setTheme] = useState<Theme | null>(null);
 
   // Efeito que roda uma vez na montagem do componente no cliente.
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
-      setThemeState(storedTheme);
-    } else {
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setThemeState(systemPrefersDark ? 'dark' : 'light');
-    }
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Define o tema com base na prioridade: localStorage > preferência do sistema > fallback para 'light'
+    const initialTheme = storedTheme || (systemPrefersDark ? 'dark' : 'light');
+    setTheme(initialTheme);
   }, []);
 
   // Efeito que roda sempre que o estado `theme` muda.
   useEffect(() => {
+    // Não faz nada se o tema ainda não foi determinado.
     if (theme === null) return;
     
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark'); // Remove classes antigas
+    root.classList.add(theme); // Adiciona a classe do tema atual
+    localStorage.setItem('theme', theme); // Salva a preferência no localStorage
   }, [theme]);
 
+  // Função para alternar entre os temas.
   const toggleTheme = () => {
-    setThemeState((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
   
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-  };
-  
+  // Não renderiza os componentes filhos até que o tema inicial tenha sido definido,
+  // evitando o "flash" do tema incorreto.
   if (theme === null) {
       return null;
   }
 
-
+  // O `value` do provider agora só precisa fornecer o tema atual e a função de alternância.
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
