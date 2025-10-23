@@ -16,8 +16,6 @@ import {
   updatePassword,
   sendPasswordResetEmail,
   sendEmailVerification,
-  GoogleAuthProvider,
-  signInWithPopup,
 } from "firebase/auth";
 // Importa a instância de autenticação já inicializada, em vez de inicializá-la aqui.
 import { auth } from "@/lib/firebase/client"; 
@@ -28,7 +26,6 @@ interface AuthContextType {
   currentUser: AppUser | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<AppUser | string>;
-  signInWithGoogle: () => Promise<AppUser | string>;
   register: (name: string, email: string, pass:string) => Promise<UserCredential | string>;
   logout: () => Promise<void>;
   changeUserPassword: (currentPass: string, newPass: string) => Promise<boolean>;
@@ -131,42 +128,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const signInWithGoogle = async (): Promise<AppUser | string> => {
-    setLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-      const userCredential = await signInWithPopup(auth, provider);
-      const user = userCredential.user;
-
-      // Force refresh the token to get the latest custom claims.
-      const idTokenResult = await user.getIdTokenResult(true);
-      const claims = idTokenResult.claims;
-      const appUser = user as AppUser;
-      appUser.role = claims.role as AppUser['role'] || 'citizen'; // Default to citizen
-      appUser.department = claims.department as AppUser['department'];
-
-      setCurrentUser(appUser);
-      handleLoginSuccess(appUser);
-
-      return appUser;
-    } catch (error) {
-      const authError = error as AuthError;
-      console.error("Google Sign-In Error:", authError);
-      let description = "Ocorreu um erro inesperado durante o login com o Google.";
-
-      if (authError.code === 'auth/popup-closed-by-user') {
-        description = "A janela de login com o Google foi fechada antes da conclusão.";
-      } else if (authError.code === 'auth/account-exists-with-different-credential') {
-        description = "Já existe uma conta com este e-mail, mas criada com um método de login diferente. Tente fazer login com e-mail e senha.";
-      }
-      
-      toast({ title: "Erro de Login", description, variant: "destructive" });
-      return authError.code;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const register = async (name: string, email: string, pass: string): Promise<UserCredential | string> => {
     setLoading(true);
     try {
@@ -263,7 +224,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     currentUser,
     loading,
     login,
-    signInWithGoogle,
     register,
     logout,
     changeUserPassword,

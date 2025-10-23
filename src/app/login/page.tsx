@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -24,19 +23,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import PublicLayout from '@/components/layouts/public-layout';
-import { Separator } from '@/components/ui/separator';
-
-const GoogleIcon = () => (
-  <svg className="mr-2 h-4 w-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-    <path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 109.8 512 0 402.2 0 261.8 0 120.5 109.8 8.6 244 8.6c77.7 0 120.5 30.4 148.6 57.6l-64 63.3c-24-23.2-52.8-38.5-84.6-38.5-72.3 0-131.2 59.3-131.2 132.8s58.9 132.8 131.2 132.8c76 0 104.5-54.7 108.3-82.9H244v-66.2h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
-  </svg>
-);
-
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, signInWithGoogle, resetPassword, loading: authLoading } = useAuth();
+  const { login, resetPassword, loading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -44,25 +35,12 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleLoginSuccess = (user: any) => {
-    // A lógica de redirecionamento agora está centralizada no auth-context.
-    // Esta função pode ser removida ou usada para lógica adicional pós-login se necessário.
-  };
-
   const handleEmailSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
     await login(email, password);
-    // Não é mais necessário chamar handleLoginSuccess ou router.push aqui.
     setIsSubmitting(false);
   };
-  
-  const handleGoogleSubmit = async () => {
-    setIsSubmitting(true);
-    await signInWithGoogle();
-    // Não é mais necessário chamar handleLoginSuccess ou router.push aqui.
-    setIsSubmitting(false);
-  }
 
   const handlePasswordReset = async () => {
     if (!resetEmail) {
@@ -154,22 +132,6 @@ export default function LoginPage() {
               </Button>
             </form>
             
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Ou continue com
-                </span>
-              </div>
-            </div>
-
-            <Button variant="outline" className="w-full" onClick={handleGoogleSubmit} disabled={isLoading}>
-              {isLoading && isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
-              Entrar com o Google
-            </Button>
-
             <div className="mt-6 text-center text-sm">
               Não tem uma conta?{' '}
               <Link href="/register" className="text-primary hover:underline font-medium">
