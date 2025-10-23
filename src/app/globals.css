@@ -24,39 +24,58 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 142.1 76.2% 36.3%;
-    --radius: 0.5rem;
     --chart-1: 142.1 76.2% 36.3%;
     --chart-2: 160 60% 35%;
     --chart-3: 180 55% 40%;
     --chart-4: 200 50% 45%;
     --chart-5: 220 45% 50%;
+
+    /* Sidebar Light Colors */
+    --sidebar-background: 210 40% 98%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 142.1 76.2% 36.3%;
+    --sidebar-primary-foreground: 355.7 100% 97.3%;
+    --sidebar-accent: 210 40% 94%;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 142.1 76.2% 36.3%;
   }
 
   .dark {
-    --background: 125 15% 15%;
-    --foreground: 110 40% 95%;
-    --card: 127 18% 20%;
-    --card-foreground: 110 40% 95%;
-    --popover: 125 15% 11%;
-    --popover-foreground: 110 40% 95%;
-    --primary: 140 65% 55%;
-    --primary-foreground: 140 90% 10%;
-    --secondary: 130 10% 30%;
-    --secondary-foreground: 110 40% 95%;
-    --muted: 130 10% 25%;
-    --muted-foreground: 110 20% 75%;
-    --accent: 130 15% 35%;
-    --accent-foreground: 110 40% 95%;
+    --background: 132 15% 15%; /* #1E2B1F */
+    --foreground: 128 33% 91%; /* #E4F2E0 */
+    --card: 140 18% 19%; /* #263B2A */
+    --card-foreground: 128 33% 91%; /* #E4F2E0 */
+    --popover: 132 15% 15%;
+    --popover-foreground: 128 33% 91%;
+    --primary: 145 58% 59%; /* #4ADE80 */
+    --primary-foreground: 145 100% 10%;
+    --secondary: 140 18% 19%;
+    --secondary-foreground: 128 33% 91%;
+    --muted: 140 25% 25%;
+    --muted-foreground: 136 20% 70%; /* #B7D4B0 */
+    --accent: 140 25% 25%;
+    --accent-foreground: 145 58% 59%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 130 10% 40%;
-    --input: 130 10% 40%;
-    --ring: 140 65% 55%;
-    --chart-1: 140 70% 50%;
+    --border: 143 33% 28%; /* #33593A */
+    --input: 143 33% 28%;
+    --ring: 145 58% 59%;
+    --chart-1: 145 58% 59%;
     --chart-2: 155 65% 50%;
     --chart-3: 170 60% 50%;
     --chart-4: 185 55% 50%;
     --chart-5: 200 50% 50%;
+
+    /* Sidebar Dark Colors */
+    --sidebar-background: 132 15% 15%;
+    --sidebar-foreground: 128 33% 91%;
+    --sidebar-primary: 145 58% 59%;
+    --sidebar-primary-foreground: 145 100% 10%;
+    --sidebar-accent: 140 25% 25%;
+    --sidebar-accent-foreground: 145 58% 59%;
+    --sidebar-border: 143 33% 28%;
+    --sidebar-ring: 145 58% 59%;
   }
 }
 
@@ -67,6 +86,6 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'PT Sans', sans-serif;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    transition: background-color 0.4s, color 0.4s;
   }
 }
