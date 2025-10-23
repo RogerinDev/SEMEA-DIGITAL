@@ -28,13 +28,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  * @param {ReactNode} props.children - Os componentes filhos que terão acesso ao contexto.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
-  // Estado para garantir que a lógica do lado do cliente só rode após a montagem.
+  // Estado para armazenar o tema atual. O padrão agora é 'dark'.
+  const [theme, setThemeState] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   // Efeito que roda uma vez na montagem do componente no cliente.
   useEffect(() => {
-    setMounted(true); // Marca que o componente foi montado.
+    setMounted(true);
     try {
       const storedTheme = localStorage.getItem('theme') as Theme | null;
       if (storedTheme && ['light', 'dark'].includes(storedTheme)) {
@@ -45,8 +45,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setThemeState(systemPrefersDark ? 'dark' : 'light');
       }
     } catch (error) {
-        // Em caso de erro (ex: localStorage indisponível), mantém o padrão 'light'.
-        setThemeState('light');
+        // Em caso de erro (ex: localStorage indisponível), mantém o padrão.
+        setThemeState('dark');
     }
   }, []); // O array vazio [] garante que este efeito rode apenas uma vez.
 
@@ -76,14 +76,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeState(newTheme);
   };
   
-  // Evita renderizar o conteúdo no servidor ou antes da hidratação para prevenir o erro.
-  if (!mounted) {
-    return null;
-  }
+  const value = { theme, setTheme, toggleTheme };
 
   // Fornece o estado e as funções para os componentes filhos.
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
