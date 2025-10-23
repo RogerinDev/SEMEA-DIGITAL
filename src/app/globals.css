@@ -32,30 +32,30 @@
   }
 
   .dark {
-    --background: 124 10% 11%;
+    --background: 125 15% 15%;
     --foreground: 110 40% 95%;
-    --card: 124 10% 15%;
+    --card: 127 18% 20%;
     --card-foreground: 110 40% 95%;
-    --popover: 124 10% 11%;
+    --popover: 125 15% 11%;
     --popover-foreground: 110 40% 95%;
-    --primary: 142.1 70.6% 45.3%;
-    --primary-foreground: 144.9 80.4% 12%;
-    --secondary: 124 10% 25%;
+    --primary: 140 65% 55%;
+    --primary-foreground: 140 90% 10%;
+    --secondary: 130 10% 30%;
     --secondary-foreground: 110 40% 95%;
-    --muted: 124 10% 20%;
+    --muted: 130 10% 25%;
     --muted-foreground: 110 20% 75%;
-    --accent: 124 10% 25%;
+    --accent: 130 15% 35%;
     --accent-foreground: 110 40% 95%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 124 10% 25%;
-    --input: 124 10% 25%;
-    --ring: 142.1 70.6% 45.3%;
-    --chart-1: 142.1 70.6% 45.3%;
-    --chart-2: 155 65% 45%;
-    --chart-3: 170 60% 45%;
-    --chart-4: 185 55% 45%;
-    --chart-5: 200 50% 45%;
+    --border: 130 10% 40%;
+    --input: 130 10% 40%;
+    --ring: 140 65% 55%;
+    --chart-1: 140 70% 50%;
+    --chart-2: 155 65% 50%;
+    --chart-3: 170 60% 50%;
+    --chart-4: 185 55% 50%;
+    --chart-5: 200 50% 50%;
   }
 }
 
@@ -66,5 +66,9 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'PT Sans', sans-serif;
+  }
+  /* Adiciona transições suaves para a troca de tema */
+  body, .bg-background, .bg-card, .bg-popover, .text-foreground, .text-card-foreground, .border-border {
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }
 }
