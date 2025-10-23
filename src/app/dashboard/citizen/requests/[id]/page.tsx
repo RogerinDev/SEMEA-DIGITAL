@@ -7,45 +7,45 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, FileText, CalendarDays, MapPin, History, CheckCircle, Clock } from 'lucide-react';
+import { ArrowLeft, FileText, CalendarDays, MapPin, History, CheckCircle, Clock, Edit3, XCircle, MessageSquare } from 'lucide-react';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type StatusHistoryEntry } from '@/types';
 import { getRequestByIdAction } from '@/app/actions/requests-actions';
 
 export const dynamic = 'force-dynamic';
 
-const statusTranslations: Record<ServiceRequest['status'], string> = {
-  pendente: "Pendente",
-  em_analise: "Em Análise",
-  vistoria_agendada: "Vistoria Agendada",
-  aguardando_documentacao: "Aguardando Documentação",
-  aprovado: "Aprovado",
-  rejeitado: "Rejeitado",
-  concluido: "Concluído",
-  cancelado_pelo_usuario: "Cancelado pelo Usuário"
+const statusConfig: { [key in ServiceRequest['status']]: { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: React.ElementType } } = {
+  pendente: { label: "Pendente", variant: "outline", icon: Clock },
+  em_analise: { label: "Em Análise", variant: "secondary", icon: Edit3 },
+  vistoria_agendada: { label: "Vistoria Agendada", variant: "secondary", icon: CalendarDays },
+  aguardando_documentacao: { label: "Aguardando Documentação", variant: "outline", icon: FileText },
+  aprovado: { label: "Aprovado", variant: "default", icon: CheckCircle },
+  rejeitado: { label: "Rejeitado", variant: "destructive", icon: XCircle },
+  concluido: { label: "Concluído", variant: "default", icon: CheckCircle },
+  cancelado_pelo_usuario: { label: "Cancelado pelo Usuário", variant: "destructive", icon: XCircle },
 };
 
-function getStatusVariant(status: ServiceRequest['status']): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case 'aprovado': case 'concluido': return 'default';
-    case 'em_analise': case 'vistoria_agendada': return 'secondary';
-    case 'rejeitado': case 'cancelado_pelo_usuario': return 'destructive';
-    default: return 'outline';
-  }
-}
 
 function HistoryEntry({ entry }: { entry: StatusHistoryEntry }) {
+  const config = statusConfig[entry.status as ServiceRequest['status']] || statusConfig.pendente;
+  const Icon = config.icon;
+
   return (
-    <li className="flex gap-3">
+    <li className="flex gap-4">
         <div className="flex flex-col items-center">
-            <div className="bg-primary rounded-full p-1.5">
-                <CheckCircle className="h-4 w-4 text-primary-foreground" />
+            <div className="bg-primary rounded-full p-2">
+                <Icon className="h-5 w-5 text-primary-foreground" />
             </div>
             <div className="w-px flex-grow bg-border my-1"></div>
         </div>
-        <div>
-            <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
-            <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
-            {entry.notes && <p className="text-sm mt-1">{entry.notes}</p>}
+        <div className="pb-6 flex-1">
+            <p className="font-semibold text-base capitalize">{config.label}</p>
+            <p className="text-sm text-muted-foreground">{new Date(entry.date).toLocaleString('pt-BR')} por <strong>{entry.updatedBy}</strong></p>
+            {entry.notes && (
+                <div className="mt-2 text-sm bg-muted/50 p-3 rounded-md border">
+                    <p className="font-semibold text-foreground mb-1 flex items-center"><MessageSquare className="h-4 w-4 mr-2"/> Parecer Técnico / Observação:</p>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{entry.notes}</p>
+                </div>
+            )}
         </div>
     </li>
   )
@@ -59,7 +59,7 @@ export default async function CitizenRequestDetailPage({ params }: { params: { i
   }
 
   const typeLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.label || request.type;
-  const statusLabel = statusTranslations[request.status] || request.status;
+  const currentStatusConfig = statusConfig[request.status];
   const departmentLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "N/A";
 
   return (
@@ -71,8 +71,9 @@ export default async function CitizenRequestDetailPage({ params }: { params: { i
           </Link>
         </Button>
         <PageTitle title={`Solicitação #${request.protocol}`} icon={FileText} className="mb-0 flex-grow" />
-        <Badge variant={getStatusVariant(request.status)} className="text-sm px-3 py-1">
-          {statusLabel}
+        <Badge variant={currentStatusConfig.variant} className="text-sm px-3 py-1">
+          <currentStatusConfig.icon className="h-4 w-4 mr-2" />
+          {currentStatusConfig.label}
         </Badge>
       </div>
 
@@ -132,13 +133,13 @@ export default async function CitizenRequestDetailPage({ params }: { params: { i
             </CardHeader>
             <CardContent>
                 {request.history && request.history.length > 0 ? (
-                    <ul className="space-y-2 -ml-3">
+                    <ul className="space-y-0 -ml-4">
                         {request.history.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry, index) => (
                            <HistoryEntry key={index} entry={entry} />
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-sm text-muted-foreground">Nenhum histórico de status para exibir.</p>
+                    <p className="text-sm text-muted-foreground p-4 text-center">Nenhum histórico de status para exibir.</p>
                 )}
             </CardContent>
           </Card>
