@@ -40,7 +40,7 @@ function getStatusVariant(status: ServiceRequest['status']): "default" | "second
     }
 }
 
-function HistoryEntry({ entry }: { entry: StatusHistoryEntry }) {
+function HistoryEntryCard({ entry }: { entry: StatusHistoryEntry }) {
   const statusConfig = statusOptions.find(s => s.value === entry.status);
   const Icon = statusConfig?.icon || Clock;
 
@@ -50,12 +50,13 @@ function HistoryEntry({ entry }: { entry: StatusHistoryEntry }) {
             <div className="bg-primary rounded-full p-1.5">
                 <Icon className="h-4 w-4 text-primary-foreground" />
             </div>
+            {/* Linha vertical conectora */}
             <div className="w-px flex-grow bg-border my-1"></div>
         </div>
-        <div>
+        <div className="pb-4 flex-1">
             <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
             <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
-            {entry.notes && <p className="text-sm mt-1 bg-muted/50 p-2 rounded-md">{entry.notes}</p>}
+            {entry.notes && <p className="text-sm mt-1 bg-muted/50 p-2 rounded-md whitespace-pre-wrap">{entry.notes}</p>}
         </div>
     </li>
   )
@@ -86,7 +87,7 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
       if (fetchedRequest) {
         setRequest(fetchedRequest);
         setSelectedStatus(fetchedRequest.status);
-        setNotes(fetchedRequest.notes || '');
+        setNotes(''); // Limpa o campo de notas para novo parecer
 
         // Prepare data for AI: filter resolved tickets of the same type
         const similarResolved = allRequests
@@ -106,6 +107,10 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
   
   const handleUpdate = async () => {
     if (!request || !selectedStatus || !currentUser) return;
+    if (selectedStatus === request.status && !notes.trim()) {
+        toast({ title: "Nenhuma alteração", description: "Altere o status ou adicione um parecer técnico para salvar.", variant: "destructive"});
+        return;
+    }
     
     setIsUpdating(true);
     const result = await updateRequestStatusAction({
@@ -121,6 +126,7 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
         const fetchedRequest = await getRequestByIdAction(params.id);
         if (fetchedRequest) {
             setRequest(fetchedRequest);
+            setSelectedStatus(fetchedRequest.status);
             setNotes(''); // Limpa as notas após salvar no histórico
         }
     } else {
@@ -227,9 +233,9 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
            <Card>
             <CardHeader>
                 <CardTitle>Processar Solicitação</CardTitle>
-                <CardDescription>
+                 <CardDescription>
                   {isActionDisabled 
-                    ? "As ações estão desabilitadas para esta solicitação (permissão ou status final)."
+                    ? "As ações estão desabilitadas pois você não tem permissão ou a solicitação está em um status final."
                     : "Atualize o status e adicione um parecer técnico."}
                 </CardDescription>
             </CardHeader>
@@ -287,14 +293,14 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                {request.history && request.history.length > 0 ? (
-                    <ul className="space-y-2 -ml-3">
+                 {request.history && request.history.length > 0 ? (
+                    <ul className="space-y-0 -ml-3">
                         {request.history.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry, index) => (
-                           <HistoryEntry key={index} entry={entry} />
+                           <HistoryEntryCard key={index} entry={entry} />
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-sm text-muted-foreground">Nenhum histórico de status para exibir.</p>
+                    <p className="text-sm text-muted-foreground p-4 text-center">Nenhum histórico de status para exibir.</p>
                 )}
             </CardContent>
           </Card>

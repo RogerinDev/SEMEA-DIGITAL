@@ -41,6 +41,28 @@ function getStatusVariant(status: IncidentReport['status']): "default" | "second
     }
 }
 
+function HistoryEntryCard({ entry }: { entry: StatusHistoryEntry }) {
+  const statusConfig = statusOptions.find(s => s.value === entry.status);
+  const Icon = statusConfig?.icon || Clock;
+
+  return (
+    <li className="flex gap-3">
+        <div className="flex flex-col items-center">
+            <div className="bg-primary rounded-full p-1.5">
+                <Icon className="h-4 w-4 text-primary-foreground" />
+            </div>
+            {/* Linha vertical conectora */}
+            <div className="w-px flex-grow bg-border my-1"></div>
+        </div>
+        <div className="pb-4 flex-1">
+            <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
+            <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
+            {entry.notes && <p className="text-sm mt-1 bg-muted/50 p-2 rounded-md whitespace-pre-wrap">{entry.notes}</p>}
+        </div>
+    </li>
+  )
+}
+
 export default function AdminIncidentDetailPage({ params }: { params: { id: string } }) {
   const [incident, setIncident] = useState<IncidentReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +88,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
       if (fetchedIncident) {
         setIncident(fetchedIncident);
         setSelectedStatus(fetchedIncident.status);
-        setNotes(fetchedIncident.notes || '');
+        setNotes(''); // Limpa o campo de notas para novo parecer
         setInspector(fetchedIncident.inspector || '');
 
         // Prepare data for AI: filter resolved incidents of the same type
@@ -87,12 +109,16 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
 
   const handleUpdate = async () => {
     if (!incident || !selectedStatus || !currentUser) return;
+    if (selectedStatus === incident.status && !notes.trim()) {
+        toast({ title: "Nenhuma alteração", description: "Altere o status ou adicione um parecer técnico para salvar.", variant: "destructive"});
+        return;
+    }
 
     setIsUpdating(true);
     const result = await updateIncidentStatusAction({
       id: incident.id,
       status: selectedStatus,
-      notes,
+      notes: notes, // O parecer técnico é salvo como nota no histórico
       inspector,
       updatedBy: currentUser.displayName || currentUser.email || 'Admin',
     });
@@ -103,6 +129,8 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
        const fetchedIncident = await getIncidentByIdAction(params.id);
         if (fetchedIncident) {
             setIncident(fetchedIncident);
+            setSelectedStatus(fetchedIncident.status);
+            setNotes(''); // Limpa o campo de notas após salvar
         }
     } else {
       toast({ title: "Erro", description: result.error, variant: "destructive" });
@@ -129,6 +157,11 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
   if (!incident) return <p>Denúncia não encontrada.</p>;
 
   const currentStatusOption = statusOptions.find(s => s.value === incident.status);
+  const isActionDisabled = !currentUser || 
+                         (currentUser.role !== 'superAdmin' && currentUser.department !== incident?.department) ||
+                         incident?.status === 'resolvida' ||
+                         incident?.status === 'arquivada_improcedente';
+
 
   return (
     <>
@@ -222,53 +255,59 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
            <Card>
             <CardHeader>
                 <CardTitle>Ações e Fiscalização</CardTitle>
-                <CardDescription>Registre as ações tomadas e atualize o status.</CardDescription>
+                 <CardDescription>
+                  {isActionDisabled 
+                    ? "As ações estão desabilitadas pois você não tem permissão ou a denúncia está em um status final."
+                    : "Registre as ações tomadas e atualize o status."}
+                </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                 <div>
-                    <Label htmlFor="status">Alterar Status</Label>
-                    <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as IncidentStatus)}>
-                        <SelectTrigger id="status">
-                            <SelectValue placeholder="Selecione um novo status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {statusOptions.map(option => (
-                                <SelectItem key={option.value} value={option.value}>
-                                    <div className="flex items-center">
-                                        {option.icon && <option.icon className="h-4 w-4 mr-2 text-muted-foreground"/>}
-                                        {option.label}
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div>
-                    <Label htmlFor="fiscal-notes">Relatório de Fiscalização / Ações Tomadas</Label>
-                    <Textarea 
-                      id="fiscal-notes" 
-                      placeholder="Descreva a visita ao local, contatos feitos, autos de infração, etc..." 
-                      className="min-h-[100px]"
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="assigned-inspector">Fiscal Responsável (opcional)</Label>
-                    <Input 
-                      id="assigned-inspector" 
-                      placeholder="Nome do fiscal"
-                      value={inspector}
-                      onChange={(e) => setInspector(e.target.value)}
-                    />
-                </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-                <Button onClick={handleUpdate} disabled={isUpdating}>
-                    {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Edit3 className="mr-2 h-4 w-4" />}
-                     Salvar Progresso
-                </Button>
-            </CardFooter>
+            <fieldset disabled={isActionDisabled}>
+              <CardContent className="space-y-4">
+                  <div>
+                      <Label htmlFor="status">Alterar Status</Label>
+                      <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as IncidentStatus)}>
+                          <SelectTrigger id="status">
+                              <SelectValue placeholder="Selecione um novo status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              {statusOptions.map(option => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                      <div className="flex items-center">
+                                          {option.icon && <option.icon className="h-4 w-4 mr-2 text-muted-foreground"/>}
+                                          {option.label}
+                                      </div>
+                                  </SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div>
+                      <Label htmlFor="fiscal-notes">Parecer Técnico / Ações Tomadas</Label>
+                      <Textarea 
+                        id="fiscal-notes" 
+                        placeholder="Descreva a visita ao local, contatos feitos, autos de infração, etc..." 
+                        className="min-h-[100px]"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                      />
+                  </div>
+                  <div>
+                      <Label htmlFor="assigned-inspector">Fiscal Responsável (opcional)</Label>
+                      <Input 
+                        id="assigned-inspector" 
+                        placeholder="Nome do fiscal"
+                        value={inspector}
+                        onChange={(e) => setInspector(e.target.value)}
+                      />
+                  </div>
+              </CardContent>
+              <CardFooter className="flex justify-end">
+                  <Button onClick={handleUpdate} disabled={isUpdating}>
+                      {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Edit3 className="mr-2 h-4 w-4" />}
+                      Salvar Progresso
+                  </Button>
+              </CardFooter>
+            </fieldset>
            </Card>
         </div>
         <div className="md:col-span-1 space-y-6">
@@ -285,27 +324,13 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
             </CardHeader>
             <CardContent>
                 {incident.history && incident.history.length > 0 ? (
-                    <ul className="space-y-4">
+                    <ul className="space-y-0 -ml-3">
                         {incident.history.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry, index) => (
-                            <li key={index} className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="bg-primary rounded-full p-1.5">
-                                        <CheckCircle className="h-4 w-4 text-primary-foreground" />
-                                    </div>
-                                    {index < incident.history.length - 1 && (
-                                        <div className="w-px flex-grow bg-border mt-2"></div>
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-sm capitalize">{entry.status.replace(/_/g, " ")}</p>
-                                    <p className="text-xs text-muted-foreground">{new Date(entry.date).toLocaleString()} por <strong>{entry.updatedBy}</strong></p>
-                                    <p className="text-sm mt-1">{entry.notes}</p>
-                                </div>
-                            </li>
+                           <HistoryEntryCard key={index} entry={entry} />
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-sm text-muted-foreground">Nenhum histórico de status para exibir.</p>
+                    <p className="text-sm text-muted-foreground p-4 text-center">Nenhum histórico de status para exibir.</p>
                 )}
             </CardContent>
           </Card>
