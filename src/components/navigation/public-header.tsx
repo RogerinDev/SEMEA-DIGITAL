@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const mainNavItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
@@ -226,7 +226,7 @@ export function PublicHeader() {
                     <Link
                       href="/register"
                       passHref
-                      className={cn(buttonVariants({ variant: "default", size: "icon" }), "sm:hidden")}
+                      className={cn(buttonVariants({ variant: "default", size: "icon" }), "sm:hidden ml-1")}
                     >
                       <UserPlus className="h-4 w-4" />
                        <span className="sr-only">Registrar</span>
