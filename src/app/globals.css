@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    /* New Light Theme with a pleasant light green background */
-    --background: 120 73% 94%; /* Soft light green */
-    --foreground: 120 25% 15%; /* Dark green for text */
+    /* --- NOVO TEMA CLARO: VERDE SUAVE --- */
+    --background: 120 73% 94%; /* Verde claro suave (LightGreen) */
+    --foreground: 130 25% 15%; /* Verde escuro para texto */
 
-    --card: 120 60% 98%;
-    --card-foreground: 120 25% 15%;
+    --card: 120 60% 98%; /* Quase branco, levemente esverdeado */
+    --card-foreground: 130 25% 15%;
 
     --popover: 120 60% 98%;
-    --popover-foreground: 120 25% 15%;
+    --popover-foreground: 130 25% 15%;
 
-    --primary: 142.1 76.2% 36.3%;
+    --primary: 142.1 76.2% 36.3%; /* Verde escuro principal */
     --primary-foreground: 355.7 100% 97.3%;
     
-    --secondary: 130 30% 90%;
-    --secondary-foreground: 120 25% 15%;
+    --secondary: 130 40% 90%; /* Verde mais suave para fundos secundários */
+    --secondary-foreground: 130 25% 15%;
 
-    --muted: 130 30% 90%;
-    --muted-foreground: 120 15% 40%;
+    --muted: 130 30% 92%;
+    --muted-foreground: 130 15% 40%;
 
-    --accent: 130 30% 90%;
-    --accent-foreground: 120 25% 15%;
+    --accent: 130 40% 90%;
+    --accent-foreground: 130 25% 15%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 130 20% 80%;
-    --input: 130 20% 85%;
+    --input: 130 20% 88%;
     --ring: 142.1 76.2% 36.3%;
     
     --radius: 0.5rem;
@@ -43,40 +43,41 @@
   }
 
   .dark {
-    /* Dark Theme based on the provided image */
-    --background: 140 8% 10%; /* Very dark, slightly green-tinted black */
-    --foreground: 140 10% 80%; /* Light gray for text */
+    /* --- NOVO TEMA ESCURO: FIEL À ESPECIFICAÇÃO TÉCNICA --- */
+    /* Mapeamento das cores da paleta verde-ambiental */
+    --background: 122 17% 15%; /* #1E2B1F */
+    --foreground: 108 38% 91%; /* #E4F2E0 */
 
-    --card: 140 7% 12%;
-    --card-foreground: 140 10% 80%;
+    --card: 138 23% 19%; /* #263B2A */
+    --card-foreground: 108 38% 91%;
 
-    --popover: 140 8% 10%;
-    --popover-foreground: 140 10% 80%;
+    --popover: 138 23% 19%;
+    --popover-foreground: 108 38% 91%;
     
-    --primary: 140 65% 55%; /* Vibrant Green for accents */
-    --primary-foreground: 140 10% 10%;
+    --primary: 146 50% 59%; /* #4ADE80 (Verde de destaque) */
+    --primary-foreground: 122 17% 10%; /* Preto esverdeado para texto em botões */
 
-    --secondary: 140 10% 18%;
-    --secondary-foreground: 140 10% 90%;
+    --secondary: 136 44% 63%; /* #22C55E (Verde dos botões) */
+    --secondary-foreground: 108 38% 91%;
 
-    --muted: 140 10% 18%;
-    --muted-foreground: 140 5% 55%;
+    --muted: 138 23% 22%; /* Um pouco mais claro que o card */
+    --muted-foreground: 105 18% 70%; /* #B7D4B0 */
 
-    --accent: 140 10% 18%;
-    --accent-foreground: 140 10% 90%;
+    --accent: 136 44% 63%; /* Verde dos botões para acentos */
+    --accent-foreground: 108 38% 91%;
     
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 140 10% 25%;
-    --input: 140 10% 25%;
-    --ring: 140 65% 55%;
+    --border: 141 33% 28%; /* #33593A */
+    --input: 141 33% 28%;
+    --ring: 146 50% 59%; /* Verde de destaque */
 
-    --chart-1: 140 60% 50%;
-    --chart-2: 130 50% 60%;
-    --chart-3: 150 40% 70%;
-    --chart-4: 120 30% 80%;
-    --chart-5: 110 25% 90%;
+    --chart-1: 146 50% 59%;
+    --chart-2: 136 44% 63%;
+    --chart-3: 120 40% 70%;
+    --chart-4: 110 30% 80%;
+    --chart-5: 100 25% 90%;
   }
 }
 
@@ -86,6 +87,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.4s, color 0.4s;
   }
 }
 

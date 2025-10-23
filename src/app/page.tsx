@@ -121,7 +121,7 @@ export default function HomePage() {
       </section>
 
       {!currentUser && (
-        <section className="bg-secondary/50 py-16 px-6">
+        <section className="bg-muted/50 py-16 px-6">
           <div className="container mx-auto grid md:grid-cols-2 gap-8 items-center">
             <div className="space-y-6">
               <h2 className="text-4xl font-bold text-primary">
