@@ -2,6 +2,7 @@
  * @fileoverview Configuração e inicialização do Firebase SDK para o lado do cliente.
  * Este arquivo é responsável por inicializar o Firebase no navegador do usuário,
  * permitindo que os componentes do React interajam com serviços como Auth, Firestore e Storage.
+ * Ele usa um padrão para garantir que a inicialização ocorra apenas uma vez.
  */
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
@@ -21,27 +22,34 @@ const FIREBASE_CONFIG: FirebaseOptions = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Variável para armazenar a instância do aplicativo Firebase.
+// Variáveis para armazenar as instâncias dos serviços Firebase.
 let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let storage: any; // Usando 'any' para evitar problemas de tipo com a exportação
 
-// Inicializa o Firebase.
-// A verificação `getApps().length === 0` impede a reinicialização do app
-// em cenários de hot-reloading durante o desenvolvimento, o que causaria erros.
-if (getApps().length === 0) {
-  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) {
-    throw new Error("CRITICAL FIREBASE CONFIG ERROR: Firebase configuration is missing in environment variables. The app cannot start.");
+/**
+ * Função que inicializa o Firebase se ainda não foi inicializado.
+ * Este padrão singleton é crucial para evitar erros no Next.js com Fast Refresh.
+ */
+function initializeAppIfNecessary() {
+  if (getApps().length === 0) {
+    if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) {
+      throw new Error("CRITICAL FIREBASE CONFIG ERROR: Firebase configuration is missing in environment variables. The app cannot start.");
+    }
+    app = initializeApp(FIREBASE_CONFIG);
+  } else {
+    app = getApp();
   }
-  app = initializeApp(FIREBASE_CONFIG);
-} else {
-  // Se o app já estiver inicializado, apenas o obtém.
-  app = getApp();
+  
+  // Obtém as instâncias dos serviços após garantir que o app está inicializado.
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
 }
 
-// Inicializa os serviços individuais do Firebase, associando-os ao app principal.
-const auth: Auth = getAuth(app); // Serviço de autenticação.
-const storage = getStorage(app); // Serviço de armazenamento de arquivos (Cloud Storage).
-const db: Firestore = getFirestore(app); // Serviço de banco de dados (Cloud Firestore).
-
+// Executa a inicialização
+initializeAppIfNecessary();
 
 // Exporta as instâncias dos serviços para serem usadas em toda a aplicação cliente.
 export { app, auth, db, storage };

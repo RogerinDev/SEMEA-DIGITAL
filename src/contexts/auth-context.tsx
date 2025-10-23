@@ -19,7 +19,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase/client";
+// Importa a instância de autenticação já inicializada, em vez de inicializá-la aqui.
+import { auth } from "@/lib/firebase/client"; 
 import { useToast } from "@/hooks/use-toast";
 import type { AppUser } from "@/types";
 
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const { toast } = useToast();
 
   useEffect(() => {
+    // onIdTokenChanged já usa a instância 'auth' importada.
     const unsubscribe = onIdTokenChanged(auth, async (user) => {
       if (user) {
         const idTokenResult = await user.getIdTokenResult(true); // Force refresh
