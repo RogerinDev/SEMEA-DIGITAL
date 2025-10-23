@@ -27,19 +27,16 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  * @param {ReactNode} props.children - Os componentes filhos que terão acesso ao contexto.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // Estado para armazenar o tema atual. O padrão é 'light'.
-  const [theme, setThemeState] = useState<Theme>('light'); 
+  // Estado para armazenar o tema atual. O padrão agora é 'dark'.
+  const [theme, setThemeState] = useState<Theme>('dark'); 
 
   // Efeito que roda uma vez na montagem do componente no cliente.
   useEffect(() => {
     // Tenta carregar o tema salvo no localStorage.
     const storedTheme = localStorage.getItem('theme') as Theme | null;
+    // Se houver um tema salvo, usa ele. Caso contrário, mantém o padrão 'dark'.
     if (storedTheme) {
       setThemeState(storedTheme);
-    } else {
-      // Se não houver tema salvo, usa a preferência do sistema operacional.
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setThemeState(systemPrefersDark ? 'dark' : 'light');
     }
   }, []); // O array vazio [] garante que este efeito rode apenas uma vez.
 
