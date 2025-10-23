@@ -4,47 +4,46 @@
 
 @layer base {
   :root {
-    /* --- NOVO TEMA CLARO: VERDE SUAVE --- */
-    --background: 120 73% 94%; /* Verde claro suave (LightGreen) */
-    --foreground: 130 25% 15%; /* Verde escuro para texto */
+    /* --- MODO CLARO RESTAURADO (BRANCO) --- */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 120 60% 98%; /* Quase branco, levemente esverdeado */
-    --card-foreground: 130 25% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 120 60% 98%;
-    --popover-foreground: 130 25% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 142.1 76.2% 36.3%; /* Verde escuro principal */
+    --primary: 142.1 76.2% 36.3%; /* Verde SEMEA */
     --primary-foreground: 355.7 100% 97.3%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 215.4 16.3% 46.9%;
     
-    --secondary: 130 40% 90%; /* Verde mais suave para fundos secundários */
-    --secondary-foreground: 130 25% 15%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --muted: 130 30% 92%;
-    --muted-foreground: 130 15% 40%;
-
-    --accent: 130 40% 90%;
-    --accent-foreground: 130 25% 15%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 130 20% 80%;
-    --input: 130 20% 88%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 142.1 76.2% 36.3%;
     
     --radius: 0.5rem;
 
     --chart-1: 142.1 76.2% 36.3%;
-    --chart-2: 130 50% 40%;
-    --chart-3: 150 40% 50%;
-    --chart-4: 120 30% 60%;
-    --chart-5: 110 25% 70%;
+    --chart-2: 160 60% 35%;
+    --chart-3: 180 55% 40%;
+    --chart-4: 200 50% 45%;
+    --chart-5: 220 45% 50%;
   }
 
   .dark {
-    /* --- NOVO TEMA ESCURO: FIEL À ESPECIFICAÇÃO TÉCNICA --- */
-    /* Mapeamento das cores da paleta verde-ambiental */
+    /* --- MODO ESCURO (FIEL À ESPECIFICAÇÃO TÉCNICA) --- */
     --background: 122 17% 15%; /* #1E2B1F */
     --foreground: 108 38% 91%; /* #E4F2E0 */
 
@@ -58,12 +57,12 @@
     --primary-foreground: 122 17% 10%; /* Preto esverdeado para texto em botões */
 
     --secondary: 136 44% 63%; /* #22C55E (Verde dos botões) */
-    --secondary-foreground: 108 38% 91%;
+    --secondary-foreground: 122 17% 10%;
 
     --muted: 138 23% 22%; /* Um pouco mais claro que o card */
     --muted-foreground: 105 18% 70%; /* #B7D4B0 */
 
-    --accent: 136 44% 63%; /* Verde dos botões para acentos */
+    --accent: 138 23% 22%; 
     --accent-foreground: 108 38% 91%;
     
     --destructive: 0 63% 31%;
@@ -72,6 +71,8 @@
     --border: 141 33% 28%; /* #33593A */
     --input: 141 33% 28%;
     --ring: 146 50% 59%; /* Verde de destaque */
+    
+    --radius: 0.5rem;
 
     --chart-1: 146 50% 59%;
     --chart-2: 136 44% 63%;
