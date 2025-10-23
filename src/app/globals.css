@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -66,9 +67,6 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'PT Sans', sans-serif;
-  }
-  /* Adiciona transições suaves para a troca de tema */
-  body, .bg-background, .bg-card, .bg-popover, .text-foreground, .text-card-foreground, .border-border {
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
   }
 }

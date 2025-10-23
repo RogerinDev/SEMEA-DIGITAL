@@ -79,7 +79,7 @@ export default function HomePage() {
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-300 bg-transparent text-white hover:bg-white/20 dark:hover:bg-white/10" asChild>
+            <Button size="lg" variant="outline" className="border-gray-300 bg-transparent text-white hover:bg-white/20" asChild>
               <Link href="/info/sobre"><span>Saber Mais</span></Link>
             </Button>
           </div>
