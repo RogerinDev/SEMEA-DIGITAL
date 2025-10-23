@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -5,8 +6,6 @@ import { cn } from "@/lib/utils"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   isCollapsed: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
 }
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
@@ -63,10 +62,12 @@ const SidebarMenu = React.forwardRef<HTMLUListElement, SidebarMenuProps>(
 )
 SidebarMenu.displayName = "SidebarMenu"
 
-interface SidebarMenuItemProps extends React.HTMLAttributes<HTMLLIElement> {}
+interface SidebarMenuItemProps extends React.HTMLAttributes<HTMLLIElement> {
+    isCollapsed: boolean;
+}
 
 const SidebarMenuItem = React.forwardRef<HTMLLIElement, SidebarMenuItemProps>(
-    ({ className, children, ...props }, ref) => {
+    ({ className, children, isCollapsed, ...props }, ref) => {
     return (
         <li ref={ref} className={cn("w-full", className)} {...props}>
             {children}
