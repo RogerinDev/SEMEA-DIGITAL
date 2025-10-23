@@ -12,7 +12,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
-  ({ className, children, isCollapsed, ...props }, ref) => {
+  ({ className, children, isCollapsed, onToggleCollapse, ...props }, ref) => {
     return (
       <aside
         ref={ref}
@@ -24,6 +24,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         {...props}
       >
         {children}
+        <SidebarCollapseButton isCollapsed={isCollapsed} onToggle={onToggleCollapse} />
       </aside>
     )
   }
@@ -44,7 +45,7 @@ SidebarContent.displayName = "SidebarContent"
 
 const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
     ({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("mt-auto border-t border-sidebar-border p-2", className)} {...props} />
+  <div ref={ref} className={cn("mt-auto p-2", className)} {...props} />
 ))
 SidebarFooter.displayName = "SidebarFooter"
 
@@ -103,7 +104,7 @@ const SidebarCollapseButton = React.forwardRef<HTMLButtonElement, SidebarCollaps
         variant="ghost"
         size="icon"
         className={cn(
-          "absolute -right-5 top-1/2 -translate-y-1/2 rounded-full border bg-background text-foreground hover:bg-background z-50",
+          "absolute -right-5 top-16 rounded-full border bg-background text-foreground hover:bg-background z-50",
           className
         )}
         onClick={onToggle}

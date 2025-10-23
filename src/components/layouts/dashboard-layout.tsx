@@ -26,6 +26,7 @@ import { LogOut, Loader2, Edit, Lock, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Separator } from '../ui/separator';
 
 // Interface para definir a estrutura de um item de navegação.
 export interface NavItem {
@@ -123,6 +124,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
           </SidebarContent>
 
           <SidebarFooter>
+             <Separator className="my-2 bg-sidebar-border" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={cn(
@@ -172,7 +174,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
         <main className={cn(
           "flex-1 flex flex-col transition-all duration-300 ease-in-out",
-          isCollapsed ? "pl-[5.5rem]" : "pl-[18rem]"
+          isCollapsed ? "pl-[5rem]" : "pl-[18rem]"
         )}>
           <div className="p-6 md:p-8">
             {children}
@@ -184,7 +186,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
 
   return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
-        <p>Ocorreu um erro ao verificar a autenticação.</p>
+        <p>Ocorreu um erro ao verificar la autenticação.</p>
       </div>
     );
 }
