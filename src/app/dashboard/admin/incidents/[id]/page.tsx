@@ -82,7 +82,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
       
       const [fetchedIncident, allIncidents] = await Promise.all([
           getIncidentByIdAction(params.id),
-          getIncidentsForAdminAction() // Fetch all incidents for IA context
+          getIncidentsForAdminAction({}) // Fetch all incidents for IA context
       ]);
       
       if (fetchedIncident) {
@@ -339,3 +339,5 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
     </>
   );
 }
+
+    
