@@ -1,4 +1,5 @@
 
+
 /**
  * @fileoverview Server Actions para gerenciar a coleção de denúncias (incidents) no Firestore.
  * Contém a lógica do lado do servidor para adicionar, buscar, contar e atualizar denúncias.
@@ -244,7 +245,7 @@ interface GetIncidentsForAdminParams {
  * @param params - Parâmetros de filtro e paginação.
  * @returns Uma lista de denúncias para o painel administrativo.
  */
-export async function getIncidentsForAdminAction(params: GetIncidentsForAdminParams): Promise<IncidentReport[]> {
+export async function getIncidentsForAdminAction(params: GetIncidentsForAdminParams = {}): Promise<IncidentReport[]> {
   const { db } = getFirebaseAdmin();
   const { 
     department, 
@@ -395,4 +396,5 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
   }
 }
 
+    
     
