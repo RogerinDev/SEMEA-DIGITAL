@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -46,7 +45,7 @@ const statusTranslations: Record<ServiceRequest['status'], string> = {
 export default function CitizenRequestsPage() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
 
   useEffect(() => {
     async function fetchRequests() {
@@ -55,12 +54,16 @@ export default function CitizenRequestsPage() {
         const fetchedRequests = await getRequestsByCitizenAction(currentUser.uid);
         setRequests(fetchedRequests);
         setLoading(false);
-      } else {
-        setLoading(false);
       }
     }
-    fetchRequests();
-  }, [currentUser]);
+    // Only fetch requests if auth is not loading and a user is present.
+    if (!authLoading && currentUser) {
+      fetchRequests();
+    } else if (!authLoading && !currentUser) {
+      // If auth is done and there's no user, stop loading.
+      setLoading(false);
+    }
+  }, [currentUser, authLoading]);
 
   return (
     <>
@@ -144,5 +147,3 @@ export default function CitizenRequestsPage() {
     </>
   );
 }
-
-    

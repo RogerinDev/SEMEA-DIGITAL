@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -47,7 +46,7 @@ const statusTranslations: Record<IncidentReport['status'], string> = {
 export default function CitizenIncidentsPage() {
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
 
   useEffect(() => {
     async function fetchIncidents() {
@@ -56,14 +55,16 @@ export default function CitizenIncidentsPage() {
         const fetchedIncidents = await getIncidentsByCitizenAction(currentUser.uid);
         setIncidents(fetchedIncidents);
         setLoading(false);
-      } else {
-        // If user is not logged in or logs out, clear incidents
-        setIncidents([]);
-        setLoading(false);
       }
     }
-    fetchIncidents();
-  }, [currentUser]);
+    // Only fetch data if auth is not loading and a user is present.
+    if (!authLoading && currentUser) {
+        fetchIncidents();
+    } else if (!authLoading && !currentUser) {
+        // If auth is done and there's no user, stop loading.
+        setLoading(false);
+    }
+  }, [currentUser, authLoading]);
 
   return (
     <>
@@ -147,5 +148,3 @@ export default function CitizenIncidentsPage() {
     </>
   );
 }
-
-    
