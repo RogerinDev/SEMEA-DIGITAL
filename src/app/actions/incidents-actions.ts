@@ -227,48 +227,67 @@ export async function getIncidentCountByCitizenAction(citizenId: string): Promis
     }
 }
 
+interface GetIncidentsForAdminParams {
+  department?: Department;
+  protocol?: string;
+  citizenName?: string;
+  type?: IncidentType;
+  status?: IncidentStatus;
+  page?: number; 
+  limit?: number;
+}
+
 
 /**
  * Server Action para buscar denúncias para a visão do administrador.
- * @param department - Opcional. Filtra as denúncias por departamento.
+ * @param params - Parâmetros de filtro e paginação.
  * @returns Uma lista de denúncias para o painel administrativo.
  */
-export async function getIncidentsForAdminAction(department?: Department): Promise<IncidentReport[]> {
+export async function getIncidentsForAdminAction({ 
+  department, 
+  protocol,
+  citizenName,
+  type,
+  status,
+  page, 
+  limit,
+}: GetIncidentsForAdminParams): Promise<IncidentReport[]> {
   const { db } = getFirebaseAdmin();
   try {
-    let q;
-    const incidentsCollection = db.collection("incidents");
+    let query: admin.firestore.Query = db.collection("incidents");
+    
+    if (department) query = query.where("department", "==", department);
+    if (protocol) query = query.where("protocol", "==", protocol);
+    if (type) query = query.where("type", "==", type);
+    if (status) query = query.where("status", "==", status);
+    
+    query = query.orderBy("dateCreated", "desc");
 
-    if (department) {
-      q = incidentsCollection.where("department", "==", department).orderBy("dateCreated", "desc");
-    } else {
-      q = incidentsCollection.orderBy("dateCreated", "desc");
+    if (page && limit) {
+      const offset = (page - 1) * limit;
+      query = query.limit(limit).offset(offset);
     }
-
-    const querySnapshot = await q.get();
-    const incidents: IncidentReport[] = [];
+    
+    const querySnapshot = await query.get();
+    
+    let incidents: IncidentReport[] = [];
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      incidents.push({
-        id: doc.id,
-        protocol: data.protocol,
-        type: data.type,
-        description: data.description,
-        location: data.location,
-        department: data.department,
-        isAnonymous: data.isAnonymous,
-        citizenId: data.citizenId,
-        reportedBy: data.reportedBy,
-        status: data.status,
-        dateCreated: data.dateCreated,
-        dateUpdated: data.dateUpdated,
-        notes: data.notes,
-        inspector: data.inspector,
-        evidenceUrls: data.evidenceUrls || [],
-        history: data.history || [],
-      });
+        const data = doc.data();
+        incidents.push({
+            id: doc.id,
+            ...data,
+            history: data.history || [],
+        } as IncidentReport);
     });
+
+    if (citizenName) {
+        incidents = incidents.filter(inc => 
+            inc.reportedBy?.toLowerCase().includes(citizenName.toLowerCase())
+        );
+    }
+    
     return incidents;
+
   } catch (error) {
     console.error("Error fetching incidents for admin: ", error);
     return [];
