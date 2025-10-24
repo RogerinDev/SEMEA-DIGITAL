@@ -117,6 +117,26 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
 }
 
 /**
+ * Converte Timestamps do Firestore em strings ISO para um objeto de solicitação.
+ * @param data Os dados brutos do documento do Firestore.
+ * @returns Os dados da solicitação com datas como strings.
+ */
+function mapRequestData(data: admin.firestore.DocumentData): Omit<ServiceRequest, 'id'> {
+    const history = (data.history || []).map((entry: any) => ({
+        ...entry,
+        date: entry.date.toDate ? entry.date.toDate().toISOString() : entry.date,
+    }));
+
+    return {
+        ...data,
+        dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
+        dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
+        history,
+    } as Omit<ServiceRequest, 'id'>;
+}
+
+
+/**
  * Server Action para buscar todas as solicitações de um cidadão específico.
  * @param citizenId O ID do cidadão (Firebase UID).
  * @returns Uma lista de solicitações.
@@ -131,14 +151,18 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
         .orderBy("dateCreated", "desc");
     
     const querySnapshot = await q.get();
-    const requests: ServiceRequest[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      history: doc.data().history || [],
-    } as ServiceRequest));
+    
+    const requests: ServiceRequest[] = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...mapRequestData(data),
+      };
+    });
+    
     return requests;
   } catch (error) {
-    console.error("Error fetching requests: ", error);
+    console.error("Error fetching requests by citizen: ", error);
     return [];
   }
 }
@@ -160,9 +184,8 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
             if (!data) return null;
             return {
                 id: docSnap.id,
-                ...data,
-                history: data.history || [],
-            } as ServiceRequest;
+                ...mapRequestData(data),
+            };
         } else {
             console.log("No such document!");
             return null;
@@ -214,7 +237,7 @@ export async function getRequestsForAdminAction({
   status,
   page, 
   limit,
-}: GetRequestsForAdminParams): Promise<ServiceRequest[]> {
+}: GetRequestsForAdminParams = {}): Promise<ServiceRequest[]> {
   const { db } = getFirebaseAdmin();
   try {
     let query: admin.firestore.Query = db.collection("service_requests");
@@ -239,9 +262,8 @@ export async function getRequestsForAdminAction({
         const data = doc.data();
         requests.push({
             id: doc.id,
-            ...data,
-            history: data.history || [],
-        } as ServiceRequest);
+            ...mapRequestData(data)
+        });
     });
 
     if (citizenName) {

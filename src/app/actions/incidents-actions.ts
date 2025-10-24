@@ -126,6 +126,26 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
 }
 
 /**
+ * Converte Timestamps do Firestore em strings ISO para um objeto de denúncia.
+ * @param data Os dados brutos do documento do Firestore.
+ * @returns Os dados da denúncia com datas como strings.
+ */
+function mapIncidentData(data: admin.firestore.DocumentData): Omit<IncidentReport, 'id'> {
+    const history = (data.history || []).map((entry: any) => ({
+        ...entry,
+        date: entry.date.toDate ? entry.date.toDate().toISOString() : entry.date,
+    }));
+
+    return {
+        ...data,
+        dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
+        dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
+        evidenceUrls: data.evidenceUrls || [],
+        history,
+    } as Omit<IncidentReport, 'id'>;
+}
+
+/**
  * Server Action para buscar todas as denúncias de um cidadão específico.
  * @param citizenId O ID do cidadão (Firebase UID).
  * @returns Uma lista de denúncias.
@@ -140,30 +160,17 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
             .orderBy("dateCreated", "desc");
         
         const querySnapshot = await q.get();
+        
         const incidents: IncidentReport[] = querySnapshot.docs.map(doc => {
-            const data = doc.data();
             return {
                 id: doc.id,
-                protocol: data.protocol,
-                type: data.type,
-                description: data.description,
-                location: data.location,
-                department: data.department,
-                isAnonymous: data.isAnonymous,
-                citizenId: data.citizenId,
-                reportedBy: data.reportedBy,
-                status: data.status,
-                dateCreated: data.dateCreated,
-                dateUpdated: data.dateUpdated,
-                notes: data.notes,
-                inspector: data.inspector,
-                evidenceUrls: data.evidenceUrls || [],
-                history: data.history || [],
+                ...mapIncidentData(doc.data()),
             };
         });
+
         return incidents;
     } catch (error) {
-        console.error("Error fetching incidents: ", error);
+        console.error("Error fetching incidents by citizen: ", error);
         return [];
     }
 }
@@ -185,21 +192,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
             if (!data) return null;
             return {
                 id: docSnap.id,
-                protocol: data.protocol,
-                type: data.type,
-                description: data.description,
-                location: data.location,
-                department: data.department,
-                isAnonymous: data.isAnonymous,
-                citizenId: data.citizenId,
-                reportedBy: data.reportedBy,
-                status: data.status,
-                dateCreated: data.dateCreated,
-                dateUpdated: data.dateUpdated,
-                notes: data.notes,
-                inspector: data.inspector,
-                evidenceUrls: data.evidenceUrls || [],
-                history: data.history || [],
+                ...mapIncidentData(data),
             };
         } else {
             console.log("No such incident document!");
@@ -276,12 +269,10 @@ export async function getIncidentsForAdminAction(params: GetIncidentsForAdminPar
     
     let incidents: IncidentReport[] = [];
     querySnapshot.forEach((doc) => {
-        const data = doc.data();
         incidents.push({
             id: doc.id,
-            ...data,
-            history: data.history || [],
-        } as IncidentReport);
+            ...mapIncidentData(doc.data()),
+        });
     });
 
     if (citizenName) {
