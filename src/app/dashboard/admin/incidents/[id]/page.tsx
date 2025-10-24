@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -80,20 +79,23 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
     async function fetchIncidentData() {
       setLoading(true);
       
-      const [fetchedIncident, allIncidents] = await Promise.all([
-          getIncidentByIdAction(params.id),
-          getIncidentsForAdminAction({}) // Fetch all incidents for IA context
-      ]);
+      const fetchedIncident = await getIncidentByIdAction(params.id);
       
       if (fetchedIncident) {
         setIncident(fetchedIncident);
         setSelectedStatus(fetchedIncident.status);
-        setNotes(''); // Limpa o campo de notas para novo parecer
+        setNotes('');
         setInspector(fetchedIncident.inspector || '');
 
-        // Prepare data for AI: filter resolved incidents of the same type
-        const similarResolved = allIncidents
-          .filter(inc => inc.status === 'resolvida' && inc.type === fetchedIncident.type && inc.id !== fetchedIncident.id)
+        // Otimização: Busca apenas denúncias resolvidas e do mesmo tipo para a IA.
+        const similarResolvedIncidents = await getIncidentsForAdminAction({
+            status: 'resolvida',
+            type: fetchedIncident.type,
+            limit: 20 // Limita a busca para performance
+        });
+
+        const similarResolved = similarResolvedIncidents
+          .filter(inc => inc.id !== fetchedIncident.id) // Exclui a própria denúncia
           .map(inc => ({
             ticketId: inc.protocol,
             description: inc.description,
@@ -101,11 +103,16 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
           }));
         setResolvedTickets(similarResolved);
 
+      } else {
+         toast({ title: "Erro", description: "Denúncia não encontrada.", variant: "destructive" });
       }
       setLoading(false);
     }
-    fetchIncidentData();
-  }, [params.id]);
+    
+    if (params.id) {
+        fetchIncidentData();
+    }
+  }, [params.id, toast]);
 
   const handleUpdate = async () => {
     if (!incident || !selectedStatus || !currentUser) return;
@@ -118,7 +125,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
     const result = await updateIncidentStatusAction({
       id: incident.id,
       status: selectedStatus,
-      notes: notes, // O parecer técnico é salvo como nota no histórico
+      notes: notes,
       inspector,
       updatedBy: currentUser.displayName || currentUser.email || 'Admin',
     });
@@ -130,7 +137,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
         if (fetchedIncident) {
             setIncident(fetchedIncident);
             setSelectedStatus(fetchedIncident.status);
-            setNotes(''); // Limpa o campo de notas após salvar
+            setNotes('');
         }
     } else {
       toast({ title: "Erro", description: result.error, variant: "destructive" });
@@ -339,5 +346,3 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
     </>
   );
 }
-
-    
