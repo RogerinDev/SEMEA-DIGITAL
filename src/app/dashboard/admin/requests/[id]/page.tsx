@@ -79,19 +79,22 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
     async function fetchRequestData() {
       setLoading(true);
       
-      const [fetchedRequest, allRequests] = await Promise.all([
-          getRequestByIdAction(params.id),
-          getRequestsForAdminAction({}) // Fetch all requests for AI context
-      ]);
+      const fetchedRequest = await getRequestByIdAction(params.id);
 
       if (fetchedRequest) {
         setRequest(fetchedRequest);
         setSelectedStatus(fetchedRequest.status);
         setNotes(''); // Limpa o campo de notas para novo parecer
 
-        // Prepare data for AI: filter resolved tickets of the same type
-        const similarResolved = allRequests
-          .filter(req => req.status === 'concluido' && req.type === fetchedRequest.type && req.id !== fetchedRequest.id)
+        // Otimização: Busca apenas solicitações concluídas e do mesmo tipo para a IA.
+        const similarResolvedRequests = await getRequestsForAdminAction({
+            status: 'concluido',
+            type: fetchedRequest.type,
+            limit: 20 // Limita a busca para performance
+        });
+
+        const similarResolved = similarResolvedRequests
+          .filter(req => req.id !== fetchedRequest.id) // Exclui a própria solicitação
           .map(req => ({
             ticketId: req.protocol,
             description: req.description,
@@ -99,11 +102,16 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
           }));
         setResolvedTickets(similarResolved);
 
+      } else {
+         toast({ title: "Erro", description: "Solicitação não encontrada.", variant: "destructive" });
       }
       setLoading(false);
     }
-    fetchRequestData();
-  }, [params.id]);
+    
+    if (params.id) {
+      fetchRequestData();
+    }
+  }, [params.id, toast]);
   
   const handleUpdate = async () => {
     if (!request || !selectedStatus || !currentUser) return;
@@ -309,3 +317,5 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
     </>
   );
 }
+
+    
