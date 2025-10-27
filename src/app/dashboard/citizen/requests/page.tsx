@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -50,20 +49,24 @@ export default function CitizenRequestsPage() {
 
   useEffect(() => {
     async function fetchRequests() {
-      // CORREÇÃO: Garante que a busca só ocorre quando o UID do usuário está disponível.
+      // Garante que a busca só ocorre quando o UID do usuário está disponível.
       if (currentUser && currentUser.uid) {
-        setLoading(true);
+        setLoading(true); // Garante que o loading seja reativado se o usuário mudar.
         const fetchedRequests = await getRequestsByCitizenAction(currentUser.uid);
         setRequests(fetchedRequests);
         setLoading(false);
       } else if (!authLoading) {
         // Se a autenticação terminou e não há usuário, para de carregar.
         setLoading(false);
+        setRequests([]); // Limpa os dados se o usuário deslogar.
       }
     }
     
     fetchRequests();
   }, [currentUser, authLoading]);
+
+  // Exibe o loader enquanto a autenticação está em andamento ou os dados estão sendo buscados.
+  const isLoading = authLoading || loading;
 
   return (
     <>
@@ -78,7 +81,7 @@ export default function CitizenRequestsPage() {
         </Button>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
