@@ -159,7 +159,7 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
 
   try {
     const q = db.collection("service_requests")
-        .where("citizenId", "==", citizenId)
+        .where("userId", "==", citizenId)
         .orderBy("dateCreated", "desc");
     
     const querySnapshot = await q.get();

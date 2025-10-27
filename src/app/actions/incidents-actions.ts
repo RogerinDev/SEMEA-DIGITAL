@@ -169,7 +169,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
 
     try {
         const q = db.collection("incidents")
-            .where("citizenId", "==", citizenId)
+            .where("userId", "==", citizenId)
             .orderBy("dateCreated", "desc");
         
         const querySnapshot = await q.get();
