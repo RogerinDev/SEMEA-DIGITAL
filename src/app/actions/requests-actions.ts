@@ -122,7 +122,8 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
  * @returns Os dados da solicitação com datas como strings.
  */
 function mapRequestData(doc: admin.firestore.DocumentSnapshot): ServiceRequest {
-    const data = doc.data() as Omit<ServiceRequest, 'id'>;
+    const data = doc.data() as Omit<ServiceRequest, 'id' | 'dateCreated' | 'dateUpdated' | 'history'> & { dateCreated: admin.firestore.Timestamp, dateUpdated: admin.firestore.Timestamp, history: any[] };
+    
     const history = (data.history || []).map((entry: any) => ({
         ...entry,
         date: entry.date.toDate ? entry.date.toDate().toISOString() : entry.date,
@@ -130,9 +131,18 @@ function mapRequestData(doc: admin.firestore.DocumentSnapshot): ServiceRequest {
 
     return {
         id: doc.id,
-        ...data,
-        dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
-        dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
+        protocol: data.protocol,
+        type: data.type,
+        description: data.description,
+        department: data.department,
+        address: data.address,
+        contactPhone: data.contactPhone,
+        citizenId: data.citizenId,
+        citizenName: data.citizenName,
+        status: data.status,
+        notes: data.notes,
+        dateCreated: data.dateCreated.toDate().toISOString(),
+        dateUpdated: data.dateUpdated.toDate().toISOString(),
         history,
     };
 }
@@ -221,16 +231,18 @@ interface GetRequestsForAdminParams {
  * @param params - Parâmetros de filtro e paginação.
  * @returns Uma lista de solicitações para o painel administrativo.
  */
-export async function getRequestsForAdminAction({ 
-  department, 
-  protocol,
-  citizenName,
-  type,
-  status,
-  page, 
-  limit,
-}: GetRequestsForAdminParams = {}): Promise<ServiceRequest[]> {
+export async function getRequestsForAdminAction(params: GetRequestsForAdminParams = {}): Promise<ServiceRequest[]> {
   const { db } = getFirebaseAdmin();
+  const { 
+    department, 
+    protocol,
+    citizenName,
+    type,
+    status,
+    page, 
+    limit,
+  } = params;
+
   try {
     let query: admin.firestore.Query = db.collection("service_requests");
     

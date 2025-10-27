@@ -49,7 +49,6 @@ export default function CitizenRequestsPage() {
 
   useEffect(() => {
     async function fetchRequests() {
-      // Garante que temos um UID antes de fazer a busca.
       if (currentUser?.uid) {
         setLoading(true);
         const fetchedRequests = await getRequestsByCitizenAction(currentUser.uid);
@@ -57,14 +56,11 @@ export default function CitizenRequestsPage() {
         setLoading(false);
       }
     }
-    // A condição !authLoading garante que o currentUser já foi definido (ou é nulo).
-    if (!authLoading) {
-      if (currentUser) {
-        fetchRequests();
-      } else {
-        // Se não há usuário após o carregamento da autenticação, paramos o loading.
-        setLoading(false);
-      }
+    
+    if (!authLoading && currentUser) {
+      fetchRequests();
+    } else if (!authLoading && !currentUser) {
+      setLoading(false);
     }
   }, [currentUser, authLoading]);
 
