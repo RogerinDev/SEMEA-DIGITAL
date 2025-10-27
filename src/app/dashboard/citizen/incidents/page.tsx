@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -50,19 +51,19 @@ export default function CitizenIncidentsPage() {
 
   useEffect(() => {
     async function fetchIncidents() {
-      if (currentUser?.uid) {
+      // CORREÇÃO: Garante que a busca só ocorre quando o UID do usuário está disponível.
+      if (currentUser && currentUser.uid) {
         setLoading(true);
         const fetchedIncidents = await getIncidentsByCitizenAction(currentUser.uid);
         setIncidents(fetchedIncidents);
         setLoading(false);
+      } else if (!authLoading) {
+        // Se a autenticação terminou e não há usuário, para de carregar.
+        setLoading(false);
       }
     }
 
-    if (!authLoading && currentUser) {
-      fetchIncidents();
-    } else if (!authLoading && !currentUser) {
-      setLoading(false);
-    }
+    fetchIncidents();
   }, [currentUser, authLoading]);
 
   return (
