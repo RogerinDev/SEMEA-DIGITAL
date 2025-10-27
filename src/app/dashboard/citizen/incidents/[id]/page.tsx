@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, AlertTriangle, CalendarDays, MapPin, History, CheckCircle, Clock, Edit3, XCircle, MessageSquare, FileText, UserCircle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, CalendarDays, MapPin, History, CheckCircle, Clock, Edit3, XCircle, MessageSquare, FileText, UserCircle, ExternalLink, Video, Camera } from 'lucide-react';
+import Image from 'next/image';
 import { INCIDENT_TYPES, type IncidentReport, type StatusHistoryEntry } from '@/types';
 import { getIncidentByIdAction } from '@/app/actions/incidents-actions';
 
@@ -122,6 +123,35 @@ export default async function CitizenIncidentDetailPage({ params }: { params: { 
                 <p className="text-sm font-medium text-muted-foreground">Descrição Registrada</p>
                 <p className="text-md whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{incident.description}</p>
               </div>
+               <div>
+                    <p className="text-sm font-medium text-muted-foreground">Evidências Anexadas</p>
+                    {(incident.evidenceUrls && incident.evidenceUrls.length > 0) ? (
+                    <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {incident.evidenceUrls.map((url, index) => (
+                        <Link key={index} href={url} target="_blank" rel="noopener noreferrer" className="relative group aspect-square border rounded-md overflow-hidden bg-muted">
+                            {url.includes('.mp4') || url.includes('.mov') || url.includes('.webm') ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center p-2">
+                                <Video className="h-10 w-10 text-muted-foreground" />
+                                <p className="text-xs text-center text-muted-foreground mt-1">Vídeo</p>
+                            </div>
+                            ) : (
+                            <Image src={url} alt={`Evidência ${index + 1}`} layout="fill" objectFit="cover" />
+                            )}
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <ExternalLink className="h-8 w-8 text-white" />
+                            </div>
+                        </Link>
+                        ))}
+                    </div>
+                    ) : (
+                    <div className="mt-2 flex items-center justify-center text-center text-muted-foreground bg-muted/50 rounded-md p-6 min-h-[100px]">
+                        <div className="space-y-1">
+                            <Camera className="h-8 w-8 mx-auto" />
+                            <p className="text-sm">Nenhuma evidência foi anexada a esta denúncia.</p>
+                        </div>
+                    </div>
+                    )}
+                </div>
             </CardContent>
           </Card>
         </div>

@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2, Camera, Video, ExternalLink, History } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, UserCircle, CalendarDays, MapPin, Edit3, MessageSquare, CheckCircle, XCircle, Clock, FileText, Loader2, Camera, Video, ExternalLink, History, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { IncidentReport, IncidentStatus, ResolvedTicket, StatusHistoryEntry } from '@/types';
@@ -67,36 +66,10 @@ function AdminIncidentDetailPageContent({ incident, onUpdateSuccess }: { inciden
   const [selectedStatus, setSelectedStatus] = useState<IncidentStatus>(incident.status);
   const [notes, setNotes] = useState('');
   const [inspector, setInspector] = useState(incident.inspector || '');
-  const [resolvedTickets, setResolvedTickets] = useState<ResolvedTicket[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(true);
 
   const { toast } = useToast();
   const { currentUser } = useAuth();
   
-  useEffect(() => {
-    async function fetchSimilarTickets() {
-      setLoadingSuggestions(true);
-      const similarResolvedIncidents = await getIncidentsForAdminAction({
-          status: 'resolvida',
-          type: incident.type,
-          limit: 20
-      });
-
-      const similarResolved = similarResolvedIncidents
-        .filter(inc => inc.id !== incident.id)
-        .map(inc => ({
-          ticketId: inc.protocol,
-          description: inc.description,
-          resolution: inc.notes || "Denúncia marcada como resolvida sem notas detalhadas.",
-        }));
-      setResolvedTickets(similarResolved);
-      setLoadingSuggestions(false);
-    }
-    
-    fetchSimilarTickets();
-  }, [incident]);
-
-
   const handleUpdate = async () => {
     if (!selectedStatus || !currentUser) return;
     if (selectedStatus === incident.status && !notes.trim()) {
@@ -278,12 +251,7 @@ function AdminIncidentDetailPageContent({ incident, onUpdateSuccess }: { inciden
             </Card>
             </div>
             <div className="md:col-span-1 space-y-6">
-                {!loadingSuggestions && (
-                    <SimilarTicketsSuggestions 
-                        currentTicket={{ description: incident.description, type: incident.type }}
-                        availableResolvedTickets={resolvedTickets}
-                    />
-                )}
+                <SuspenseAISuggestions incident={incident} />
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
@@ -309,11 +277,66 @@ function AdminIncidentDetailPageContent({ incident, onUpdateSuccess }: { inciden
   );
 }
 
+// Componente separado para carregar as sugestões da IA
+function SuspenseAISuggestions({ incident }: { incident: IncidentReport }) {
+  const [resolvedTickets, setResolvedTickets] = useState<ResolvedTicket[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSimilarTickets() {
+      setLoading(true);
+      const similarResolvedIncidents = await getIncidentsForAdminAction({
+          status: 'resolvida',
+          type: incident.type,
+          limit: 20
+      });
+
+      const similarResolved = similarResolvedIncidents
+        .filter(inc => inc.id !== incident.id)
+        .map(inc => ({
+          ticketId: inc.protocol,
+          description: inc.description,
+          resolution: inc.notes || "Denúncia marcada como resolvida sem notas detalhadas.",
+        }));
+      setResolvedTickets(similarResolved);
+      setLoading(false);
+    }
+    
+    fetchSimilarTickets();
+  }, [incident]);
+
+  if (loading) {
+      return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center">
+                    <Lightbulb className="mr-2 h-5 w-5 text-primary"/> Sugestões da IA
+                </CardTitle>
+                 <CardDescription>Buscando tickets similares...</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-center justify-center p-4">
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                </div>
+            </CardContent>
+        </Card>
+      )
+  }
+
+  return (
+    <SimilarTicketsSuggestions
+      currentTicket={{ description: incident.description, type: incident.type }}
+      availableResolvedTickets={resolvedTickets}
+    />
+  )
+}
+
 
 export default function AdminIncidentDetailPage({ params }: { params: { id: string } }) {
   const [incident, setIncident] = useState<IncidentReport | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchIncident = async () => {
       setLoading(true);
@@ -330,8 +353,11 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
     if (params.id) {
         fetchIncident();
     }
-  }, [params.id]);
+  }, [params.id, refreshKey]);
 
+  const handleUpdateSuccess = () => {
+    setRefreshKey(prev => prev + 1); // Trigger a re-fetch
+  }
 
   if (loading) {
     return (
@@ -363,5 +389,5 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
     )
   }
 
-  return <AdminIncidentDetailPageContent incident={incident} onUpdateSuccess={fetchIncident} />;
+  return <AdminIncidentDetailPageContent incident={incident} onUpdateSuccess={handleUpdateSuccess} />;
 }

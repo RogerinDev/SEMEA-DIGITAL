@@ -39,7 +39,7 @@ const statusTranslations: Record<ServiceRequest['status'], string> = {
   aprovado: "Aprovado",
   rejeitado: "Rejeitado",
   concluido: "Concluído",
-  cancelado_pelo_usuario: "Cancelado pelo Usuário"
+  cancelado_pelo_usuario: "Cancelado"
 };
 
 export default function CitizenRequestsPage() {
@@ -49,6 +49,7 @@ export default function CitizenRequestsPage() {
 
   useEffect(() => {
     async function fetchRequests() {
+      // Garante que temos um UID antes de fazer a busca.
       if (currentUser?.uid) {
         setLoading(true);
         const fetchedRequests = await getRequestsByCitizenAction(currentUser.uid);
@@ -56,12 +57,14 @@ export default function CitizenRequestsPage() {
         setLoading(false);
       }
     }
-    // Only fetch requests if auth is not loading and a user is present.
-    if (!authLoading && currentUser) {
-      fetchRequests();
-    } else if (!authLoading && !currentUser) {
-      // If auth is done and there's no user, stop loading.
-      setLoading(false);
+    // A condição !authLoading garante que o currentUser já foi definido (ou é nulo).
+    if (!authLoading) {
+      if (currentUser) {
+        fetchRequests();
+      } else {
+        // Se não há usuário após o carregamento da autenticação, paramos o loading.
+        setLoading(false);
+      }
     }
   }, [currentUser, authLoading]);
 

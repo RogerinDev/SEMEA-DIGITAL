@@ -118,21 +118,23 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
 
 /**
  * Converte Timestamps do Firestore em strings ISO para um objeto de solicitação.
- * @param data Os dados brutos do documento do Firestore.
+ * @param doc O documento do Firestore.
  * @returns Os dados da solicitação com datas como strings.
  */
-function mapRequestData(data: admin.firestore.DocumentData): Omit<ServiceRequest, 'id'> {
+function mapRequestData(doc: admin.firestore.DocumentSnapshot): ServiceRequest {
+    const data = doc.data() as Omit<ServiceRequest, 'id'>;
     const history = (data.history || []).map((entry: any) => ({
         ...entry,
         date: entry.date.toDate ? entry.date.toDate().toISOString() : entry.date,
     }));
 
     return {
+        id: doc.id,
         ...data,
         dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
         dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
         history,
-    } as Omit<ServiceRequest, 'id'>;
+    };
 }
 
 
@@ -152,13 +154,8 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
     
     const querySnapshot = await q.get();
     
-    const requests: ServiceRequest[] = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...mapRequestData(data),
-      };
-    });
+    // Mapeia os documentos para o formato correto, convertendo Timestamps.
+    const requests: ServiceRequest[] = querySnapshot.docs.map(doc => mapRequestData(doc));
     
     return requests;
   } catch (error) {
@@ -180,12 +177,7 @@ export async function getRequestByIdAction(id: string): Promise<ServiceRequest |
         const docSnap = await docRef.get();
 
         if (docSnap.exists) {
-            const data = docSnap.data();
-            if (!data) return null;
-            return {
-                id: docSnap.id,
-                ...mapRequestData(data),
-            };
+            return mapRequestData(docSnap);
         } else {
             console.log("No such document!");
             return null;
@@ -257,14 +249,7 @@ export async function getRequestsForAdminAction({
     
     const querySnapshot = await query.get();
     
-    let requests: ServiceRequest[] = [];
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        requests.push({
-            id: doc.id,
-            ...mapRequestData(data)
-        });
-    });
+    let requests: ServiceRequest[] = querySnapshot.docs.map(doc => mapRequestData(doc));
 
     if (citizenName) {
         requests = requests.filter(req => 

@@ -127,22 +127,24 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
 
 /**
  * Converte Timestamps do Firestore em strings ISO para um objeto de denúncia.
- * @param data Os dados brutos do documento do Firestore.
+ * @param doc O documento do Firestore.
  * @returns Os dados da denúncia com datas como strings.
  */
-function mapIncidentData(data: admin.firestore.DocumentData): Omit<IncidentReport, 'id'> {
+function mapIncidentData(doc: admin.firestore.DocumentSnapshot): IncidentReport {
+    const data = doc.data() as Omit<IncidentReport, 'id'>;
     const history = (data.history || []).map((entry: any) => ({
         ...entry,
         date: entry.date.toDate ? entry.date.toDate().toISOString() : entry.date,
     }));
 
     return {
+        id: doc.id,
         ...data,
         dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
         dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
         evidenceUrls: data.evidenceUrls || [],
         history,
-    } as Omit<IncidentReport, 'id'>;
+    };
 }
 
 /**
@@ -161,12 +163,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
         
         const querySnapshot = await q.get();
         
-        const incidents: IncidentReport[] = querySnapshot.docs.map(doc => {
-            return {
-                id: doc.id,
-                ...mapIncidentData(doc.data()),
-            };
-        });
+        const incidents: IncidentReport[] = querySnapshot.docs.map(doc => mapIncidentData(doc));
 
         return incidents;
     } catch (error) {
@@ -188,12 +185,7 @@ export async function getIncidentByIdAction(id: string): Promise<IncidentReport 
         const docSnap = await docRef.get();
 
         if (docSnap.exists) {
-            const data = docSnap.data();
-            if (!data) return null;
-            return {
-                id: docSnap.id,
-                ...mapIncidentData(data),
-            };
+            return mapIncidentData(docSnap);
         } else {
             console.log("No such incident document!");
             return null;
@@ -267,13 +259,7 @@ export async function getIncidentsForAdminAction(params: GetIncidentsForAdminPar
     
     const querySnapshot = await query.get();
     
-    let incidents: IncidentReport[] = [];
-    querySnapshot.forEach((doc) => {
-        incidents.push({
-            id: doc.id,
-            ...mapIncidentData(doc.data()),
-        });
-    });
+    let incidents: IncidentReport[] = querySnapshot.docs.map(doc => mapIncidentData(doc));
 
     if (citizenName) {
         incidents = incidents.filter(inc => 
@@ -386,6 +372,3 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
     return { success: false, error: "Não foi possível atualizar a denúncia." };
   }
 }
-
-    
-    

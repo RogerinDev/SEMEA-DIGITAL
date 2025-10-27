@@ -35,14 +35,15 @@ function HistoryEntry({ entry }: { entry: StatusHistoryEntry }) {
             <div className="bg-primary rounded-full p-2">
                 <Icon className="h-5 w-5 text-primary-foreground" />
             </div>
-            <div className="w-px flex-grow bg-border my-1"></div>
+            {/* Linha vertical conectora - não mostra no último item */}
+            <div className="w-px flex-grow bg-border my-1 last-of-type:hidden"></div>
         </div>
         <div className="pb-6 flex-1">
             <p className="font-semibold text-base capitalize">{config.label}</p>
             <p className="text-sm text-muted-foreground">{new Date(entry.date).toLocaleString('pt-BR')} por <strong>{entry.updatedBy}</strong></p>
             {entry.notes && (
                 <div className="mt-2 text-sm bg-muted/50 p-3 rounded-md border">
-                    <p className="font-semibold text-foreground mb-1 flex items-center"><MessageSquare className="h-4 w-4 mr-2"/> Parecer Técnico / Observação:</p>
+                    <p className="font-semibold text-foreground mb-1 flex items-center"><MessageSquare className="h-4 w-4 mr-2"/> Parecer / Observação:</p>
                     <p className="text-muted-foreground whitespace-pre-wrap">{entry.notes}</p>
                 </div>
             )}
@@ -60,7 +61,7 @@ export default async function CitizenRequestDetailPage({ params }: { params: { i
 
   const typeLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.label || request.type;
   const currentStatusConfig = statusConfig[request.status];
-  const departmentLabel = SERVICE_REQUEST_TYPES.find(t => t.value === request.type)?.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "N/A";
+  const departmentLabel = request.department.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return (
     <>
