@@ -2,75 +2,90 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Regra geral: por padrão, ninguém pode ler ou escrever, a menos que uma regra mais específica permita.
-    match /{document=**} {
-      allow read, write: if false;
+  
+    // --- Helper Functions ---
+    // Verifica se o usuário está autenticado.
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Regras para a coleção 'service_requests'
+    // Verifica se o usuário é o dono do documento.
+    function isOwner(docData) {
+      return request.auth.uid == docData.citizenId;
+    }
+
+    // Verifica se o usuário tem a função de 'admin' ou 'superAdmin'.
+    function isAdmin() {
+      return request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
+    }
+    
+    // Verifica se o usuário é um 'superAdmin'.
+    function isSuperAdmin() {
+      return request.auth.token.role == 'superAdmin';
+    }
+    
+    // Verifica se os dados de entrada de uma solicitação/denúncia são válidos.
+    function isValidRequestData(data) {
+       return data.citizenId == request.auth.uid;
+    }
+
+    // --- Coleção: service_requests ---
     match /service_requests/{requestId} {
-      // Permite que um usuário autenticado leia uma solicitação se o 'citizenId' no documento for o seu próprio UID.
-      allow read: if request.auth != null && request.auth.uid == resource.data.citizenId;
-      // Nega a escrita por padrão no lado do cliente para esta coleção. As escritas são feitas via Server Actions.
-      allow write: if false;
-    }
+      // LEITURA:
+      // - Permite a leitura de um documento se o usuário for o dono ou um admin.
+      // - Permite listar documentos APENAS se a consulta for filtrada pelo ID do cidadão (garante que um cidadão só liste os seus) ou se for um admin.
+      allow get: if (isOwner(resource.data) || isAdmin());
+      allow list: if (request.auth.uid == request.query.where.citizenId || isAdmin());
 
-    // Regras para a coleção 'incidents'
+      // ESCRITA:
+      // - Permite que qualquer usuário logado crie uma solicitação, desde que ele se identifique corretamente (citizenId == uid).
+      // - Permite que administradores atualizem qualquer solicitação.
+      allow create: if isSignedIn() && isValidRequestData(request.resource.data);
+      allow update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    
+    // --- Coleção: incidents ---
     match /incidents/{incidentId} {
-      // Permite que um usuário autenticado leia uma denúncia se o 'citizenId' no documento for o seu próprio UID.
-      allow read: if request.auth != null && request.auth.uid == resource.data.citizenId;
-       // Nega a escrita por padrão no lado do cliente.
-      allow write: if false;
+      // LEITURA:
+      // - Permite a leitura de um documento se o usuário for o dono (e não for anônimo) ou um admin.
+      // - Permite listar documentos APENAS se a consulta for filtrada pelo ID do cidadão ou se for um admin.
+      allow get: if ((resource.data.isAnonymous == false && isOwner(resource.data)) || isAdmin());
+      allow list: if (request.auth.uid == request.query.where.citizenId || isAdmin());
+      
+      // ESCRITA:
+      // - Permite que qualquer usuário logado crie uma denúncia, desde que ele se identifique corretamente.
+      // - Permite que administradores atualizem qualquer denúncia.
+      allow create: if isSignedIn() && isValidRequestData(request.resource.data);
+      allow update: if isAdmin();
+      allow delete: if isSuperAdmin();
     }
-
-    // Regras para coleções do Bem-Estar Animal
+    
+    // --- Coleção: animals_for_adoption ---
     match /animals_for_adoption/{animalId} {
-      // Permite leitura pública dos animais para adoção.
-      allow read: if true;
-      // Nega a escrita por padrão no lado do cliente.
-      allow write: if false;
-    }
-     match /lost_found_posts/{postId} {
-      // Permite leitura pública dos posts de perdidos e achados.
-      allow read: if true;
-       // Nega a escrita por padrão no lado do cliente.
-      allow write: if false;
-    }
-  }
-}
-
-service firebase.storage {
-  match /b/{bucket}/o {
-    // Regra para permitir o upload de imagens de perfil.
-    // Apenas usuários autenticados podem escrever em seu próprio diretório.
-    match /profile_pictures/{userId}/{fileName} {
-      allow read: if true; // Permite que qualquer um leia as fotos de perfil.
-      allow write: if request.auth != null && request.auth.uid == userId;
+        // LEITURA: Aberta para todos (página pública de adoção).
+        allow get, list: if true;
+        
+        // ESCRITA: Apenas para admins do setor de bem-estar animal ou super admins.
+        allow write: if isAdmin() && (request.auth.token.department == 'bem_estar_animal' || isSuperAdmin());
     }
 
-    // Regra para permitir o upload de evidências de denúncias.
-    // Permite que usuários logados escrevam na pasta.
-    match /incident_evidence/{userId}/{fileName} {
-       allow read: if true; // Permite leitura pública.
-       allow write: if request.auth != null && request.auth.uid == userId;
-    }
+    // --- Coleção: lost_found_posts ---
+    match /lost_found_posts/{postId} {
+        // LEITURA: Aberta para todos (página pública de perdidos e achados).
+        allow get, list: if true;
 
-    // Regra para permitir o upload de imagens de animais para adoção.
-    match /adoption_images/{userId}/{fileName} {
-       allow read: if true;
-       allow write: if request.auth != null && request.auth.uid == userId;
+        // ESCRITA:
+        // - Permite que qualquer usuário logado crie um post.
+        // - Permite que o dono do post ou um admin o atualize/delete.
+        allow create: if isSignedIn() && isValidRequestData(request.resource.data);
+        allow update, delete: if (isOwner(resource.data) || isAdmin());
     }
     
-    // Regra para permitir o upload de imagens de animais perdidos/achados.
-    match /lost_found_images/{userId}/{fileName} {
-        allow read: if true;
-        allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Regra de fallback: nega acesso a todas as outras rotas do storage.
-    match /{allPaths=**} {
-      allow read, write: if false;
+     // --- Coleção de Teste ---
+    // Apenas para fins de diagnóstico, pode ser removida.
+    match /test_collection/{docId} {
+      allow read, write: if true;
     }
   }
 }
