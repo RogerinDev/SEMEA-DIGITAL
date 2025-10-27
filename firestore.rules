@@ -1,91 +1,51 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // --- Helper Functions ---
-    // Verifica se o usuário está autenticado.
-    function isSignedIn() {
+
+    // Helper functions
+    function isAuth() {
       return request.auth != null;
     }
 
-    // Verifica se o usuário é o dono do documento.
     function isOwner(docData) {
       return request.auth.uid == docData.citizenId;
     }
 
-    // Verifica se o usuário tem a função de 'admin' ou 'superAdmin'.
     function isAdmin() {
       return request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
     }
-    
-    // Verifica se o usuário é um 'superAdmin'.
-    function isSuperAdmin() {
-      return request.auth.token.role == 'superAdmin';
-    }
-    
-    // Verifica se os dados de entrada de uma solicitação/denúncia são válidos.
-    function isValidRequestData(data) {
-       return data.citizenId == request.auth.uid;
-    }
 
-    // --- Coleção: service_requests ---
+    // Collection: service_requests
     match /service_requests/{requestId} {
-      // LEITURA:
-      // - Permite a leitura de um documento se o usuário for o dono ou um admin.
-      // - Permite listar documentos APENAS se a consulta for filtrada pelo ID do cidadão (garante que um cidadão só liste os seus) ou se for um admin.
-      allow get: if (isOwner(resource.data) || isAdmin());
-      allow list: if (request.auth.uid == request.query.where.citizenId || isAdmin());
-
-      // ESCRITA:
-      // - Permite que qualquer usuário logado crie uma solicitação, desde que ele se identifique corretamente (citizenId == uid).
-      // - Permite que administradores atualizem qualquer solicitação.
-      allow create: if isSignedIn() && isValidRequestData(request.resource.data);
+      allow read: if isAdmin() || (isAuth() && resource.data.citizenId == request.auth.uid);
+      allow list: if isAdmin() || (isAuth() && request.query.where.citizenId == request.auth.uid);
+      allow create: if isAuth() && request.resource.data.citizenId == request.auth.uid;
       allow update: if isAdmin();
-      allow delete: if isSuperAdmin();
+      allow delete: if isAdmin();
     }
     
-    // --- Coleção: incidents ---
+    // Collection: incidents
     match /incidents/{incidentId} {
-      // LEITURA:
-      // - Permite a leitura de um documento se o usuário for o dono (e não for anônimo) ou um admin.
-      // - Permite listar documentos APENAS se a consulta for filtrada pelo ID do cidadão ou se for um admin.
-      allow get: if ((resource.data.isAnonymous == false && isOwner(resource.data)) || isAdmin());
-      allow list: if (request.auth.uid == request.query.where.citizenId || isAdmin());
-      
-      // ESCRITA:
-      // - Permite que qualquer usuário logado crie uma denúncia, desde que ele se identifique corretamente.
-      // - Permite que administradores atualizem qualquer denúncia.
-      allow create: if isSignedIn() && isValidRequestData(request.resource.data);
+      allow read: if isAdmin() || (isAuth() && resource.data.citizenId == request.auth.uid);
+      allow list: if isAdmin() || (isAuth() && request.query.where.citizenId == request.auth.uid);
+      allow create: if isAuth(); // Anonymous reports have null citizenId, so ownership check is tricky
       allow update: if isAdmin();
-      allow delete: if isSuperAdmin();
+      allow delete: if isAdmin();
     }
     
-    // --- Coleção: animals_for_adoption ---
+     // Collection: animals_for_adoption
     match /animals_for_adoption/{animalId} {
-        // LEITURA: Aberta para todos (página pública de adoção).
-        allow get, list: if true;
-        
-        // ESCRITA: Apenas para admins do setor de bem-estar animal ou super admins.
-        allow write: if isAdmin() && (request.auth.token.department == 'bem_estar_animal' || isSuperAdmin());
-    }
-
-    // --- Coleção: lost_found_posts ---
-    match /lost_found_posts/{postId} {
-        // LEITURA: Aberta para todos (página pública de perdidos e achados).
-        allow get, list: if true;
-
-        // ESCRITA:
-        // - Permite que qualquer usuário logado crie um post.
-        // - Permite que o dono do post ou um admin o atualize/delete.
-        allow create: if isSignedIn() && isValidRequestData(request.resource.data);
-        allow update, delete: if (isOwner(resource.data) || isAdmin());
+      allow read: if true; // Publicly readable
+      allow write: if isAdmin() && (request.auth.token.department == 'bem_estar_animal' || request.auth.token.role == 'superAdmin');
     }
     
-     // --- Coleção de Teste ---
-    // Apenas para fins de diagnóstico, pode ser removida.
-    match /test_collection/{docId} {
-      allow read, write: if true;
+    // Collection: lost_found_posts
+    match /lost_found_posts/{postId} {
+        allow read: if true;
+        allow create: if isAuth() && request.resource.data.citizenId == request.auth.uid;
+        allow update: if isAuth() && resource.data.citizenId == request.auth.uid; // Only owner can update
+        allow delete: if isAdmin();
     }
+
   }
 }

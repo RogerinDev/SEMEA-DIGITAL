@@ -1,5 +1,3 @@
-
-
 /**
  * @fileoverview Server Actions para gerenciar a coleção de denúncias (incidents) no Firestore.
  * Contém a lógica do lado do servidor para adicionar, buscar, contar e atualizar denúncias.
@@ -169,7 +167,7 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
 
     try {
         const q = db.collection("incidents")
-            .where("userId", "==", citizenId)
+            .where("citizenId", "==", citizenId)
             .orderBy("dateCreated", "desc");
         
         const querySnapshot = await q.get();
