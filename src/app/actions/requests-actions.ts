@@ -159,15 +159,13 @@ export async function getRequestsByCitizenAction(citizenId: string): Promise<Ser
 
   try {
     const q = db.collection("service_requests")
-        .where("citizenId", "==", citizenId);
+        .where("citizenId", "==", citizenId)
+        .orderBy("dateCreated", "desc");
     
     const querySnapshot = await q.get();
     
     // Mapeia os documentos para o formato correto, convertendo Timestamps.
     const requests: ServiceRequest[] = querySnapshot.docs.map(doc => mapRequestData(doc));
-    
-    // Ordena no lado do servidor após a busca
-    requests.sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
 
     return requests;
   } catch (error) {
@@ -253,8 +251,7 @@ export async function getRequestsForAdminAction(params: GetRequestsForAdminParam
     if (type) query = query.where("type", "==", type);
     if (status) query = query.where("status", "==", status);
     
-    // A ordenação foi removida da query para evitar a necessidade de índices compostos.
-    // query = query.orderBy("dateCreated", "desc");
+    query = query.orderBy("dateCreated", "desc");
 
     // Apply pagination if provided
     if (page && limit) {
@@ -271,9 +268,6 @@ export async function getRequestsForAdminAction(params: GetRequestsForAdminParam
             req.citizenName?.toLowerCase().includes(citizenName.toLowerCase())
         );
     }
-    
-    // A ordenação agora é feita no servidor após a busca dos dados.
-    requests.sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
 
     return requests;
 

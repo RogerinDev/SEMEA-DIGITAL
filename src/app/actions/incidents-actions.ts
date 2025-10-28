@@ -167,14 +167,12 @@ export async function getIncidentsByCitizenAction(citizenId: string): Promise<In
 
     try {
         const q = db.collection("incidents")
-            .where("citizenId", "==", citizenId);
+            .where("citizenId", "==", citizenId)
+            .orderBy("dateCreated", "desc");
         
         const querySnapshot = await q.get();
         
         const incidents: IncidentReport[] = querySnapshot.docs.map(doc => mapIncidentData(doc));
-        
-        // Ordena no lado do servidor após a busca
-        incidents.sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
 
         return incidents;
     } catch (error) {
@@ -261,8 +259,7 @@ export async function getIncidentsForAdminAction(params: GetIncidentsForAdminPar
     if (type) query = query.where("type", "==", type);
     if (status) query = query.where("status", "==", status);
     
-    // A ordenação foi removida da query para evitar a necessidade de índices compostos.
-    // query = query.orderBy("dateCreated", "desc");
+    query = query.orderBy("dateCreated", "desc");
 
     if (page && limit) {
       const offset = (page - 1) * limit;
@@ -278,9 +275,6 @@ export async function getIncidentsForAdminAction(params: GetIncidentsForAdminPar
             inc.reportedBy?.toLowerCase().includes(citizenName.toLowerCase())
         );
     }
-    
-    // A ordenação agora é feita no servidor após a busca dos dados.
-    incidents.sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
 
     return incidents;
 
