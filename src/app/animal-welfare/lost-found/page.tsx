@@ -29,7 +29,7 @@ function AnimalCard({ animal }: { animal: LostFoundAnimal }) {
           {animal.type === 'perdido' ? <AlertTriangle className="h-3 w-3 mr-1"/> : <BadgeHelp className="h-3 w-3 mr-1"/>}
           {animal.type}
         </Badge>
-         {animal.status === 'resolvido' && (
+         {animal.status === 'concluido' && (
             <Badge className="absolute top-2 right-2 bg-green-500 text-white">
                 <CheckCircle2 className="h-3 w-3 mr-1"/> Resolvido
             </Badge>

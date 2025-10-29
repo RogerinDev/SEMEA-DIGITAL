@@ -6,7 +6,7 @@ import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, Loader2, ShieldAlert, Check, X, Undo, Trash2 } from 'lucide-react';
+import { Search, Loader2, ShieldAlert, Check, X, Undo, Trash2, PawPrint } from 'lucide-react';
 import Image from 'next/image';
 import type { LostFoundAnimal, LostFoundStatus } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

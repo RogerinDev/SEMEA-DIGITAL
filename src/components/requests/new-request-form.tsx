@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useSearchParams, useRouter } from 'next/navigation';
-import { TreePine, Droplets, GraduationCap, PawPrint, Loader2, ArrowLeft, PlusCircle, Upload, X, Video } from 'lucide-react';
+import { TreePine, Droplets, GraduationCap, PawPrint, Loader2, ArrowLeft, PlusCircle, Upload, X, Video, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 
 import { Button } from "@/components/ui/button";
