@@ -121,7 +121,7 @@ export default async function CitizenIncidentDetailPage({ params }: { params: { 
               <Separator />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Descrição Registrada</p>
-                <p className="text-md whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{incident.description}</p>
+                <p className="text-md whitespace-pre-wrap bg-muted/50 p-3 rounded-md break-words">{incident.description}</p>
               </div>
                <div>
                     <p className="text-sm font-medium text-muted-foreground">Evidências Anexadas</p>

@@ -118,7 +118,7 @@ export default async function CitizenRequestDetailPage({ params }: { params: { i
               )}
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Descrição Registrada</p>
-                <p className="text-md whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{request.description}</p>
+                <p className="text-md whitespace-pre-wrap bg-muted/50 p-3 rounded-md break-words">{request.description}</p>
               </div>
             </CardContent>
           </Card>

@@ -233,7 +233,7 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
               <Separator/>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Descrição Completa</p>
-                <p className="text-md whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{request.description}</p>
+                <p className="text-md whitespace-pre-wrap bg-muted/50 p-3 rounded-md break-words">{request.description}</p>
               </div>
             </CardContent>
           </Card>
