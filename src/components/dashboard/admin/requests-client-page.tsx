@@ -106,7 +106,7 @@ export default function RequestsClientPage() {
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <PageTitle title="Gerenciar Solicitações" icon={FileText} className="mb-0" description={`Departamento: ${currentUser.role === 'superAdmin' ? 'Todos' : currentUser.department}`} />
+        <PageTitle title="Gerenciar Solicitações" icon={FileText} className="mb-0" description={currentUser.role === 'superAdmin' ? 'Visão de Super Admin (Todos os Departamentos)' : `Departamento: ${currentUser.department}`} />
         <Sheet>
             <SheetTrigger asChild>
                 <Button variant="outline">
@@ -165,7 +165,7 @@ export default function RequestsClientPage() {
            ) : (
             <>
                 <div className="overflow-x-auto">
-                    <Table className="min-w-[700px]">
+                    <Table className="min-w-[700px] whitespace-nowrap">
                     <TableHeader>
                         <TableRow>
                         <TableHead>Protocolo</TableHead>

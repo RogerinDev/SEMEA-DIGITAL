@@ -49,23 +49,20 @@ export default function CitizenRequestsPage() {
 
   useEffect(() => {
     async function fetchRequests() {
-      // Garante que a busca só ocorre quando o UID do usuário está disponível.
       if (currentUser && currentUser.uid) {
-        setLoading(true); // Garante que o loading seja reativado se o usuário mudar.
+        setLoading(true);
         const fetchedRequests = await getRequestsByCitizenAction(currentUser.uid);
         setRequests(fetchedRequests);
         setLoading(false);
       } else if (!authLoading) {
-        // Se a autenticação terminou e não há usuário, para de carregar.
         setLoading(false);
-        setRequests([]); // Limpa os dados se o usuário deslogar.
+        setRequests([]);
       }
     }
     
     fetchRequests();
   }, [currentUser, authLoading]);
 
-  // Exibe o loader enquanto a autenticação está em andamento ou os dados estão sendo buscados.
   const isLoading = authLoading || loading;
 
   return (
@@ -111,7 +108,7 @@ export default function CitizenRequestsPage() {
             <CardDescription>Acompanhe o status de suas solicitações de serviço.</CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
-            <Table className="min-w-[600px]">
+            <Table className="min-w-[600px] whitespace-nowrap">
               <TableHeader>
                 <TableRow>
                   <TableHead>Protocolo</TableHead>
