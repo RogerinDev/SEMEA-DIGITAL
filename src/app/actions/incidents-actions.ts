@@ -133,7 +133,7 @@ function mapIncidentData(doc: admin.firestore.DocumentSnapshot): IncidentReport 
 
     const history = (data.history || []).map((entry: any) => ({
         ...entry,
-        date: entry.date.toDate ? entry.date.toDate().toISOString() : entry.date,
+        date: entry.date?.toDate ? entry.date.toDate().toISOString() : entry.date,
     }));
 
     return {
@@ -150,8 +150,8 @@ function mapIncidentData(doc: admin.firestore.DocumentSnapshot): IncidentReport 
         notes: data.notes,
         inspector: data.inspector,
         evidenceUrls: data.evidenceUrls || [],
-        dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
-        dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
+        dateCreated: data.dateCreated?.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
+        dateUpdated: data.dateUpdated?.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
         history,
     };
 }
