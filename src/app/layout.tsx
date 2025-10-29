@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: 'SEMEA Digital',
   description: 'Plataforma digital da Secretaria Municipal de Meio Ambiente de Varginha - MG.',
   icons: {
-    icon: '/favicon.png',
+    icon: '/favicon.png?v=2',
   },
 };
 
@@ -40,6 +40,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+        
+        {/* Reforço do Favicon com cache-busting */}
+        <link rel="icon" href="/favicon.png?v=2" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.png?v=2" type="image/png" />
       </head>
       <body className="font-body antialiased">
         <ThemeProvider>
