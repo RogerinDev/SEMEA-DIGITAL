@@ -2,7 +2,7 @@
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
-import { LayoutDashboard, FileText, AlertTriangle, User, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, FileText, AlertTriangle, User, PlusCircle, PawPrint } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ const citizenNavItems: NavItem[] = [
   { href: '/dashboard/citizen', label: 'Painel', icon: LayoutDashboard, matchExact: true },
   { href: '/dashboard/citizen/requests', label: 'Solicitações', icon: FileText },
   { href: '/dashboard/citizen/incidents', label: 'Denúncias', icon: AlertTriangle },
+  { href: '/dashboard/citizen/my-posts', label: 'Minhas Publicações', icon: PawPrint },
 ];
 
 const SidebarActions = ({ isCollapsed }: { isCollapsed: boolean }) => (
@@ -47,6 +48,12 @@ const SidebarActions = ({ isCollapsed }: { isCollapsed: boolean }) => (
                      <Link href="/dashboard/citizen/incidents/new">
                         <AlertTriangle className="mr-2 h-4 w-4" />
                         <span>Nova Denúncia</span>
+                    </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                     <Link href="/dashboard/citizen/requests/new?type=registro_animal_perdido_encontrado">
+                        <PawPrint className="mr-2 h-4 w-4" />
+                        <span>Animal Perdido/Encontrado</span>
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>

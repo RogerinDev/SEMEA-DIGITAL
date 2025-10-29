@@ -2,7 +2,7 @@
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
-import { LayoutDashboard, FileText, AlertTriangle, Users, PawPrint, BarChart } from 'lucide-react';
+import { LayoutDashboard, FileText, AlertTriangle, Users, PawPrint, BarChart, Search } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Department } from '@/types';
 
@@ -13,6 +13,7 @@ const allAdminNavItems: (NavItem & { requiredDepartment?: Department; superAdmin
   { href: '/dashboard/admin/requests', label: 'Gerenciar Solicitações', icon: FileText, requiredDepartment: undefined }, // Visível a todos os admins de setor
   { href: '/dashboard/admin/incidents', label: 'Gerenciar Denúncias', icon: AlertTriangle, requiredDepartment: undefined }, // Visível a todos os admins de setor
   { href: '/dashboard/admin/adoption', label: 'Gerenciar Adoções', icon: PawPrint, requiredDepartment: 'bem_estar_animal' },
+  { href: '/dashboard/admin/lost-found', label: 'Moderar Perdidos/Achados', icon: Search, requiredDepartment: 'bem_estar_animal' },
   { href: '/dashboard/admin/users', label: 'Gerenciar Usuários', icon: Users, superAdminOnly: true },
 ];
 

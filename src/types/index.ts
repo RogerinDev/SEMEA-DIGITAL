@@ -42,6 +42,7 @@ export type ServiceRequestType =
   | "solicitacao_projeto_educacao_ambiental"
   | "agendamento_consulta_veterinaria"
   | "requerimento_corte_poda"
+  | "registro_animal_perdido_encontrado" // NOVO TIPO
   | "outros_servicos_gerais";
 
 // Estrutura de um documento de solicitação de serviço no Firestore.
@@ -89,6 +90,7 @@ export const SERVICE_REQUEST_TYPES: ServiceRequestTypeInfo[] = [
   { value: "recolhimento_animal_errante_doente_ferido", label: "Recolhimento de Animal Errante/Doente/Ferido", category: 'bem_estar_animal' },
   { value: "solicitacao_adocao_animal", label: "Solicitação de Adoção de Animal", category: 'bem_estar_animal' },
   { value: "agendamento_consulta_veterinaria", label: "Agendamento de Consulta Veterinária", category: 'bem_estar_animal' },
+  { value: "registro_animal_perdido_encontrado", label: "Registro de Animal Perdido ou Encontrado", category: 'bem_estar_animal' },
 
   // Educação Ambiental & Outros
   { value: "solicitacao_projeto_educacao_ambiental", label: "Solicitação de Projeto/Palestra de Educação Ambiental", category: 'educacao_ambiental' },
@@ -180,6 +182,9 @@ export interface AnimalForAdoption {
   dateAdded: string;
 }
 
+// Status de um post de animal perdido ou achado
+export type LostFoundStatus = 'pendente' | 'aprovado' | 'rejeitado' | 'concluido';
+
 // Estrutura de um documento de animal perdido ou achado.
 export interface LostFoundAnimal {
   id: string;
@@ -192,7 +197,7 @@ export interface LostFoundAnimal {
   contactName: string;
   contactPhone: string;
   photoUrl: string;
-  status: 'ativo' | 'resolvido';
+  status: LostFoundStatus;
   citizenId: string;
   dateCreated: string;
   dateExpiration: string; // Data em que o post deixará de ser exibido.

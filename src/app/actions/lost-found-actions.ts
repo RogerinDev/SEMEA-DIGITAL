@@ -1,23 +1,25 @@
 /**
  * @fileoverview Server Actions para gerenciar a coleção de animais perdidos e achados.
- * Contém a lógica para adicionar novos posts e buscar posts ativos.
- * Cada função garante a obtenção de uma instância de DB segura antes de operar.
+ * Contém a lógica para adicionar, buscar, moderar e gerenciar posts.
  */
 
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import type { LostFoundAnimal } from '@/types';
+import type { LostFoundAnimal, LostFoundStatus } from '@/types';
 import { revalidatePath } from 'next/cache';
+import type admin from 'firebase-admin';
+
 
 // Interface para os dados de um novo post, onde a data vem como string do formulário.
-interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'dateExpiration' | 'citizenId'> {
+interface NewPostData extends Omit<LostFoundAnimal, 'id' | 'dateCreated' | 'dateExpiration' | 'citizenId' | 'status'> {
   date: string; 
   citizenId: string; // Citizen ID is required
 }
 
 /**
  * Server Action para adicionar um novo registro de animal perdido ou encontrado.
+ * O status é definido como 'pendente' para aguardar moderação.
  * @param data Os dados do novo post.
  * @returns Um objeto indicando sucesso ou falha da operação.
  */
@@ -42,10 +44,10 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
         lastSeenLocation: data.lastSeenLocation,
         contactName: data.contactName,
         contactPhone: data.contactPhone,
-        photoUrl: data.photoUrl ?? "", // Garante que photoUrl seja uma string vazia se nula.
-        status: 'ativo' as const,
+        photoUrl: data.photoUrl ?? "",
+        status: 'pendente', // NOVO: Status inicial é 'pendente'
         citizenId: data.citizenId,
-        date: new Date(data.date).toISOString(), // Converte a data do formulário para ISO string.
+        date: new Date(data.date).toISOString(),
         dateCreated: new Date().toISOString(),
         dateExpiration: expirationDate.toISOString(),
     };
@@ -53,8 +55,9 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
     // Adiciona o novo documento ao Firestore.
     await db.collection('lost_found_posts').add(newPost);
     
-    // Invalida o cache da página de perdidos e achados para mostrar o novo post.
+    // Invalida o cache da página de perdidos e achados e a nova página do cidadão.
     revalidatePath('/animal-welfare/lost-found');
+    revalidatePath('/dashboard/citizen/my-posts');
 
     return { success: true };
   } catch (error: any) {
@@ -64,34 +67,113 @@ export async function addLostFoundPostAction(data: NewPostData): Promise<{ succe
 }
 
 /**
- * Server Action para buscar todos os posts de animais perdidos e achados que estão ativos.
- * Um post é considerado ativo se seu status for 'ativo' e a data de expiração não tiver passado.
- * @returns Uma lista de posts ativos, ordenados pela data de expiração e criação.
+ * Converte Timestamps do Firestore em strings ISO para um objeto de post.
+ * @param doc O documento do Firestore.
+ * @returns Os dados do post com datas como strings.
  */
-export async function getActiveLostFoundPostsAction(): Promise<LostFoundAnimal[]> {
-  const { db } = getFirebaseAdmin();
-  try {
-    // Cria uma query para buscar posts que atendam aos critérios de "ativo" e "não expirado".
-    const q = db.collection("lost_found_posts")
-      .where("status", "==", "ativo")
-      .where("dateExpiration", ">=", new Date().toISOString()) // Filtra apenas posts não expirados.
-      .orderBy("dateExpiration", "asc") // Ordena para mostrar os que expiram primeiro.
-      .orderBy("dateCreated", "desc"); // Ordena os mais recentes primeiro dentro da mesma data de expiração.
-
-    // Executa a query.
-    const querySnapshot = await q.get();
-    const posts: LostFoundAnimal[] = [];
-    // Itera sobre os resultados e formata os dados.
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      posts.push({
+function mapPostData(doc: admin.firestore.DocumentSnapshot): LostFoundAnimal {
+    const data = doc.data() as any;
+    return {
         id: doc.id,
         ...data,
-      } as LostFoundAnimal);
-    });
+        date: data.date?.toDate ? data.date.toDate().toISOString() : data.date,
+        dateCreated: data.dateCreated?.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
+        dateExpiration: data.dateExpiration?.toDate ? data.dateExpiration.toDate().toISOString() : data.dateExpiration,
+    } as LostFoundAnimal;
+}
+
+
+/**
+ * Server Action para buscar posts APROVADOS de animais perdidos e achados.
+ * Usado pela galeria pública.
+ * @returns Uma lista de posts aprovados.
+ */
+export async function getApprovedLostFoundPostsAction(): Promise<LostFoundAnimal[]> {
+  const { db } = getFirebaseAdmin();
+  try {
+    // CORRIGIDO: Busca apenas posts com status 'aprovado'.
+    const q = db.collection("lost_found_posts")
+      .where("status", "==", "aprovado")
+      .orderBy("dateCreated", "desc");
+
+    const querySnapshot = await q.get();
+    const posts: LostFoundAnimal[] = querySnapshot.docs.map(mapPostData);
     return posts;
   } catch (error) {
-    console.error("Error fetching lost/found posts: ", error);
+    console.error("Error fetching approved lost/found posts: ", error);
     return [];
   }
+}
+
+/**
+ * Server Action para buscar todos os posts de um cidadão específico.
+ * @param citizenId O ID do cidadão (Firebase UID).
+ * @returns Uma lista de posts do cidadão.
+ */
+export async function getLostFoundPostsByCitizenAction(citizenId: string): Promise<LostFoundAnimal[]> {
+    const { db } = getFirebaseAdmin();
+    if (!citizenId) return [];
+
+    try {
+        const q = db.collection("lost_found_posts")
+            .where("citizenId", "==", citizenId)
+            .orderBy("dateCreated", "desc");
+        
+        const querySnapshot = await q.get();
+        return querySnapshot.docs.map(mapPostData);
+    } catch (error) {
+        console.error("Error fetching posts by citizen: ", error);
+        return [];
+    }
+}
+
+/**
+ * Server Action para administradores buscarem posts com filtros.
+ * @param filters - Objeto com filtros opcionais (status).
+ * @returns Uma lista de posts para o painel de moderação.
+ */
+export async function getLostFoundPostsForAdminAction(filters: { status?: LostFoundStatus } = {}): Promise<LostFoundAnimal[]> {
+    const { db } = getFirebaseAdmin();
+    try {
+        let query: admin.firestore.Query = db.collection("lost_found_posts");
+
+        if (filters.status) {
+            query = query.where("status", "==", filters.status);
+        }
+
+        query = query.orderBy("dateCreated", "desc");
+
+        const querySnapshot = await query.get();
+        return querySnapshot.docs.map(mapPostData);
+    } catch (error) {
+        console.error("Error fetching posts for admin: ", error);
+        return [];
+    }
+}
+
+/**
+ * Server Action para atualizar o status de um post de perdido/achado.
+ * @param postId O ID do post a ser atualizado.
+ * @param newStatus O novo status a ser definido.
+ * @returns Um objeto indicando sucesso ou falha da operação.
+ */
+export async function updateLostFoundPostStatusAction(postId: string, newStatus: LostFoundStatus): Promise<{ success: boolean; error?: string }> {
+    const { db } = getFirebaseAdmin();
+    if (!postId || !newStatus) {
+        return { success: false, error: "ID do post e novo status são obrigatórios." };
+    }
+
+    try {
+        const postRef = db.collection('lost_found_posts').doc(postId);
+        await postRef.update({ status: newStatus });
+
+        revalidatePath('/animal-welfare/lost-found');
+        revalidatePath('/dashboard/admin/lost-found');
+        revalidatePath('/dashboard/citizen/my-posts');
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating post status: ", error);
+        return { success: false, error: "Não foi possível atualizar o status do post." };
+    }
 }
