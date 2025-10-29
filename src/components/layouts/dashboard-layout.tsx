@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from '@/components/logo';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -57,6 +57,7 @@ function MobileSheetNav({ navItems, sidebarActions, onLogoutClick }: { navItems:
             </SheetTrigger>
             <SheetContent side="left" className="w-[280px] p-0 flex flex-col">
                 <SheetHeader className="p-4 border-b">
+                    <SheetTitle className="sr-only">Menu Principal</SheetTitle>
                     <Logo iconSize={24} textSize="text-lg" />
                 </SheetHeader>
                 <ScrollArea className="flex-1">
@@ -223,7 +224,7 @@ export default function DashboardLayout({ children, navItems, sidebarActions, us
             </Sidebar>
         ) : null}
 
-        <div className="flex-1 flex flex-col md:pl-[5.5rem]">
+        <div className={cn("flex-1 flex flex-col", !isMobile && (isCollapsed ? "md:pl-[5.5rem]" : "md:pl-72"))}>
             {isMobile && (
                 <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
                     <MobileSheetNav navItems={navItems} sidebarActions={sidebarActions} onLogoutClick={logout} />
