@@ -122,7 +122,7 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
  * @returns Os dados da solicitação com datas como strings.
  */
 function mapRequestData(doc: admin.firestore.DocumentSnapshot): ServiceRequest {
-    const data = doc.data() as Omit<ServiceRequest, 'id' | 'dateCreated' | 'dateUpdated' | 'history'> & { dateCreated: admin.firestore.Timestamp, dateUpdated: admin.firestore.Timestamp, history: any[] };
+    const data = doc.data() as Omit<ServiceRequest, 'id' | 'dateCreated' | 'dateUpdated' | 'history'> & { dateCreated: any, dateUpdated: any, history: any[] };
     
     const history = (data.history || []).map((entry: any) => ({
         ...entry,
@@ -141,8 +141,8 @@ function mapRequestData(doc: admin.firestore.DocumentSnapshot): ServiceRequest {
         citizenName: data.citizenName,
         status: data.status,
         notes: data.notes,
-        dateCreated: data.dateCreated.toDate().toISOString(),
-        dateUpdated: data.dateUpdated.toDate().toISOString(),
+        dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
+        dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
         history,
     };
 }

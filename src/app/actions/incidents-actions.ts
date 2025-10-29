@@ -129,7 +129,7 @@ export async function addIncidentAction(data: NewIncidentData): Promise<{ succes
  * @returns Os dados da denúncia com datas como strings.
  */
 function mapIncidentData(doc: admin.firestore.DocumentSnapshot): IncidentReport {
-    const data = doc.data() as Omit<IncidentReport, 'id' | 'dateCreated' | 'dateUpdated' | 'history'> & { dateCreated: admin.firestore.Timestamp, dateUpdated: admin.firestore.Timestamp, history: any[] };
+    const data = doc.data() as Omit<IncidentReport, 'id' | 'dateCreated' | 'dateUpdated' | 'history'> & { dateCreated: any, dateUpdated: any, history: any[] };
 
     const history = (data.history || []).map((entry: any) => ({
         ...entry,
@@ -150,8 +150,8 @@ function mapIncidentData(doc: admin.firestore.DocumentSnapshot): IncidentReport 
         notes: data.notes,
         inspector: data.inspector,
         evidenceUrls: data.evidenceUrls || [],
-        dateCreated: data.dateCreated.toDate().toISOString(),
-        dateUpdated: data.dateUpdated.toDate().toISOString(),
+        dateCreated: data.dateCreated.toDate ? data.dateCreated.toDate().toISOString() : data.dateCreated,
+        dateUpdated: data.dateUpdated.toDate ? data.dateUpdated.toDate().toISOString() : data.dateUpdated,
         history,
     };
 }
