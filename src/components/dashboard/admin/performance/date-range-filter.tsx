@@ -16,8 +16,8 @@ import {
 import type { DateRange } from 'react-day-picker';
 
 interface DateRangeFilterProps {
-  dateRange: DateRange;
-  setDateRange: (dateRange: DateRange) => void;
+  dateRange: DateRange | undefined;
+  setDateRange: (dateRange: DateRange | undefined) => void;
   className?: string;
 }
 
@@ -59,7 +59,7 @@ export function DateRangeFilter({
             mode="range"
             defaultMonth={dateRange?.from}
             selected={dateRange}
-            onSelect={(range) => range && setDateRange(range)}
+            onSelect={setDateRange}
             numberOfMonths={2}
             locale={ptBR}
           />
@@ -68,4 +68,3 @@ export function DateRangeFilter({
     </div>
   );
 }
-

@@ -3,28 +3,44 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageTitle } from '@/components/page-title';
-import { BarChart, CheckCircle, Clock, Star, Loader2, AlertTriangle } from 'lucide-react';
-import { DateRangeFilter, type DateRange } from '@/components/dashboard/admin/performance/date-range-filter';
+import { BarChart, CheckCircle, Clock, Star, Loader2, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { DateRangeFilter } from '@/components/dashboard/admin/performance/date-range-filter';
 import { KpiCard } from '@/components/dashboard/admin/performance/kpi-card';
 import { PerformanceCharts } from '@/components/dashboard/admin/performance/performance-charts';
 import type { PerformanceData } from '@/types';
 import { getPerformanceDataAction } from '@/app/actions/performance-actions';
-import { subDays } from 'date-fns';
+import { subDays, startOfDay } from 'date-fns';
+import { useAuth } from '@/contexts/auth-context';
+import type { DateRange } from 'react-day-picker';
+
 
 export default function PerformanceDashboardPage() {
   const [data, setData] = useState<PerformanceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { currentUser } = useAuth();
+  const router = useRouter();
   
-  // Default date range: last 30 days
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: subDays(new Date(), 29),
+    from: startOfDay(subDays(new Date(), 29)),
     to: new Date(),
   });
+  
+  // Security Check
+  useEffect(() => {
+    if (currentUser && currentUser.role !== 'superAdmin') {
+      router.replace('/dashboard/admin');
+    }
+  }, [currentUser, router]);
 
   useEffect(() => {
+    if (currentUser?.role !== 'superAdmin') return;
+
     async function fetchData() {
+      if (!dateRange.from || !dateRange.to) return;
+      
       setLoading(true);
       setError(null);
       const result = await getPerformanceDataAction(dateRange);
@@ -37,7 +53,17 @@ export default function PerformanceDashboardPage() {
     }
 
     fetchData();
-  }, [dateRange]);
+  }, [dateRange, currentUser]);
+  
+  if (!currentUser || currentUser.role !== 'superAdmin') {
+      return (
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
+                <h1 className="text-2xl font-bold">Acesso Negado</h1>
+                <p className="text-muted-foreground max-w-md">Você não tem permissão para acessar esta página. Esta seção é restrita aos Super Administradores.</p>
+            </div>
+      )
+  }
 
   return (
     <>
@@ -54,7 +80,7 @@ export default function PerformanceDashboardPage() {
         <div className="flex flex-col items-center justify-center h-96 bg-destructive/10 rounded-lg">
             <AlertTriangle className="h-12 w-12 text-destructive mb-4"/>
             <h3 className="text-xl font-semibold text-destructive">Erro ao Carregar Dados</h3>
-            <p className="text-destructive/80">{error}</p>
+            <p className="text-destructive/80 text-center max-w-lg">{error}</p>
         </div>
       ) : data ? (
         <div className="space-y-8">

@@ -33,10 +33,6 @@ export async function getPerformanceDataAction(
   const toDate = new Date(dateRange.to);
   toDate.setHours(23, 59, 59, 999);
   
-  const fromDateISO = dateRange.from.toISOString();
-  const toDateISO = toDate.toISOString();
-
-
   try {
     // 1. Fetch completed service requests and resolved incidents separately
     const requestsRef = db.collection('service_requests');
@@ -44,24 +40,20 @@ export async function getPerformanceDataAction(
 
     const completedRequestsSnapshot = await requestsRef
       .where('status', '==', 'concluido')
+      .where('dateUpdated', '>=', dateRange.from.toISOString())
+      .where('dateUpdated', '<=', toDate.toISOString())
       .get();
       
     const resolvedIncidentsSnapshot = await incidentsRef
       .where('status', '==', 'resolvida')
+      .where('dateUpdated', '>=', dateRange.from.toISOString())
+      .where('dateUpdated', '<=', toDate.toISOString())
       .get();
 
-    const allCompletedRaw = [
+    const allCompleted = [
       ...completedRequestsSnapshot.docs.map(doc => doc.data() as ServiceRequest),
       ...resolvedIncidentsSnapshot.docs.map(doc => doc.data() as IncidentReport)
     ];
-
-    // 2. Filter by date range in code
-    const allCompleted = allCompletedRaw.filter(item => {
-        if (!item.dateUpdated) return false;
-        const updatedDate = parseISO(item.dateUpdated);
-        return isValid(updatedDate) && updatedDate >= dateRange.from && updatedDate <= toDate;
-    });
-
 
     if (allCompleted.length === 0) {
         return { success: true, data: {
@@ -145,6 +137,6 @@ export async function getPerformanceDataAction(
         console.error("----- Firestore Index Required -----");
         console.error("The performance queries need a composite index. Create it in your Firebase console:", error.message);
     }
-    return { success: false, error: "Falha ao buscar dados do banco de dados. Verifique os logs para detalhes." };
+    return { success: false, error: "Falha ao buscar dados. Um índice composto pode ser necessário no Firestore. Verifique os logs do servidor." };
   }
 }
