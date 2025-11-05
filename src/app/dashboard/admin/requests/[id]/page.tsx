@@ -9,13 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, FileText, UserCircle, CalendarDays, Edit3, MessageSquare, CheckCircle, XCircle, Clock, Loader2, History } from 'lucide-react';
 import Link from 'next/link';
-import type { ServiceRequest, ServiceRequestStatus, ResolvedTicket, StatusHistoryEntry } from '@/types';
-import { SimilarTicketsSuggestions } from '@/components/ai/similar-tickets-suggestions';
+import type { ServiceRequest, ServiceRequestStatus, StatusHistoryEntry } from '@/types';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getRequestByIdAction, getRequestsForAdminAction, updateRequestStatusAction } from '@/app/actions/requests-actions';
+import { getRequestByIdAction, updateRequestStatusAction } from '@/app/actions/requests-actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
@@ -69,7 +68,6 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<ServiceRequestStatus>();
   const [notes, setNotes] = useState(''); // Parecer técnico/observações
-  const [resolvedTickets, setResolvedTickets] = useState<ResolvedTicket[]>([]);
   
   const router = useRouter();
   const { toast } = useToast();
@@ -84,24 +82,7 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
       if (fetchedRequest) {
         setRequest(fetchedRequest);
         setSelectedStatus(fetchedRequest.status);
-        setNotes(''); // Limpa o campo de notas para novo parecer
-
-        // Otimização: Busca apenas solicitações concluídas e do mesmo tipo para a IA.
-        const similarResolvedRequests = await getRequestsForAdminAction({
-            status: 'concluido',
-            type: fetchedRequest.type,
-            limit: 20 // Limita a busca para performance
-        });
-
-        const similarResolved = similarResolvedRequests
-          .filter(req => req.id !== fetchedRequest.id) // Exclui a própria solicitação
-          .map(req => ({
-            ticketId: req.protocol,
-            description: req.description,
-            resolution: req.notes || "Solicitação marcada como concluída sem notas detalhadas.",
-          }));
-        setResolvedTickets(similarResolved);
-
+        setNotes('');
       } else {
          toast({ title: "Erro", description: "Solicitação não encontrada.", variant: "destructive" });
       }
@@ -289,10 +270,6 @@ export default function AdminRequestDetailPage({ params }: { params: { id: strin
         </div>
 
         <div className="md:col-span-1 space-y-6">
-          <SimilarTicketsSuggestions 
-            currentTicket={{ description: request.description, type: request.type }}
-            availableResolvedTickets={resolvedTickets}
-          />
           <Card>
             <CardHeader>
                 <CardTitle className="flex items-center">
