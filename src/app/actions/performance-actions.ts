@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
@@ -38,16 +37,18 @@ export async function getPerformanceDataAction(
     const requestsRef = db.collection('service_requests');
     const incidentsRef = db.collection('incidents');
 
+    // CORRIGIDO: Filtrando por 'dateCreated' para corresponder ao índice do Firestore
     const completedRequestsSnapshot = await requestsRef
       .where('status', '==', 'concluido')
-      .where('dateUpdated', '>=', dateRange.from.toISOString())
-      .where('dateUpdated', '<=', toDate.toISOString())
+      .where('dateCreated', '>=', dateRange.from.toISOString())
+      .where('dateCreated', '<=', toDate.toISOString())
       .get();
       
+    // CORRIGIDO: Filtrando por 'dateCreated' para corresponder ao índice do Firestore
     const resolvedIncidentsSnapshot = await incidentsRef
       .where('status', '==', 'resolvida')
-      .where('dateUpdated', '>=', dateRange.from.toISOString())
-      .where('dateUpdated', '<=', toDate.toISOString())
+      .where('dateCreated', '>=', dateRange.from.toISOString())
+      .where('dateCreated', '<=', toDate.toISOString())
       .get();
 
     const allCompleted = [
