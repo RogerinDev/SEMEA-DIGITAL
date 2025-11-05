@@ -18,6 +18,7 @@ import { getIncidentByIdAction, updateIncidentStatusAction } from '@/app/actions
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
+import { Input } from '@/components/ui/input';
 
 const statusOptions: { value: IncidentReport['status'], label: string, icon?: React.ElementType }[] = [
   { value: 'recebida', label: 'Recebida', icon: Clock },
@@ -297,6 +298,7 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
     if (params.id) {
         fetchIncident();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, refreshKey]);
 
   const handleUpdateSuccess = () => {
@@ -335,3 +337,5 @@ export default function AdminIncidentDetailPage({ params }: { params: { id: stri
 
   return <AdminIncidentDetailPageContent incident={incident} onUpdateSuccess={handleUpdateSuccess} />;
 }
+
+    
