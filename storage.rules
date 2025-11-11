@@ -5,7 +5,6 @@ service firebase.storage {
 
     // Regra geral de leitura: permite que qualquer pessoa leia arquivos.
     // Isso é comum para imagens que precisam ser exibidas publicamente no app.
-    // Ajuste para `if request.auth != null;` se os arquivos forem privados.
     match /{allPaths=**} {
       allow read;
     }
@@ -13,25 +12,23 @@ service firebase.storage {
     // --- REGRAS DE ESCRITA (UPLOAD) ---
 
     // Permite que usuários logados façam upload de fotos para seus perfis.
-    match /profile_pictures/{userId}/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.uid == userId;
+    match /profile_pictures/{fileName} {
+      allow write: if request.auth != null && fileName.startsWith(request.auth.uid);
     }
     
     // Permite que usuários logados façam upload de evidências para denúncias.
-    match /incident_evidence/{userId}/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.uid == userId;
+    match /incident_evidence/{fileName} {
+      allow write: if request.auth != null && fileName.startsWith(request.auth.uid);
     }
 
     // Permite que usuários logados façam upload de fotos de animais perdidos/achados.
-    match /lost_found_images/{userId}/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.uid == userId;
+    match /lost_found_images/{fileName} {
+      allow write: if request.auth != null && fileName.startsWith(request.auth.uid);
     }
     
     // Permite que administradores logados façam upload de fotos de animais para adoção.
-    // A verificação de 'admin'/'superAdmin' deve ser feita na Cloud Function ou na App.
-    // Aqui, garantimos que apenas um usuário autenticado pode escrever.
-    match /adoption_images/{userId}/{allPaths=**} {
-        allow write: if request.auth != null && request.auth.uid == userId;
+    match /adoption_images/{fileName} {
+        allow write: if request.auth != null && fileName.startsWith(request.auth.uid);
     }
   }
 }
