@@ -28,7 +28,10 @@ import {
     Sofa,
     Container,
     Unplug,
-    Sparkles
+    Sparkles,
+    GlassWater,
+    Book,
+    Footprints
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -37,7 +40,7 @@ interface Ecoponto {
   ECOPONTO: string;
   ENDEREÇO: string;
   TELEFONE: string;
-  OBSERVAÇÃO: string;
+  OBSERVAÇÃO?: string;
 }
 
 interface ColetaBairro {
@@ -49,177 +52,56 @@ interface ColetaBairro {
 }
 
 const ecopontosData: Ecoponto[] = [
-    {"MATERIAL": "Esponja de cozinha ou banho", "ECOPONTO": "Supermercado Maiolini", "ENDEREÇO": "Rua Rio de Janeiro, 684 - Centro", "TELEFONE": "2105-1800", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Esponja de cozinha ou banho", "ECOPONTO": "Loja STRIP", "ENDEREÇO": "R. Dr. Wenceslau Braz, 300", "TELEFONE": "98853-8111", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Lâmpadas", "ECOPONTO": "Supermercado Bretas", "ENDEREÇO": "Av. ayrton Senna, 111 - Rio verde", "TELEFONE": "2105-3551", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Lixo Eletrônico", "ECOPONTO": "Ecobrasil", "ENDEREÇO": "Av. Raul Salgado Filho, 180", "TELEFONE": "3214-2366", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Lixo Eletrônico", "ECOPONTO": "Loja Vivo", "ENDEREÇO": "Av. Rio Branco, 280 - Centro", "TELEFONE": "99911-5265", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Pilhas e baterias", "ECOPONTO": "Supermercado Maiolini", "ENDEREÇO": "Rua Rio de Janeiro, 684 - Centro", "TELEFONE": "2105-1800", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Pilhas e baterias", "ECOPONTO": "Imigrantes Materiais Elétricos", "ENDEREÇO": "Av. dos Imigrantes, 221 - Santa Maria", "TELEFONE": "3015-4001", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Óleo", "ECOPONTO": "Supermercado Maiolini", "ENDEREÇO": "Rua Rio de Janeiro, 684 - Centro", "TELEFONE": "2105-1800", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Óleo", "ECOPONTO": "Róleo Reciclagem", "ENDEREÇO": "", "TELEFONE": "98823-7383", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Medicamentos vencidos", "ECOPONTO": "Imigrantes Materiais Elétricos", "ENDEREÇO": "Av. dos Imigrantes, 221 - Santa Maria", "TELEFONE": "3015-4001", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Medicamentos vencidos", "ECOPONTO": "Unidade Centro UNIMED Varginha", "ENDEREÇO": "Praça Getúlio Vargas, 123, Centro", "TELEFONE": "3690-7100", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Ferro-velho", "ECOPONTO": "Cruzifer Reciclagem", "ENDEREÇO": "Av. Dr. José Justiniano dos reis, 1803 – Jardim Sion", "TELEFONE": "3221-5947", "OBSERVAÇÃO": "latinha, panela, geladeira, fogão, janela e porta de ferro."},
-    {"MATERIAL": "Pneus", "ECOPONTO": "Barracão da Prefeitura", "ENDEREÇO": "R. Dr. Osvaldo de Resende, 70 - Parque Rinaldo", "TELEFONE": "3690-2311", "OBSERVAÇÃO": "Apenas para empresas cadastradas na SEMEA"},
-    {"MATERIAL": "Resíduos de construção civil", "ECOPONTO": "VGA CAÇAMBAS", "ENDEREÇO": "R. Tenente Joaquim Pinto, 223 - Bom Pastor", "TELEFONE": "99972-5752", "OBSERVAÇÃO": "deve-se contratar o serviço"},
-    {"MATERIAL": "Resíduos de construção civil", "ECOPONTO": "LIMA CAÇAMBAS", "ENDEREÇO": "Rodovia Varginha - Três Pontas km 4", "TELEFONE": "99947-7063", "OBSERVAÇÃO": "deve-se contratar o serviço"},
-    {"MATERIAL": "Resíduos de construção civil", "ECOPONTO": "RODRIGO CAÇAMBAS", "ENDEREÇO": "Av. Rubens Vicente de Lucas, 145 - Alto dos Pinheiros", "TELEFONE": "99738-4479", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Resíduos de construção civil", "ECOPONTO": "Limpavia", "ENDEREÇO": "Estrada para fazenda Jacutinga, 3000", "TELEFONE": "3221-1838 / 3212-3293 / 3212-1166", "OBSERVAÇÃO": "pequenos volumes levar o material até a empresa"},
-    {"MATERIAL": "Resíduos de corte de árvores, capim", "ECOPONTO": "LIMA CAÇAMBAS", "ENDEREÇO": "Rodovia Varginha - Três Pontas km 4", "TELEFONE": "99947-7063", "OBSERVAÇÃO": "deve-se contratar o serviço"},
-    {"MATERIAL": "Resíduos de corte de árvores, capim", "ECOPONTO": "RODRIGO CAÇAMBAS", "ENDEREÇO": "Av. Rubens Vicente de Lucas, 145 - Alto dos Pinheiros", "TELEFONE": "99738-4479", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Resíduos de corte de árvores, capim", "ECOPONTO": "Limpavia", "ENDEREÇO": "Estrada para fazenda Jacutinga, 3000", "TELEFONE": "3221-1838 / 3212-3293 / 3212-1166", "OBSERVAÇÃO": "pequenos volumes levar o material até a empresa"},
-    {"MATERIAL": "Móveis de madeira, sofás", "ECOPONTO": "Limpavia", "ENDEREÇO": "Estrada para fazenda Jacutinga, 3000", "TELEFONE": "3221-1838 / 3212-3293 / 3212-1166", "OBSERVAÇÃO": "pequenos volumes levar o material até a empresa"},
-    {"MATERIAL": "Papel, papelão, plástico", "ECOPONTO": "Crm Central de Reciclagem Minas Ltda", "ENDEREÇO": "Av. Rogassiano Francisco Coelho, 145 - Nova Varginha", "TELEFONE": "3222-1187", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "VIDA VIVA", "ENDEREÇO": "R. Alzira Magalhães Barra, 166 - Parque Boa Vista", "TELEFONE": "3690-2900 / 98831-9726", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Loja STRIP", "ENDEREÇO": "R. Dr. Wenceslau Braz, 300", "TELEFONE": "98853-8111", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Vita Corpus – Farmácia de Manipulação", "ENDEREÇO": "Rua Santa Cruz, 887, Centro / Rua Doutor José Resende, 150, loja 101, Vila Pinto / Rua Doutor Marcos Frota, 22, Sion", "TELEFONE": "3212-9980", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "CONSULTÓRIO DRA. LILIAN BRAGA", "ENDEREÇO": "Av. Rui Barbosa, 385, sl 503 – Centro", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "CONSULTÓRIO DRA. SARA PRADO", "ENDEREÇO": "Rua Santa Cruz, 789, sala 602 – Centro", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Caxieta Seguros", "ENDEREÇO": "R. Silvianópolis, 38 - Jardim Andere, Varginha", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "LUIZA PONZO (CORRETORA DE IMÓVEIS)", "ENDEREÇO": "Av. Rio Branco, 51 apto 203 ou subsolo 01 e 02 – Centro", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Farmácia Grupo Farma", "ENDEREÇO": "Av. Dr. José Justiniano dos Reis, 1548 – Sion", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Renato Tecidos", "ENDEREÇO": "Rua Delfim Moreira, 217 – Centro", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Casa do Advogado", "ENDEREÇO": "Av. Plínio Salgado, 415 - Vila Pinto", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Imigrantes Materiais Elétricos", "ENDEREÇO": "Av. dos Imigrantes, 221 - Santa Maria", "TELEFONE": "3015-4001", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Cartelas de remédios (BLISTERS)", "ECOPONTO": "Unidade Centro UNIMED Varginha", "ENDEREÇO": "Praça Getúlio Vargas, 123, Centro", "TELEFONE": "3690-7100", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Embalagens de cosméticos", "ECOPONTO": "Loja Traços", "ENDEREÇO": "Rua Delfim Moreira, 451 – Centro", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Embalagens de cosméticos", "ECOPONTO": "Boticário", "ENDEREÇO": "Av. Rio Branco, 348 – Centro / (35) 3221-4585 / Av. Presidente Antônio Carlos, 408 – Centro / (35) 3221-4594 / Rua Rio de Janeiro, 684 – Centro / (35) 3221-2831 / Av. José Benedito de Figueiredo, 10 - Vila Verde / (35) 3222-3594", "TELEFONE": "", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Tampinha de plástico", "ECOPONTO": "VIDA VIVA", "ENDEREÇO": "R. Alzira Magalhães Barra, 166 - Parque Boa Vista", "TELEFONE": "3690-2900 / 98831-9726", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Tampinha de plástico", "ECOPONTO": "Loja STRIP", "ENDEREÇO": "R. Dr. Wenceslau Braz, 300", "TELEFONE": "98853-8111", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Lacres de latinha", "ECOPONTO": "VIDA VIVA", "ENDEREÇO": "R. Alzira Magalhães Barra, 166 - Parque Boa Vista", "TELEFONE": "3690-2900 / 98831-9726", "OBSERVAÇÃO": ""},
-    {"MATERIAL": "Lacres de latinha", "ECOPONTO": "Loja STRIP", "ENDEREÇO": "R. Dr. Wenceslau Braz, 300", "TELEFONE": "98853-8111", "OBSERVAÇÃO": ""}
+    {"MATERIAL": "Lixo Eletrônico", "ECOPONTO": "Ecobrasil", "TELEFONE": "9 8856-1145", "ENDEREÇO": "Av. Raul Salgado Filho, 130"},
+    {"MATERIAL": "Lixo Eletrônico", "ECOPONTO": "Minasul", "TELEFONE": "3219-6900", "ENDEREÇO": "Av. Dinamarca, 01 - Industrial JK"},
+    {"MATERIAL": "Lixo Eletrônico", "ECOPONTO": "Clube da Casa", "TELEFONE": "3690-1700", "ENDEREÇO": "Av. Princesa do Sul, 500"},
+    {"MATERIAL": "Lixo Eletrônico", "ECOPONTO": "Loja Vivo", "TELEFONE": "9 9911-5265", "ENDEREÇO": "Av. Rio Branco, 280 - Centro"},
+    {"MATERIAL": "Vidro", "ECOPONTO": "Raneri", "TELEFONE": "9 9759-6398", "ENDEREÇO": "R. Coronel José Franscisco Coelho, 1015 Indl. JK"},
+    {"MATERIAL": "Vidro", "ECOPONTO": "Mineirão Atacarejo", "TELEFONE": "3223-9353", "ENDEREÇO": "Av. Celina Ottoni, 888 - N. Sa. das Graças"},
+    {"MATERIAL": "Lâmpadas", "ECOPONTO": "Supermercado BH", "TELEFONE": "31 9 9925-3851", "ENDEREÇO": "Rua Gabriel Penha de Paiva, 477 - Vila Paiva"},
+    {"MATERIAL": "Lâmpadas", "ECOPONTO": "Supermercados Rex", "TELEFONE": "3222-6811", "ENDEREÇO": "Rua Santos Dumont, 127 - Barcelona"},
+    {"MATERIAL": "Óleo de Cozinha Usado", "ECOPONTO": "Róleo Reciclagem (Estacionamento Super. Maiolini)", "TELEFONE": "9 8835-3900 / 2105-1800", "ENDEREÇO": "Rua Rio de Janeiro, 684"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Sec. Municipal de Saúde e UBS", "TELEFONE": "3690-2203", "ENDEREÇO": "Todas as unidades"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "CAPS", "TELEFONE": "3690-2182", "ENDEREÇO": "Rua Aristides Paiva, 18 - Vila Paiva"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Farmácia de Minas", "TELEFONE": "3690-2102", "ENDEREÇO": "Av. Celina Ottoni, 3389 Padre Vitor"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Farmácia Drogasil Centro", "TELEFONE": "9 9861-6259", "ENDEREÇO": "Praça José de Rezende Paiva, 40"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Farmácia Drogasil Bom Pastor", "TELEFONE": "3067-5990", "ENDEREÇO": "Praça João Pessoa, 51"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Farmácia Drogasil Sion", "TELEFONE": "9 1018-9015", "ENDEREÇO": "Praça Dr. Marcos frota, 230"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Drogaria São Paulo Centro", "TELEFONE": "3221-4770", "ENDEREÇO": "Av. Rui Barbosa, 184"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Drogaria São Paulo Shopping", "TELEFONE": "3221-4770", "ENDEREÇO": "Rua Humberto Pizo, 999 - lojas 224/225"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Vitacorpus Centro", "TELEFONE": "3212-9980", "ENDEREÇO": "Rua Santa Cruz, 887"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Vitacorpus Vila Pinto", "TELEFONE": "3212-9980", "ENDEREÇO": "Rua. Dr. José de Rezende Pinto, 150 loja 101"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Vitacorpus Sion", "TELEFONE": "3212-9980", "ENDEREÇO": "Praça Dr. Marcos Frota, 22-loja 01/02"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Drogaria Araújo", "TELEFONE": "3221-5186", "ENDEREÇO": "Av. Rui Barbosa, 398"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Unidade Centro UNIMED Varginha", "TELEFONE": "3690-7000", "ENDEREÇO": "Praça Getulio Vargas, 123"},
+    {"MATERIAL": "Medicamentos Vencidos e Blister", "ECOPONTO": "Farmácia de Minas", "TELEFONE": "3223-2900", "ENDEREÇO": "Av. Celina Ferreira Ottoni, 3389 - Padre Vitor"},
+    {"MATERIAL": "Pneus", "ECOPONTO": "Barracão da Prefeitura", "TELEFONE": "3690-2311", "ENDEREÇO": "Rua Dr. Osvaldo de Resende, 70 - Parque Rinaldo"},
+    {"MATERIAL": "Resíduos de Construção Civil", "ECOPONTO": "VGA CAÇAMBAS", "TELEFONE": "9 9972-5752", "ENDEREÇO": "R. Tenente Joaquim Pinto, 223 Bom Pastor", "OBSERVAÇÃO": "SERVIÇO PAGO"},
+    {"MATERIAL": "Resíduos de Construção Civil", "ECOPONTO": "LIMA CAÇAMBAS", "TELEFONE": "9 9947-7063", "ENDEREÇO": "Rodovia Varginha - Três Pontas km 4", "OBSERVAÇÃO": "SERVIÇO PAGO"},
+    {"MATERIAL": "Resíduos de Construção Civil", "ECOPONTO": "RODRIGO CAÇAMBAS", "TELEFONE": "9 9738-4479", "ENDEREÇO": "Av. Rubens Vicente de Lucas, 145 Alto dos Pinheiros", "OBSERVAÇÃO": "SERVIÇO PAGO"},
+    {"MATERIAL": "Resíduos de Construção Civil", "ECOPONTO": "Limpavia", "TELEFONE": "3221-1838", "ENDEREÇO": "Estrada para fazenda Jacutinga, 3000", "OBSERVAÇÃO": "SERVIÇO PAGO"},
+    {"MATERIAL": "Resíduos de Poda/Capim", "ECOPONTO": "LIMA CAÇAMBAS, RODRIGO CAÇAMBAS e Limpavia", "TELEFONE": "mesmos contatos acima", "ENDEREÇO": "mesmos endereços acima", "OBSERVAÇÃO": "SERVIÇO PAGO"},
+    {"MATERIAL": "Móveis e Sofás", "ECOPONTO": "Limpavia", "TELEFONE": "3221-1838", "ENDEREÇO": "Estrada para fazenda Jacutinga, 3000", "OBSERVAÇÃO": "SERVIÇO PAGO"},
+    {"MATERIAL": "Papel, Papelão e Plástico", "ECOPONTO": "Central de Reciclagem Minas Ltda.", "TELEFONE": "3222-1187", "ENDEREÇO": "Av. Rogassiano Francisco Coelho, 145 - Nova Varginha"},
+    {"MATERIAL": "Papel, Papelão e Plástico", "ECOPONTO": "Éloi Reciclagem", "TELEFONE": "9 8886-1474", "ENDEREÇO": ""},
+    {"MATERIAL": "Embalagens de Cosméticos", "ECOPONTO": "O Boticário", "TELEFONE": "3221-4594", "ENDEREÇO": "Av. Presidente Antônio Carlos, 408"},
+    {"MATERIAL": "Embalagens de Cosméticos", "ECOPONTO": "O Boticário", "TELEFONE": "3221-4585", "ENDEREÇO": "Av. Rio Branco, 348 - Centro"},
+    {"MATERIAL": "Tampinha de Plástico e Lacres de Latinha", "ECOPONTO": "VIDA VIVA", "TELEFONE": "3690-2900", "ENDEREÇO": "R. Alzira Magalhães Barra, 166 - Parque Boa Vista"},
+    {"MATERIAL": "Tampinha de Plástico e Lacres de Latinha", "ECOPONTO": "Loja STRIP", "TELEFONE": "9 8853-8111", "ENDEREÇO": "R. Dr. Wenceslau Braz, 300"},
+    {"MATERIAL": "Meias Sem Uso", "ECOPONTO": "PUKET Via Café Shopping", "TELEFONE": "", "ENDEREÇO": "R. Humberto Pizo, 999 - Jardim Petropolis"}
 ];
+
 
 const coletaData: ColetaBairro[] = [
-    { bairro: "São Francisco", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Cidade Nova", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Itália", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Colonial", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Parque das Acácias", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Santa Cruz", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vista Alegre", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Conjunto Habitacional", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Casas Militar", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Padre Vitor", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Sion", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Sion II", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Avelar", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Alta Vila", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Condomínio Romano", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Nova Varginha", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Parque Grevileas", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Bairro Princesa do Sul", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Santa Terezinha", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Eldorado", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Parque Urupês", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Condomínio Residencial Urupês", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Parque Ozanan", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Andere", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Andere II", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Residencial Jardins do Ágape", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Andere I", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vial Verônica", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Industrial Reinaldo Foresti", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vale dos Ipês", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Petrópolis", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Bueno", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Canaã 50%", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Isabel", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim dos Pássaros", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Santa Luiza", dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Oriente", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Itália", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Estrela I e II", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Corcetti", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Josefina", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Parque Eliane", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Nossa Senhora Aparecida", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Pontal", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Renata", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Santana", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Ribeiro", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Primavera", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Imaculada I, II e III", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Residencial Rio Verde", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Rio Verde", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Bairro Simões", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Residencial Jardim Vale Verde", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Residencial Atlântico Sul", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Bairro Resende", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Mariana", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Isabel", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Jardim Canaã 50%", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Novo Horizonte", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Catanduvas", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Nogueira", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Três Bicas", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Floresta", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Vila Morais", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Nossa Senhora de Lourdes", dias: "Terça – Quinta – Sábado", periodo: "Manhã", horario: "Terça e Quinta 6h30 às 12h30, Sábado 6h30 às 10h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30." },
-    { bairro: "Parque São José II", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Bela Vista", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Bela Vista II", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Boa Vista", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Parque Morada do Sol", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "São Geraldo", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Bom Pastor", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Alto dos Pinheiros", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Vargem", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Sete de Outubro", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "São Miguel Arcanjo", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Sagrado Coração", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Sagrado Coração II", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Jardim das Oliveiras", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Parque Alto da Figueiras", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Parque Mariela", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Condomínio Imperador", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Jardim Bouganville", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Belo Horizonte III", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Vale das Palmeiras", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Novo Damasco", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Damasco", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Imperial", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Centenário II", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Vila Registânea", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Vila Maristela", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Barcelona", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Pinheiros", dias: "Terça – Quinta – Sábado", periodo: "Tarde", horario: "Terça e Quinta 12h às 18h, Sábado 10h30 às 14h30", obs: "Em feriados, a coleta acontece das 6h30 às 14h30." },
-    { bairro: "Vila Paiva", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Parque Rinaldo", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Mont Serrat", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "São José", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Jardim Áurea", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Fátima", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Vila Adelaide", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Vila Martins", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Vila Murad", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Jardim Orlândia", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Vila Ipiranga", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Campos Elíseos", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Jardim Zinoca", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Vila Mendes", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Parque do Retiro", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Vila do Flamengo", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Jardim Europa", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Residencial Jetcon", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Carvalhos", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Novo Tempo", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Cruzeiro do Sul", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Nossa Senhora das Graças I e II", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Centenário I", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Santa Mônica", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "São Sebastião", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Santa Maria", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Vila Belmiro", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "São Lucas", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "São Joaquim", dias: "Segunda – Quarta – Sexta", periodo: "Tarde", horario: "12h às 18h", obs: "Em feriados, a coleta acontece das 10h30 às 14h30." },
-    { bairro: "Área Central", dias: "Segunda a Sexta, Sábado e Domingo", periodo: "Noite", horario: "Segunda a Sexta 19h às 01h, Sábado 14h às 18h, Domingo 6h às 12h" },
-    { bairro: "Vila Pinto", dias: "Terça – Quinta, Sábado", periodo: "Noite", horario: "Terça e Quinta 19h às 1h, Sábado 14h às 18h" },
-    ...("Restaurante da Sônia, Fibrax, Hipermax, Unis, Motel Kiss, Avery Termoplasticos, ABB, Bar da Ponte dos Buenos, Restaurante TH, Restaurante Fazendinha, Ilha das Orquídeas, Armazém de Café, Clube dos Servidores, Armazém Cafeco II, Truck, Unis II, Armazém MC Brasil, Sendas, Calçados Bomfim, Roncafé, Recauchutagem Vipal, Transversal, Empresa Santa Cruz, Madereira Magalhães, Jofadel, DER, Cive Veiculos, Armazém Rio Doce, STM, LBC, Clube Bancários, Callis, Sest Senat, Ritifica Líder, Hospital Regional, Hospital Bom Pastor, Hospital Humanitas, Copasa, Cooperativa Cafeicutores, Cemig, Mercado Produtor".split(', ')).map(b => ({ bairro: b.trim(), dias: "Terça e Quinta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30."})),
-    ...("Supermecado Alvorada, Posto Ipiranga, Coutinho, Porto Seco, G. Lúcio, Clube Campestre, Água de Varginha, Escola Santa Terezinha, Leste de Minas, Itaipava, Armazém Cafeco, Nova Pagina, Inbrasmec, Patrus Transporte, Atos Distribuição, Nova Safra, Inter Aduaneira, Hotel Sleep Inn, Armazém Santa Clara, Translume, Glapan, Bar da Kátia, Action, Bar da Ponte, GT Minas, Fábrica de Lingerie, Avenida Airton Senna, Santa Terezinha, Recauchutagem Paulista, Caic I, Koop, IMF, Milton, Boiller Mil, Empemaq, Proluminas, Unigel, Leste de Minas I, PP Print, Presidio, Hospital Bom Pastor, Hospital Humanitas, Hospital Regional, (Sitio Engrenagem Segunda Feira), Interflex, Correio, Spacebr, Radial, Aero Cuble, Aeroporto, Porto Seco II, Metalúrgica Varginha, Walita".split(', ')).map(b => ({ bairro: b.trim(), dias: "Segunda – Quarta – Sexta", periodo: "Manhã", horario: "6h30 às 12h30", obs: "Em feriados, a coleta acontece das 6h30 às 10h30."})),
+    ...("São Francisco, Cidade Nova, Jardim Itália, Jardim Colonial, Parque das Acácias, Vila Santa Cruz, Vista Alegre, Conjunto Habitacional, Casas Militar, Padre Vitor, Sion, Sion II, Vila Avelar, Alta Vila, Condomínio Romano, Nova Varginha, Parque Grevileas, Bairro Princesa do Sul, Santa Terezinha, Eldorado, Parque Urupês, Condomínio Residencial Urupês, Parque Ozanan, Jardim Andere, Vila Andere II, Santa Terezinha, Residencial Jardins do Ágape, Vila Andere I, Vial Verônica, Industrial Reinaldo Foresti, Vale dos Ipês, Jardim Petrópolis, Vila Bueno, Canaã 50%, Vila Isabel, Jardim dos Pássaros, Santa Luiza".split(', ')).map(bairro => ({ bairro: bairro.trim(), dias: "Segunda, Quarta, Sexta", periodo: "Manhã", horario: "06:30 - 12:30" })),
+    ...("Jardim Oriente, Jardim Itália, Jardim Estrela I e II, Jardim Corcetti, Vila Josefina, Parque Eliane, Nossa Senhora Aparecida, Vila Pontal, Jardim Renata, Santana, Jardim Ribeiro, Jardim Primavera, Imaculada I, II e III, Residencial Rio Verde, Rio Verde, Bairro Simões, Residencial Jardim Vale Verde, Residencial Atlântico Sul, Bairro Resende, Jardim Mariana, Vila Isabel, Jardim Canaã 50%, Novo Horizonte, Catanduvas, Vila Nogueira, Três Bicas, Vila Floresta, Vila Morais, Nossa Senhora de Lourdes".split(', ')).map(bairro => ({ bairro: bairro.trim(), dias: "Terça, Quinta e Sábado", periodo: "Manhã", horario: "Consulte o horário exato" })),
+    ...("Parque São José II, Bela Vista, Bela Vista II, Boa Vista, Parque Morada do Sol, São Geraldo, Bom Pastor, Alto dos Pinheiros, Vargem, Sete de Outubro, São Miguel Arcanjo, Sagrado Coração, Sagrado Coração II, Jardim das Oliveiras, Parque Alto da Figueiras, Parque Mariela, Condomínio Imperador, Jardim Bouganville, Belo Horizonte III, Vale das Palmeiras, Novo Damasco, Damasco, Imperial, Centenário II, Vila Registânea, Vila Maristela, Barcelona, Pinheiros".split(', ')).map(bairro => ({ bairro: bairro.trim(), dias: "Terça, Quinta e Sábado", periodo: "Tarde", horario: "Consulte o horário exato" })),
+    ...("Vila Paiva, Parque Rinaldo, Mont Serrat, São José, Jardim Áurea, Fátima, Vila Adelaide, Vila Martins, Vila Murad, Jardim Orlândia, Vila Ipiranga, Campos Elíseos, Jardim Zinoca, Vila Mendes, Parque do Retiro, Vila do Flamengo, Jardim Europa, Residencial Jetcon, Carvalhos, Novo Tempo, Cruzeiro do Sul, Nossa Senhora das Graças I e II, Centenário I, Santa Mônica, São Sebastião, Santa Maria, Vila Belmiro, São Lucas, São Joaquim".split(', ')).map(bairro => ({ bairro: bairro.trim(), dias: "Segunda, Quarta, Sexta", periodo: "Tarde", horario: "12:00 - 18:00" })),
+    ...("Restaurante da Sônia, Fibrax, Hipermax, Unis, Motel Kiss, Avery Termoplasticos, ABB, Bar da Ponte dos Buenos, Restaurante TH, Restaurante Fazendinha, Ilha das Orquídeas, Armazém de Café, Clube dos Servidores, Armazém Cafeco II, Truck, Unis II, Armazém MC Brasil, Sendas, Calçados Bomfim, Roncafé, Recauchutagem Vipal, Transversal, Empresa Santa Cruz, Madereira Magalhães, Jofadel, DER, Cive Veiculos, Armazém Rio Doce, STM, LBC, Clube Bancários, Callis, Sest Senat, Ritifica Líder, Hospital Regional, Hospital Bom Pastor, Hospital Humanitas, Copasa, Cooperativa Cafeicutores, Cemig, Mercado Produtor".split(', ')).map(bairro => ({ bairro: `(Firma) ${bairro.trim()}`, dias: "Terça e Quinta", periodo: "Manhã", horario: "06:30 - 12:30" })),
+    ...("Supermecado Alvorada, Posto Ipiranga, Coutinho, Porto Seco, G. Lúcio, Clube Campestre, Água de Varginha, Escola Santa Terezinha, Leste de Minas, Itaipava, Armazém Cafeco, Nova Pagina, Inbrasmec, Patrus Transporte, Atos Distribuição, Nova Safra, Inter Aduaneira, Hotel Sleep Inn, Armazém Santa Clara, Translume, Glapan, Bar da Kátia, Action, Bar da Ponte, GT Minas, Fábrica de Lingerie, Avenida Airton Senna, Santa Terezinha, Recauchutagem Paulista, Caic I, Koop, IMF, Milton, Boiller Mil, Empemaq, Proluminas, Unigel, Leste de Minas I, PP Print, Presidio, Hospital Bom Pastor, Hospital Humanitas, Hospital Regional, (Sitio Engrenagem Segunda Feira), Interflex, Correio, Spacebr, Radial, Aero Cuble, Aeroporto, Porto Seco II, Metalúrgica Varginha, Walita".split(', ')).map(bairro => ({ bairro: `(Firma) ${bairro.trim()}`, dias: "Segunda, Quarta, Sexta", periodo: "Manhã", horario: "06:30 - 12:30" })),
+    { bairro: "Área Central", dias: "Segunda a Sexta, Sábado e Domingo", periodo: "Noite", horario: "Seg-Sex: 19h-01h, Sáb: 14h-18h, Dom: 6h-12h" },
+    { bairro: "Vila Pinto", dias: "Terça e Quinta, Sábado", periodo: "Noite", horario: "Ter/Qui: 19h-1h, Sáb: 14h-18h" },
 ];
-
 
 export default function WasteManagementPage() {
   const [searchTermEcopontos, setSearchTermEcopontos] = useState('');
@@ -232,16 +114,18 @@ export default function WasteManagementPage() {
     if (lowerMaterial.includes('eletrônico')) return MonitorSmartphone;
     if (lowerMaterial.includes('pilha') || lowerMaterial.includes('bateria')) return Battery;
     if (lowerMaterial.includes('óleo')) return Droplets;
-    if (lowerMaterial.includes('medicamento') || lowerMaterial.includes('remédio')) return Pill;
+    if (lowerMaterial.includes('medicamento') || lowerMaterial.includes('remédio') || lowerMaterial.includes('blister')) return Pill;
     if (lowerMaterial.includes('ferro-velho')) return Hammer;
     if (lowerMaterial.includes('pneu')) return CircleDot;
     if (lowerMaterial.includes('construção')) return Construction;
-    if (lowerMaterial.includes('corte de árvore') || lowerMaterial.includes('capim')) return Leaf;
+    if (lowerMaterial.includes('poda') || lowerMaterial.includes('capim')) return Leaf;
     if (lowerMaterial.includes('móveis') || lowerMaterial.includes('sofá')) return Sofa;
     if (lowerMaterial.includes('cosmético')) return Container;
     if (lowerMaterial.includes('lacre')) return Unplug;
     if (lowerMaterial.includes('papel') || lowerMaterial.includes('plástico') || lowerMaterial.includes('tampinha')) return Recycle;
-    return Recycle; // Default icon
+    if (lowerMaterial.includes('vidro')) return GlassWater;
+    if (lowerMaterial.includes('meias')) return Footprints;
+    return Book;
   };
 
   const filteredEcopontos = useMemo(() => {
@@ -260,13 +144,11 @@ export default function WasteManagementPage() {
     }
     const searchLower = searchTermBairro.toLowerCase();
     
-    // Prioritize exact matches
     const exactMatches = coletaData.filter(item => item.bairro.toLowerCase() === searchLower);
     if (exactMatches.length > 0) {
       return exactMatches;
     }
     
-    // Fallback to partial matches
     return coletaData.filter(item => item.bairro.toLowerCase().includes(searchLower));
   }, [searchTermBairro]);
 
