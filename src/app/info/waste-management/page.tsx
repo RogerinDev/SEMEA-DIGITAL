@@ -168,7 +168,7 @@ export default function WasteManagementPage() {
                 Ecopontos: Encontre o local certo para seu descarte
             </CardTitle>
             <CardDescription>
-              O que você quer descartar? (ex: pilha, óleo, lâmpada, nome do local)
+              Você pode separar alguns tipos de resíduos e realizar a entrega voluntária em alguns locais específicos - os chamados ECOPONTOS. Saiba como descartar corretamente o lixo eletrônico, vidro, lâmpadas, óleo de cozinha, medicamentos vencidos, pneus, resíduos de construção civil, resíduos de poda, móveis de madeira e sofás, papel, papelão e plástico, embalagens de cosméticos, e outros.
             </CardDescription>
           </CardHeader>
           <CardContent>
