@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Server Actions para gerenciar a coleção de solicitações de serviço (`service_requests`).
  * Contém a lógica do lado do servidor para adicionar, buscar, contar e atualizar solicitações.
@@ -7,7 +8,7 @@
 'use server';
 
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
-import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory, type StatusHistoryEntry } from '@/types';
+import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory, type StatusHistoryEntry, type EducationRequest } from '@/types';
 import { revalidatePath } from 'next/cache';
 import type admin from 'firebase-admin';
 
@@ -115,6 +116,26 @@ export async function addRequestAction(data: NewRequestData): Promise<{ success:
     return { success: false, error: "Não foi possível salvar a solicitação: " + error.message };
   }
 }
+
+/**
+ * Server Action para adicionar uma nova solicitação de educação ambiental (pública).
+ */
+export async function addEducationRequestAction(data: Omit<EducationRequest, 'id' | 'status' | 'dateCreated'>): Promise<{ success: boolean, error?: string }> {
+    const { db } = getFirebaseAdmin();
+    try {
+        const newEducationRequest: Omit<EducationRequest, 'id'> = {
+            ...data,
+            status: 'recebida',
+            dateCreated: new Date().toISOString(),
+        };
+        await db.collection('education_requests').add(newEducationRequest);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error adding education request: ", error);
+        return { success: false, error: "Não foi possível enviar a solicitação de agendamento." };
+    }
+}
+
 
 /**
  * Converte Timestamps do Firestore em strings ISO para um objeto de solicitação.
@@ -371,3 +392,5 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     return { success: false, error: "Não foi possível atualizar a solicitação." };
   }
 }
+
+    

@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Arquivo central de definições de tipos (TypeScript) para toda a aplicação.
  * Isso garante consistência e reuso de tipos em diferentes partes do código.
@@ -62,6 +63,24 @@ export interface ServiceRequest {
   notes?: string; // Notas internas do administrador (PARECER TÉCNICO).
   history: StatusHistoryEntry[];
 }
+
+// Estrutura para uma solicitação de educação ambiental (pública).
+export interface EducationRequest {
+  id: string; // ID do documento no Firestore
+  responsibleName: string;
+  contactPhone: string;
+  institutionName: string;
+  projects: string[]; // Array de IDs ou nomes de projetos
+  lectures: string[]; // Array de IDs ou nomes de palestras
+  eventDate: string; // ISO String
+  eventTime: string;
+  estimatedAudience: number;
+  ageGroup: '3-10' | '11-15' | '16-24' | 'adults';
+  observations?: string;
+  status: 'recebida' | 'em_analise' | 'agendada' | 'recusada' | 'concluida';
+  dateCreated: string; // ISO String
+}
+
 
 // Define as categorias de serviço, que agrupam os tipos de serviço.
 export type ServiceCategory = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental';
@@ -284,3 +303,5 @@ export interface PerformanceData {
 
 // Constante com nota geral da SEMEA.
 export const GENERAL_SEMEA_FOCUS_NOTE = "Além dos projetos específicos, a SEMEA foca em fomentar a destinação adequada de resíduos sólidos, prevenção a queimadas, preparo para emergência climática (proteção de APPs, áreas verdes, arborização urbana) e bem-estar animal.";
+
+    

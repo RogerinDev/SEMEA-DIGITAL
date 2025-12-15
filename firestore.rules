@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -6,46 +7,62 @@ service cloud.firestore {
     function isAuth() {
       return request.auth != null;
     }
-
-    function isOwner(docData) {
-      return request.auth.uid == docData.citizenId;
+    function isSuperAdmin() {
+      return isAuth() && request.auth.token.role == 'superAdmin';
     }
-
     function isAdmin() {
-      return request.auth.token.role == 'admin' || request.auth.token.role == 'superAdmin';
+      return isAuth() && (request.auth.token.role == 'admin' || isSuperAdmin());
+    }
+    function isOwner(citizenId) {
+      return isAuth() && request.auth.uid == citizenId;
     }
 
-    // Collection: service_requests
+    match /users/{userId} {
+      allow read, update: if isOwner(userId) || isAdmin();
+      allow create, delete: if isAdmin();
+    }
+
     match /service_requests/{requestId} {
-      allow read: if isAdmin() || (isAuth() && resource.data.citizenId == request.auth.uid);
-      allow list: if isAdmin() || (isAuth() && request.query.where.citizenId == request.auth.uid);
-      allow create: if isAuth() && request.resource.data.citizenId == request.auth.uid;
+      allow create: if isOwner(request.resource.data.citizenId);
+      allow read: if isAdmin() || isOwner(resource.data.citizenId);
       allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-    
-    // Collection: incidents
-    match /incidents/{incidentId} {
-      allow read: if isAdmin() || (isAuth() && resource.data.citizenId == request.auth.uid);
       allow list: if isAdmin() || (isAuth() && request.query.where.citizenId == request.auth.uid);
-      allow create: if isAuth(); // Anonymous reports have null citizenId, so ownership check is tricky
-      allow update: if isAdmin();
       allow delete: if isAdmin();
-    }
-    
-     // Collection: animals_for_adoption
-    match /animals_for_adoption/{animalId} {
-      allow read: if true; // Publicly readable
-      allow write: if isAdmin() && (request.auth.token.department == 'bem_estar_animal' || request.auth.token.role == 'superAdmin');
-    }
-    
-    // Collection: lost_found_posts
-    match /lost_found_posts/{postId} {
-        allow read: if true;
-        allow create: if isAuth() && request.resource.data.citizenId == request.auth.uid;
-        allow update: if isAuth() && resource.data.citizenId == request.auth.uid; // Only owner can update
-        allow delete: if isAdmin();
     }
 
+    match /incidents/{incidentId} {
+      allow create: if isAuth();
+      allow read: if isAdmin() || isOwner(resource.data.citizenId);
+      allow update: if isAdmin();
+      allow list: if isAdmin() || (isAuth() && request.query.where.citizenId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    match /lost_found_posts/{postId} {
+      allow read, list: if true;
+      allow create: if isOwner(request.resource.data.citizenId);
+      allow update: if isAdmin() || isOwner(resource.data.citizenId);
+      allow delete: if isAdmin();
+    }
+
+    match /animals_for_adoption/{animalId} {
+      allow read, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /adoption_interests/{interestId} {
+      allow create: if isOwner(request.resource.data.citizenId);
+      allow read, list, update, delete: if isAdmin();
+    }
+    
+    // Regra para Solicitações de Educação Ambiental (PÚBLICO)
+    match /education_requests/{requestId} {
+      // Qualquer pessoa (mesmo não logada) pode criar uma solicitação
+      allow create: if true;
+      // Apenas Admins podem ler ou atualizar
+      allow read, update, delete: if isAdmin(); 
+    }
   }
 }
+
+    
