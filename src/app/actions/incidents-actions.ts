@@ -10,6 +10,7 @@ import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import { INCIDENT_TYPES, type IncidentReport, type IncidentType, type IncidentCategory, type Department, type IncidentStatus, type StatusHistoryEntry } from '@/types';
 import { revalidatePath } from 'next/cache';
 import type admin from 'firebase-admin';
+import { sendStatusNotification } from '@/lib/email';
 
 /**
  * Função de guarda (type guard) para validar se um valor é um tipo de denúncia conhecido.
@@ -335,7 +336,7 @@ interface UpdateIncidentData {
  * @returns Um objeto com status de sucesso ou mensagem de erro.
  */
 export async function updateIncidentStatusAction(data: UpdateIncidentData): Promise<{ success: boolean; error?: string }> {
-  const { db } = getFirebaseAdmin();
+  const { db, auth } = getFirebaseAdmin();
   const { id, status, notes, inspector, updatedBy } = data;
   if (!id || !status) {
     return { success: false, error: "ID da denúncia e novo status são obrigatórios." };
@@ -344,12 +345,14 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
   const incidentRef = db.collection('incidents').doc(id);
 
   try {
+    let incidentData: IncidentReport | null = null;
+    
     await db.runTransaction(async (transaction) => {
         const incidentDoc = await transaction.get(incidentRef);
         if (!incidentDoc.exists) {
             throw new Error("Denúncia não encontrada.");
         }
-        const incidentData = incidentDoc.data() as IncidentReport;
+        const currentData = incidentDoc.data() as IncidentReport;
         
         const now = new Date().toISOString();
         const newHistoryEntry: StatusHistoryEntry = {
@@ -359,7 +362,7 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
             notes: notes || `Status alterado para: ${status}`,
         };
 
-        const newHistory = [...(incidentData.history || []), newHistoryEntry];
+        const newHistory = [...(currentData.history || []), newHistoryEntry];
         
         transaction.update(incidentRef, {
             status,
@@ -368,7 +371,30 @@ export async function updateIncidentStatusAction(data: UpdateIncidentData): Prom
             dateUpdated: now,
             history: newHistory,
         });
+
+        // Guarda os dados para usar após a transação
+        incidentData = { id: incidentDoc.id, ...currentData };
     });
+
+    // Se a transação foi bem-sucedida, envia o e-mail (Fire-and-Forget)
+    if (incidentData && incidentData.citizenId) {
+        try {
+            const userRecord = await auth.getUser(incidentData.citizenId);
+            if (userRecord.email) {
+            sendStatusNotification({
+                toEmail: userRecord.email,
+                citizenName: userRecord.displayName || 'Cidadão(ã)',
+                protocolId: incidentData.protocol,
+                newStatus: status,
+                type: 'Denúncia',
+                notes: notes,
+            });
+            }
+        } catch (emailError) {
+            console.error(`Falha ao buscar usuário ou enviar e-mail para citizenId ${incidentData.citizenId}:`, emailError);
+        }
+    }
+
 
     revalidatePath(`/dashboard/admin/incidents/${id}`);
     revalidatePath(`/dashboard/citizen/incidents/${id}`);

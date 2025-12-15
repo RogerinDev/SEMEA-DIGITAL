@@ -11,6 +11,7 @@ import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import { SERVICE_REQUEST_TYPES, type ServiceRequest, type ServiceRequestType, type ServiceRequestStatus, type Department, type ServiceCategory, type StatusHistoryEntry, type EducationRequest } from '@/types';
 import { revalidatePath } from 'next/cache';
 import type admin from 'firebase-admin';
+import { sendStatusNotification } from '@/lib/email';
 
 // Array de tipos de serviço válidos para validação.
 const validServiceRequestTypes = SERVICE_REQUEST_TYPES.map(t => t.value);
@@ -347,7 +348,7 @@ interface UpdateRequestData {
  * @returns Um objeto com status de sucesso ou mensagem de erro.
  */
 export async function updateRequestStatusAction(data: UpdateRequestData): Promise<{ success: boolean; error?: string }> {
-  const { db } = getFirebaseAdmin();
+  const { db, auth } = getFirebaseAdmin();
   const { id, status, notes, updatedBy } = data;
   if (!id || !status) {
     return { success: false, error: "ID da solicitação e novo status são obrigatórios." };
@@ -356,13 +357,15 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
   const requestRef = db.collection('service_requests').doc(id);
 
   try {
+    let requestData: ServiceRequest | null = null;
+    
     await db.runTransaction(async (transaction) => {
       const requestDoc = await transaction.get(requestRef);
       if (!requestDoc.exists) {
         throw new Error("Solicitação não encontrada.");
       }
-      const requestData = requestDoc.data() as ServiceRequest;
-
+      
+      const currentData = requestDoc.data() as ServiceRequest;
       const now = new Date().toISOString();
       const newHistoryEntry: StatusHistoryEntry = {
           status: status,
@@ -371,7 +374,7 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
           notes: notes || `Status alterado para: ${status}`,
       };
 
-      const newHistory = [...(requestData.history || []), newHistoryEntry];
+      const newHistory = [...(currentData.history || []), newHistoryEntry];
       
       transaction.update(requestRef, {
         status: status,
@@ -379,7 +382,30 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
         dateUpdated: now,
         history: newHistory,
       });
+
+      // Guarda os dados para usar após a transação
+      requestData = { id: requestDoc.id, ...currentData };
     });
+
+    // Se a transação foi bem-sucedida, envia o e-mail (Fire-and-Forget)
+    if (requestData && requestData.citizenId) {
+      try {
+        const userRecord = await auth.getUser(requestData.citizenId);
+        if (userRecord.email) {
+          sendStatusNotification({
+            toEmail: userRecord.email,
+            citizenName: userRecord.displayName || 'Cidadão(ã)',
+            protocolId: requestData.protocol,
+            newStatus: status,
+            type: 'Solicitação',
+            notes: notes,
+          });
+        }
+      } catch (emailError) {
+        console.error(`Falha ao buscar usuário ou enviar e-mail para citizenId ${requestData.citizenId}:`, emailError);
+      }
+    }
+
 
     revalidatePath(`/dashboard/admin/requests/${id}`);
     revalidatePath(`/dashboard/citizen/requests/${id}`);
@@ -392,5 +418,3 @@ export async function updateRequestStatusAction(data: UpdateRequestData): Promis
     return { success: false, error: "Não foi possível atualizar a solicitação." };
   }
 }
-
-    
