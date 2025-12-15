@@ -99,7 +99,7 @@ function createEmailHtml({ citizenName, protocolId, newStatus, type, notes }: Se
  * Envia um e-mail de notificação de atualização de status.
  * @param params - Os dados necessários para o envio do e-mail.
  */
-export function sendStatusNotification(params: SendStatusNotificationParams) {
+export async function sendStatusNotification(params: SendStatusNotificationParams) {
   // Verificação de segurança: não tenta enviar se as credenciais não estiverem configuradas.
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.warn('Variáveis de ambiente SMTP não configuradas. O envio de e-mail está desativado.');
