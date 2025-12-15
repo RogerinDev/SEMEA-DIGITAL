@@ -170,14 +170,14 @@ export default function EnvironmentalEducationPage() {
 
       <Separator className="my-12" />
 
-        <div className="grid md:grid-cols-2 gap-8 items-start">
+      <div className="mb-8">
             <Card>
                 <CardHeader>
                     <CardTitle>Cardápio de Palestras e Temas (ODS)</CardTitle>
-                    <CardDescription>Palestras disponíveis que podem ser solicitadas no formulário ao lado.</CardDescription>
+                    <CardDescription>Palestras disponíveis que podem ser solicitadas no formulário abaixo.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-muted-foreground">
+                     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-muted-foreground">
                         {lectures.map((lecture) => (
                         <li key={lecture.id} className="flex items-center">
                             <GraduationCap className="h-4 w-4 mr-2 text-primary/70" />
@@ -185,22 +185,6 @@ export default function EnvironmentalEducationPage() {
                         </li>
                         ))}
                     </ul>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Contato do Setor de Educação Ambiental</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    <p><strong>Bióloga:</strong> Jaara Alvarenga Cardoso Tavares</p>
-                    <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-primary" />
-                        <span>(35) 3690-2529</span>
-                    </div>
-                     <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-primary" />
-                        <span>(35) 8429-9795 (WhatsApp)</span>
-                    </div>
                 </CardContent>
             </Card>
         </div>
@@ -319,6 +303,25 @@ export default function EnvironmentalEducationPage() {
           </CardContent>
         </Card>
       </section>
+
+      <Separator className="my-12" />
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Contato do Setor de Educação Ambiental</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+            <p><strong>Bióloga:</strong> Jaara Alvarenga Cardoso Tavares</p>
+            <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-primary" />
+                <span>(35) 3690-2529</span>
+            </div>
+             <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-primary" />
+                <span>(35) 8429-9795 (WhatsApp)</span>
+            </div>
+        </CardContent>
+    </Card>
     </>
   );
 }
