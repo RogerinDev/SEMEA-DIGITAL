@@ -16,17 +16,25 @@ interface SendStatusNotificationParams {
   notes?: string;
 }
 
-// Configuração do transporter do Nodemailer.
-// As credenciais são lidas de variáveis de ambiente para segurança.
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '465', 10),
-  secure: process.env.SMTP_SECURE === 'true' || true, // `true` para a porta 465
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS, // Recomenda-se usar "Senhas de App" do Google
-  },
-});
+/**
+ * Cria e retorna um transporter do Nodemailer.
+ * A criação é feita sob demanda para garantir que as variáveis de ambiente mais recentes sejam usadas.
+ * @returns {nodemailer.Transporter}
+ */
+function createTransporter() {
+    // Configuração do transporter do Nodemailer.
+    // As credenciais são lidas de variáveis de ambiente para segurança.
+    return nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '465', 10),
+        secure: process.env.SMTP_SECURE === 'true' || true, // `true` para a porta 465
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS, // Recomenda-se usar "Senhas de App" do Google
+        },
+    });
+}
+
 
 /**
  * Gera o corpo HTML do e-mail de notificação.
@@ -97,6 +105,8 @@ export function sendStatusNotification(params: SendStatusNotificationParams) {
     console.warn('Variáveis de ambiente SMTP não configuradas. O envio de e-mail está desativado.');
     return;
   }
+  
+  const transporter = createTransporter();
 
   const mailOptions = {
     from: `"SEMEA Digital" <${process.env.SMTP_USER}>`,
