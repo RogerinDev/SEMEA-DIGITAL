@@ -5,6 +5,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import Image from 'next/image';
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -114,6 +115,31 @@ export default function EnvironmentalEducationPage() {
         icon={GraduationCap}
         description="Construir ações de Educação Ambiental de maneira contínua e integrada, fomentando a Sustentabilidade no Município de Varginha."
       />
+
+      <section className="mb-12">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="relative aspect-square md:aspect-auto md:h-full rounded-lg overflow-hidden shadow-xl bg-muted flex items-center justify-center">
+              <Image
+                  src="/educacao-ambiental-missao.png"
+                  alt="Logo do Programa Varginha Sustentável"
+                  width={400}
+                  height={400}
+                  className="object-contain"
+                  data-ai-hint="program logo"
+                  priority
+              />
+          </div>
+          <div className="space-y-4">
+              <h2 className="text-2xl font-semibold text-primary">Nossa Missão</h2>
+              <p className="text-muted-foreground">
+                  O Programa Varginha Sustentável de Educação Ambiental visa engajar cidadãos, escolas e instituições na construção de um futuro mais verde e consciente. Através de projetos inovadores, palestras informativas e eventos participativos, buscamos semear o conhecimento e as práticas sustentáveis em toda a comunidade.
+              </p>
+              <p className="text-muted-foreground">
+                  Explore nossos projetos e descubra como sua instituição pode solicitar uma ação educativa!
+              </p>
+          </div>
+        </div>
+      </section>
 
       <section className="mb-12">
         <h2 className="text-3xl font-bold text-center mb-8 text-primary">Projetos Contínuos</h2>
@@ -296,5 +322,3 @@ export default function EnvironmentalEducationPage() {
     </>
   );
 }
-
-    
