@@ -7,247 +7,216 @@ import * as z from "zod";
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Send, Mail, Phone, Info, Loader2 } from 'lucide-react';
+import { Users, Send, Mail, Phone, Info, Loader2, CalendarIcon } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
-import { useAuth } from "@/contexts/auth-context";
-import { addRequestAction } from "@/app/actions/requests-actions";
-import { useRouter } from "next/navigation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React, { useState } from "react";
+import { addEducationRequestAction } from '@/app/actions/requests-actions';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-const participationFormSchema = z.object({
-  institutionName: z.string().min(3, "Nome da instituição é obrigatório."),
+const projects = [
+  { id: 'escola-verde', title: 'Escola Verde - Educação Climática' },
+  { id: 'educacao-lixo-zero', title: 'Educação Lixo Zero' },
+  { id: 'botanica-no-parque', title: 'Botânica no Parque' },
+  { id: 'conexao-animal', title: 'Conexão Animal' },
+];
+
+const lectures = [
+  { id: 'importancia-arvores', label: 'A Importância das Árvores' },
+  { id: 'historia-lixo', label: 'História do Lixo' },
+  { id: 'bichos-mato-mata', label: 'Bichos do Mato e da Mata' },
+  { id: 'bichos-lixo', label: 'Os Bichos e o Lixo' },
+  { id: 'cuidar-animais', label: 'Como cuidar dos animais de estimação' },
+  { id: 'lixo-luxo', label: 'O Lixo que é Luxo' },
+  { id: 'bicho-chama-bicho', label: 'Bicho que chama Bicho (Contação de Estória)' },
+  { id: 'panorama-varginha', label: 'Panorama Ambiental de Varginha' },
+  { id: 'ods', label: 'ODS (Temas Diversos)' },
+];
+
+const formSchema = z.object({
   responsibleName: z.string().min(3, "Nome do responsável é obrigatório."),
-  contactPhone: z.string().min(10, "Telefone inválido. Inclua o DDD."),
-  contactEmail: z.string().email("E-mail inválido."),
-  interestType: z.enum(["projeto", "palestra", "ambos", "outro"], { required_error: "Selecione o tipo de interesse." }),
-  interestDetails: z.string().min(10, "Descreva o interesse com no mínimo 10 caracteres."),
-  targetAudienceDescription: z.string().min(10, "Descreva o público-alvo (mín. 10 caracteres)."),
-  estimatedParticipants: z.coerce.number().min(1, "Número estimado é obrigatório."),
-  additionalObservations: z.string().optional(),
+  contactPhone: z.string().min(10, "Telefone / WhatsApp é obrigatório."),
+  institutionName: z.string().min(3, "Nome da instituição é obrigatório."),
+  projects: z.array(z.string()),
+  lectures: z.array(z.string()),
+  eventDate: z.date({ required_error: "A data pretendida é obrigatória." }),
+  eventTime: z.string().min(1, "Horário é obrigatório."),
+  estimatedAudience: z.coerce.number().min(1, "Público estimado é obrigatório."),
+  ageGroup: z.enum(['3-10', '11-15', '16-24', 'adults'], { required_error: "Selecione a faixa etária." }),
+  observations: z.string().optional(),
 });
-
-type ParticipationFormValues = z.infer<typeof participationFormSchema>;
 
 export default function HowToParticipatePage() {
   const { toast } = useToast();
-  const { currentUser } = useAuth();
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const form = useForm<ParticipationFormValues>({
-    resolver: zodResolver(participationFormSchema),
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      institutionName: "",
       responsibleName: "",
       contactPhone: "",
-      contactEmail: "",
-      interestDetails: "",
-      targetAudienceDescription: "",
-      additionalObservations: "",
+      institutionName: "",
+      projects: [],
+      lectures: [],
+      eventTime: "",
+      observations: "",
     },
   });
 
-  async function onSubmit(data: ParticipationFormValues) {
-    if (!currentUser) {
-      toast({
-        title: "Login Necessário",
-        description: "Você precisa estar logado para enviar uma solicitação. Redirecionando...",
-        variant: "destructive",
-      });
-      router.push('/login');
-      return;
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        setIsSubmitting(true);
+        try {
+            const result = await addEducationRequestAction({
+                ...data,
+                eventDate: data.eventDate.toISOString(),
+            });
+
+            if (result.success) {
+                toast({
+                    title: "Solicitação Enviada!",
+                    description: "Sua solicitação de agendamento foi registrada. Entraremos em contato em breve para confirmar.",
+                });
+                form.reset();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                throw new Error(result.error || "Não foi possível enviar a solicitação.");
+            }
+        } catch (error: any) {
+            toast({
+                title: "Erro ao Enviar",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     }
-    setIsSubmitting(true);
-
-    const description = `
-Solicitação de Ação de Educação Ambiental:
-- Instituição: ${data.institutionName}
-- Responsável: ${data.responsibleName}
-- Contato: ${data.contactPhone} / ${data.contactEmail}
-- Tipo de Interesse: ${data.interestType}
-- Detalhes do Interesse: ${data.interestDetails}
-- Público-Alvo: ${data.targetAudienceDescription}
-- Nº Estimado de Participantes: ${data.estimatedParticipants}
-- Observações: ${data.additionalObservations || 'Nenhuma'}
-    `.trim();
-
-    const result = await addRequestAction({
-      requestType: 'solicitacao_projeto_educacao_ambiental',
-      description,
-      contactPhone: data.contactPhone,
-      citizenId: currentUser.uid,
-      citizenName: data.responsibleName,
-    });
-
-    if (result.success) {
-      toast({
-        title: "Solicitação Enviada com Sucesso!",
-        description: `Sua manifestação de interesse (Protocolo: ${result.protocol}) foi registrada. Entraremos em contato em breve.`,
-        variant: "default",
-      });
-      form.reset();
-    } else {
-      toast({
-        title: "Erro ao Enviar",
-        description: result.error || "Não foi possível enviar a solicitação.",
-        variant: "destructive",
-      });
-    }
-    setIsSubmitting(false);
-  }
+  
 
   return (
     <>
       <PageTitle
-        title="Como Participar dos Programas de Educação Ambiental"
+        title="Solicitar Ação de Educação Ambiental"
         icon={Users}
-        description="Sua instituição pode solicitar projetos e palestras da SEMEA. Veja como."
+        description="Preencha o formulário para solicitar um projeto ou palestra. Nossa equipe analisará e entrará em contato para alinhar os detalhes."
       />
 
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Formulário de Solicitação</CardTitle>
-              <CardDescription>
-                Preencha o formulário para solicitar uma ação de educação ambiental. Nossa equipe analisará a solicitação e entrará em contato para alinhar os detalhes. É necessário estar logado para enviar.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="institutionName" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome da Instituição</FormLabel>
-                        <FormControl><Input {...field} placeholder="Ex: Escola Municipal ABC" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+        <Card className="max-w-4xl mx-auto shadow-lg">
+          <CardHeader>
+            <CardTitle>Formulário de Agendamento</CardTitle>
+            <CardDescription>Este formulário é aberto ao público e pode ser preenchido por qualquer instituição interessada.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="grid sm:grid-cols-2 gap-6">
                     <FormField control={form.control} name="responsibleName" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome do Responsável</FormLabel>
-                        <FormControl><Input {...field} placeholder="Nome completo do contato" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        <FormItem><FormLabel>Nome do Responsável</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-6">
                     <FormField control={form.control} name="contactPhone" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Telefone de Contato</FormLabel>
-                        <FormControl><Input type="tel" {...field} placeholder="(35) 9XXXX-XXXX" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
+                        <FormItem><FormLabel>Telefone / WhatsApp</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
-                    <FormField control={form.control} name="contactEmail" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>E-mail de Contato</FormLabel>
-                        <FormControl><Input type="email" {...field} placeholder="contato@instituicao.com" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  </div>
+                </div>
+                <FormField control={form.control} name="institutionName" render={({ field }) => (
+                    <FormItem><FormLabel>Nome da Instituição</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
 
-                  <Separator />
-
-                  <FormField
-                    control={form.control}
-                    name="interestType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de Interesse</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o tipo de ação desejada" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="projeto">Projeto Educacional</SelectItem>
-                            <SelectItem value="palestra">Palestra Temática</SelectItem>
-                            <SelectItem value="ambos">Projeto e Palestra</SelectItem>
-                            <SelectItem value="outro">Outro tipo de ação</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField control={form.control} name="interestDetails" render={({ field }) => (
+                <div className="grid sm:grid-cols-2 gap-8">
+                  <FormField control={form.control} name="projects" render={() => (
                     <FormItem>
-                      <FormLabel>Detalhes do Interesse</FormLabel>
-                      <FormControl><Textarea {...field} placeholder="Cite o nome do projeto ou palestra de interesse. Se for 'outro', descreva a ação desejada." /></FormControl>
+                      <div className="mb-4"><FormLabel className="text-base">Ação ou Projeto de Interesse</FormLabel></div>
+                      {projects.map((item) => (
+                        <FormField key={item.id} control={form.control} name="projects" render={({ field }) => (
+                          <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl><Checkbox checked={field.value?.includes(item.id)} onCheckedChange={(checked) => {
+                                return checked ? field.onChange([...field.value, item.id]) : field.onChange(field.value?.filter((value) => value !== item.id))
+                            }} /></FormControl>
+                            <FormLabel className="font-normal">{item.title}</FormLabel>
+                          </FormItem>
+                        )} />
+                      ))}
                       <FormMessage />
                     </FormItem>
                   )} />
-
-                  <Separator />
-
-                  <FormField control={form.control} name="targetAudienceDescription" render={({ field }) => (
+                  <FormField control={form.control} name="lectures" render={() => (
                     <FormItem>
-                      <FormLabel>Público-Alvo da Ação</FormLabel>
-                      <FormControl><Textarea {...field} placeholder="Descreva o público que participará (ex: alunos do 5º ano, professores, comunidade local)" /></FormControl>
+                      <div className="mb-4"><FormLabel className="text-base">Cardápio de Palestras</FormLabel></div>
+                      {lectures.map((item) => (
+                        <FormField key={item.id} control={form.control} name="lectures" render={({ field }) => (
+                          <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl><Checkbox checked={field.value?.includes(item.id)} onCheckedChange={(checked) => {
+                                return checked ? field.onChange([...field.value, item.id]) : field.onChange(field.value?.filter((value) => value !== item.id))
+                            }} /></FormControl>
+                            <FormLabel className="font-normal">{item.label}</FormLabel>
+                          </FormItem>
+                        )} />
+                      ))}
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={form.control} name="estimatedParticipants" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número Estimado de Participantes</FormLabel>
-                      <FormControl><Input type="number" {...field} placeholder="Ex: 50" onChange={e => field.onChange(parseInt(e.target.value, 10))} /></FormControl>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <FormField control={form.control} name="eventDate" render={({ field }) => (
+                    <FormItem className="flex flex-col"><FormLabel>Data Pretendida</FormLabel>
+                      <Popover><PopoverTrigger asChild>
+                          <FormControl><Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                              {field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Escolha uma data</span>}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button></FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))} initialFocus />
+                        </PopoverContent>
+                      </Popover><FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="eventTime" render={({ field }) => (
+                    <FormItem><FormLabel>Horário Pretendido</FormLabel><FormControl><Input placeholder="Ex: 14:00" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <FormField control={form.control} name="estimatedAudience" render={({ field }) => (
+                    <FormItem><FormLabel>Público Estimado</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="ageGroup" render={({ field }) => (
+                    <FormItem><FormLabel>Faixa Etária</FormLabel>
+                        <FormControl>
+                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                                <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="3-10" /></FormControl><FormLabel className="font-normal">Crianças (3 a 10 anos)</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="11-15" /></FormControl><FormLabel className="font-normal">Adolescentes (11 a 15 anos)</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="16-24" /></FormControl><FormLabel className="font-normal">Jovens (16 a 24 anos)</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="adults" /></FormControl><FormLabel className="font-normal">Adultos/Misto</FormLabel></FormItem>
+                            </RadioGroup>
+                        </FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
-                  
-                  <FormField control={form.control} name="additionalObservations" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Observações Adicionais (opcional)</FormLabel>
-                      <FormControl><Textarea {...field} placeholder="Espaço para informações adicionais, necessidades específicas, sugestão de datas, etc." /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
+                </div>
+                
+                <FormField control={form.control} name="observations" render={({ field }) => (
+                  <FormItem><FormLabel>Observações / Mais Informações</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
 
-                  <div className="flex justify-end">
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2 h-4 w-4" />}
-                      Enviar Solicitação
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="md:col-span-1 space-y-6">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center"><Info className="mr-2 h-5 w-5 text-primary"/>Informações de Contato</CardTitle>
-              <CardDescription>Setor de Educação Ambiental da SEMEA</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p><strong>Responsável:</strong> Bióloga Jaara Alvarenga Cardoso Tavares</p>
-              <div className="flex items-center">
-                <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                <a href="mailto:jaara.cardoso@varginha.mg.gov.br" className="text-primary hover:underline">jaara.cardoso@varginha.mg.gov.br</a>
-              </div>
-              <div className="flex items-center">
-                <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>(35) 3690-2529</span>
-              </div>
-               <p className="text-sm text-muted-foreground pt-2">
-                Sinta-se à vontade para entrar em contato para tirar dúvidas antes de preencher o formulário.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                <div className="flex justify-end pt-4">
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2 h-4 w-4" />}
+                    Solicitar Agendamento
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
     </>
   );
 }
