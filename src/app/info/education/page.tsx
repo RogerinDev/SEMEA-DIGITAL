@@ -118,7 +118,7 @@ export default function EnvironmentalEducationPage() {
 
       <section className="mb-12">
         <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="relative aspect-square md:aspect-auto md:h-full rounded-lg overflow-hidden shadow-xl bg-muted flex items-center justify-center">
+            <div className="flex justify-center items-center">
               <Image
                   src="/educacao-ambiental-missao.png"
                   alt="Logo do Programa Varginha Sustentável"
