@@ -1,4 +1,3 @@
-
 import { PageTitle } from '@/components/page-title';
 import { arborizationProjects } from '@/lib/arborization-data';
 import { Button } from '@/components/ui/button';
@@ -24,9 +23,9 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
             <PageTitle title="Projeto Não Encontrado" />
             <p className="mb-4">O projeto que você está procurando não foi encontrado.</p>
             <Button asChild>
-                <Link href="/info/urban-afforestation/projects">
+                <Link href="/info/urban-afforestation">
                 <span className="flex items-center">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Projetos
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Arborização Urbana
                 </span>
                 </Link>
             </Button>
@@ -58,7 +57,7 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
     <>
         <div className="flex items-center gap-4 mb-6">
             <Button variant="outline" size="icon" asChild>
-            <Link href="/info/urban-afforestation/projects">
+            <Link href="/info/urban-afforestation">
                 <ArrowLeft className="h-4 w-4" />
             </Link>
             </Button>
