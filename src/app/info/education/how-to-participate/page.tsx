@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
 import React, { useState } from "react";
 import { addEducationRequestAction } from '@/app/actions/requests-actions';
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,6 +21,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
 
 const projects = [
   { id: 'escola-verde', title: 'Escola Verde - Educação Climática' },
@@ -42,6 +43,11 @@ const lectures = [
   { id: 'ods', label: 'ODS (Temas Diversos)' },
 ];
 
+const timeSlots = [
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
+];
+
 const formSchema = z.object({
   responsibleName: z.string().min(3, "Nome do responsável é obrigatório."),
   contactPhone: z.string().min(10, "Telefone / WhatsApp é obrigatório."),
@@ -50,7 +56,7 @@ const formSchema = z.object({
   lectures: z.array(z.string()),
   eventDate: z.date({ required_error: "A data pretendida é obrigatória." }),
   eventTime: z.string().min(1, "Horário é obrigatório."),
-  estimatedAudience: z.coerce.number().min(1, "Público estimado é obrigatório."),
+  estimatedAudience: z.coerce.number().int("Deve ser um número inteiro.").positive("Público estimado deve ser maior que zero."),
   ageGroup: z.enum(['3-10', '11-15', '16-24', 'adults'], { required_error: "Selecione a faixa etária." }),
   observations: z.string().optional(),
 });
@@ -69,6 +75,9 @@ export default function HowToParticipatePage() {
       lectures: [],
       eventTime: "",
       observations: "",
+      eventDate: undefined,
+      estimatedAudience: undefined,
+      ageGroup: undefined,
     },
   });
 
@@ -181,18 +190,45 @@ export default function HowToParticipatePage() {
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="eventTime" render={({ field }) => (
-                    <FormItem><FormLabel>Horário Pretendido</FormLabel><FormControl><Input placeholder="Ex: 14:00" {...field} /></FormControl><FormMessage /></FormItem>
+                     <FormItem>
+                        <FormLabel>Horário Pretendido</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione um horário" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {timeSlots.map(time => (
+                                    <SelectItem key={time} value={time}>{time}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
                   )} />
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-6">
-                  <FormField control={form.control} name="estimatedAudience" render={({ field }) => (
-                    <FormItem><FormLabel>Público Estimado</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormField control={form.control} name="estimatedAudience" render={({ field: { onChange, ...rest } }) => (
+                    <FormItem>
+                        <FormLabel>Público Estimado</FormLabel>
+                        <FormControl>
+                            <Input
+                                type="number"
+                                min="1"
+                                {...rest}
+                                onChange={e => onChange(e.target.valueAsNumber)}
+                                value={rest.value ?? ''}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="ageGroup" render={({ field }) => (
                     <FormItem><FormLabel>Faixa Etária</FormLabel>
                         <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex flex-col space-y-1">
                                 <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="3-10" /></FormControl><FormLabel className="font-normal">Crianças (3 a 10 anos)</FormLabel></FormItem>
                                 <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="11-15" /></FormControl><FormLabel className="font-normal">Adolescentes (11 a 15 anos)</FormLabel></FormItem>
                                 <FormItem className="flex items-center space-x-3 space-y-0"><FormControl><RadioGroupItem value="16-24" /></FormControl><FormLabel className="font-normal">Jovens (16 a 24 anos)</FormLabel></FormItem>
