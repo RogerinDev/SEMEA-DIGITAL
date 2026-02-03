@@ -1,13 +1,15 @@
-
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TreePine, Sprout, ArrowRight, CheckCircle, ClipboardList, FileText, Phone, Award, Recycle, Leaf, ShieldCheck, Gavel, Baby } from 'lucide-react';
+import { TreePine, Sprout, ArrowRight, CheckCircle, ClipboardList, FileText, Phone, Award, Recycle, Leaf, ShieldCheck, Gavel, Baby, Newspaper } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { getUrbanAfforestationSettings } from '@/app/actions/settings-actions';
+import { getPosts } from '@/app/actions/posts-actions';
+import { NewsGrid } from '@/components/news/news-grid';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +27,7 @@ const projectIcons: { [key: string]: React.ElementType } = {
 
 export default async function UrbanAfforestationPage() {
   const settings = await getUrbanAfforestationSettings();
+  const posts = await getPosts({ sector: 'arborizacao', limit: 3 });
 
   if (!settings) {
     return <div className="container mx-auto py-12 px-4 text-center">Conteúdo de Arborização Urbana não encontrado. Por favor, configure-o no painel de administração.</div>
@@ -153,6 +156,20 @@ export default async function UrbanAfforestationPage() {
           )
         })}
       </div>
+
+      {posts.length > 0 && (
+         <section className="bg-muted/50 py-12 -mx-4 px-4 mt-16 rounded-lg">
+            <div className="container mx-auto">
+                 <div className="text-center mb-12">
+                    <h2 className="text-3xl font-bold text-primary flex items-center justify-center gap-3">
+                        <Newspaper className="h-8 w-8"/>
+                        Notícias do Setor
+                    </h2>
+                </div>
+                <NewsGrid posts={posts} />
+            </div>
+         </section>
+      )}
     </>
   );
 }

@@ -1,20 +1,21 @@
-
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Building2, Users, UserCircle, Mail, Phone, PawPrint, HeartHandshake, Stethoscope, ShieldCheck, CalendarDays } from 'lucide-react';
+import { Building2, Users, UserCircle, Mail, Phone, PawPrint, HeartHandshake, Stethoscope, ShieldCheck, CalendarDays, Newspaper } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import Image from 'next/image';
 import { getAnimalWelfareSettings } from '@/app/actions/settings-actions';
+import { getPosts } from '@/app/actions/posts-actions';
+import { NewsGrid } from '@/components/news/news-grid';
 import PublicLayout from '@/components/layouts/public-layout';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AnimalWelfareInfoPage() {
   const settings = await getAnimalWelfareSettings();
-  console.log('DEBUG ANIMAL DATA:', settings);
+  const posts = await getPosts({ sector: 'bem_estar_animal', limit: 3 });
 
   return (
     <PublicLayout>
@@ -117,7 +118,7 @@ export default async function AnimalWelfareInfoPage() {
                 </Card>
             </div>
             
-            <Card className="shadow-lg">
+            <Card className="shadow-lg mb-12">
                 <CardHeader>
                 <CardTitle className="flex items-center"><Users className="mr-2 h-6 w-6 text-primary" />Nossa Equipe</CardTitle>
                 <CardDescription>Conheça os responsáveis pelo setor de Bem-Estar Animal.</CardDescription>
@@ -156,7 +157,20 @@ export default async function AnimalWelfareInfoPage() {
                 </div>
                 </CardContent>
             </Card>
-            <div className="text-xs text-gray-400 p-4">Debug ID: {settings?.contactInfo?.phone}</div>
+
+            {posts.length > 0 && (
+                <section className="bg-muted/50 py-12 -mx-4 px-4 rounded-lg">
+                    <div className="container mx-auto">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl font-bold text-primary flex items-center justify-center gap-3">
+                                <Newspaper className="h-8 w-8"/>
+                                Notícias do Setor
+                            </h2>
+                        </div>
+                        <NewsGrid posts={posts} />
+                    </div>
+                </section>
+            )}
         </div>
     </PublicLayout>
   );

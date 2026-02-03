@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -74,6 +73,26 @@ service cloud.firestore {
     
     match /sector_settings/environmental_education {
         allow write: if isAdmin() && (isSuperAdmin() || request.auth.token.department == 'educacao_ambiental');
+    }
+
+    // --- REGRAS PARA NOTÍCIAS (POSTS) ---
+    match /posts/{postId} {
+      // Qualquer um pode ler posts ativos.
+      allow read: if resource.data.active == true;
+      // Admins podem ler todos os posts (ativos e inativos).
+      allow get: if isAdmin();
+      // Permite que admins listem os posts para o painel. A filtragem por setor é feita no código.
+      allow list: if isAdmin();
+
+      // Função auxiliar para verificar permissão de escrita em post.
+      function canWritePost(post) {
+        return isSuperAdmin() || (isAdmin() && request.auth.token.department == post.sector);
+      }
+
+      // Permite criar post se o usuário for um admin autorizado para o setor do post.
+      allow create: if canWritePost(request.resource.data);
+      // Permite atualizar ou apagar se o usuário for admin autorizado para o setor do post.
+      allow update, delete: if canWritePost(resource.data);
     }
   }
 }

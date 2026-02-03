@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -6,8 +5,11 @@ import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { GraduationCap, Lightbulb, Recycle, Sprout, HeartHandshake, Mail, Phone, CalendarIcon } from 'lucide-react';
+import { GraduationCap, Lightbulb, Recycle, Sprout, HeartHandshake, Mail, Phone, CalendarIcon, Newspaper } from 'lucide-react';
 import { getEnvironmentalEducationSettings } from '@/app/actions/settings-actions';
+import { getPosts } from '@/app/actions/posts-actions';
+import { NewsGrid } from '@/components/news/news-grid';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +22,8 @@ const projectIcons: { [key: string]: React.ElementType } = {
 
 export default async function EnvironmentalEducationPage() {
   const settings = await getEnvironmentalEducationSettings();
+  const posts = await getPosts({ sector: 'educacao_ambiental', limit: 3 });
+
   const activeProjects = settings.projects.filter(p => p.active);
   const contact = settings.team[0] || {};
   const contactInfo = settings.contactInfo;
@@ -90,7 +94,7 @@ export default async function EnvironmentalEducationPage() {
 
       <Separator className="my-12" />
       
-      <Card>
+      <Card className="mb-12">
         <CardHeader>
             <CardTitle>Contato do Setor de Educação Ambiental</CardTitle>
         </CardHeader>
@@ -106,6 +110,20 @@ export default async function EnvironmentalEducationPage() {
             </div>
         </CardContent>
     </Card>
+
+    {posts.length > 0 && (
+        <section className="bg-muted/50 py-12 -mx-4 px-4 mt-16 rounded-lg">
+            <div className="container mx-auto">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl font-bold text-primary flex items-center justify-center gap-3">
+                        <Newspaper className="h-8 w-8"/>
+                        Notícias do Setor
+                    </h2>
+                </div>
+                <NewsGrid posts={posts} />
+            </div>
+        </section>
+      )}
     </>
   );
 }

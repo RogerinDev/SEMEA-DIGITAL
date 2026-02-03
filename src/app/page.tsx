@@ -1,16 +1,18 @@
-
-"use client";
-
 import PublicLayout from '@/components/layouts/public-layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, TreePine, Recycle, PawPrint, GraduationCap, CheckCircle } from 'lucide-react';
+import { ArrowRight, TreePine, Recycle, PawPrint, GraduationCap, Newspaper } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
+import { getPosts } from './actions/posts-actions';
+import { NewsGrid } from '@/components/news/news-grid';
 
-export default function HomePage() {
-  const { currentUser } = useAuth();
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  // A hook useAuth não pode ser usada em Server Components. A lógica será adaptada.
+  // O botão de "Acessar Serviços" pode simplesmente apontar para /login, e o sistema de rotas cuidará do resto.
+  const latestPosts = await getPosts({ limit: 3 });
   
   const services = [
     {
@@ -31,7 +33,7 @@ export default function HomePage() {
       icon: PawPrint,
       title: 'Bem-Estar Animal',
       description: 'Encontre um amigo para adoção, solicite castração gratuita de cães e gatos e ajude a reportar casos de maus-tratos.',
-      link: '/animal-welfare',
+      link: '/info/animal-welfare',
       buttonText: 'Conhecer',
     },
     {
@@ -41,12 +43,6 @@ export default function HomePage() {
       link: '/info/education',
       buttonText: 'Saiba Mais',
     },
-  ];
-
-  const benefits = [
-    "Facilidade no acesso aos serviços ambientais.",
-    "Transparência nas ações da secretaria.",
-    "Contribuição direta para um meio ambiente mais saudável."
   ];
 
   return (
@@ -75,7 +71,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button size="lg" asChild>
-              <Link href={currentUser ? "/dashboard/citizen" : "/register"}>
+              <Link href="/login">
                 <span className="flex items-center">Acessar Serviços <ArrowRight className="ml-2 h-5 w-5" /></span>
               </Link>
             </Button>
@@ -120,40 +116,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {!currentUser && (
-        <section className="bg-muted/50 py-16 px-6">
-          <div className="container mx-auto grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-              <h2 className="text-4xl font-bold text-primary">
-                Participe da Construção de uma Varginha Mais Verde!
-              </h2>
-              <p className="text-muted-foreground">
-                Utilize nossos canais digitais para solicitar serviços, registrar denúncias e se informar sobre as ações ambientais em nosso município. Sua participação é fundamental.
-              </p>
-              <ul className="space-y-3">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <CheckCircle className="h-6 w-6 text-primary" />
-                    <span className="text-foreground">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="pt-4">
-                <Button size="lg" asChild>
-                  <Link href="/register">Crie sua Conta Agora</Link>
-                </Button>
-              </div>
+      {latestPosts.length > 0 && (
+         <section className="bg-muted/50 py-20 px-6">
+            <div className="container mx-auto">
+                 <div className="text-center mb-12">
+                    <h2 className="text-4xl font-bold text-primary flex items-center justify-center gap-3">
+                        <Newspaper className="h-10 w-10"/>
+                        Últimas Notícias
+                    </h2>
+                    <p className="text-muted-foreground mt-2">Fique por dentro das novidades e ações da SEMEA.</p>
+                </div>
+                <NewsGrid posts={latestPosts} />
             </div>
-            <div className="relative aspect-square md:aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
-              <Image 
-                src="/varginha-verde.png" 
-                alt="Participe da Construção de uma Varginha mais verde!" 
-                layout="fill"
-                objectFit="cover"
-              />
-            </div>
-          </div>
-        </section>
+         </section>
       )}
     </PublicLayout>
   );
