@@ -1,7 +1,7 @@
 
 
 import { PageTitle } from '@/components/page-title';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Building2, Users, UserCircle, Mail, Phone, PawPrint, HeartHandshake, Stethoscope, ShieldCheck, CalendarDays } from 'lucide-react';
