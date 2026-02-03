@@ -284,6 +284,26 @@ export interface SectorTeamMemberSetting {
   email: string;
 }
 
+export interface Ecopoint {
+  id: string;
+  material: string;
+  name: string;
+  address: string;
+  phone: string;
+  observation?: string;
+  active: boolean;
+}
+
+export interface CollectionPoint {
+  id: string;
+  neighborhood: string;
+  days: string;
+  period: string;
+  schedule: string;
+  observation?: string;
+  active: boolean;
+}
+
 export interface SectorSettings {
   contactInfo: {
     phone: string;
@@ -294,6 +314,8 @@ export interface SectorSettings {
   team: SectorTeamMemberSetting[];
   downloads: SectorDownloadSetting[];
   projects: SectorProjectSetting[];
+  ecopoints?: Ecopoint[];
+  collectionPoints?: CollectionPoint[];
 }
 
 
