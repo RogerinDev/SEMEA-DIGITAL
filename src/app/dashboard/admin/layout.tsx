@@ -1,3 +1,4 @@
+
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
@@ -13,6 +14,7 @@ const allAdminNavItems: (NavItem & { requiredDepartment?: Department; superAdmin
   { href: '/dashboard/admin/incidents', label: 'Gerenciar Denúncias', icon: AlertTriangle, requiredDepartment: undefined },
   { href: '/dashboard/admin/adoption', label: 'Gerenciar Adoções', icon: PawPrint, requiredDepartment: 'bem_estar_animal' },
   { href: '/dashboard/admin/lost-found', label: 'Moderar Perdidos/Achados', icon: Search, requiredDepartment: 'bem_estar_animal' },
+  { href: '/dashboard/admin/animal-welfare/settings', label: 'Conteúdo Bem-Estar Animal', icon: Cog, requiredDepartment: 'bem_estar_animal'},
   { href: '/dashboard/admin/urban-afforestation/settings', label: 'Conteúdo Arborização', icon: Cog, requiredDepartment: 'arborizacao'},
   { href: '/dashboard/admin/education/settings', label: 'Conteúdo Educação Amb.', icon: GraduationCap, requiredDepartment: 'educacao_ambiental'},
   { href: '/dashboard/admin/users', label: 'Gerenciar Usuários', icon: Users, superAdminOnly: true },

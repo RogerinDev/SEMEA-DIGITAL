@@ -1,3 +1,4 @@
+
 // Arquivo: src/app/seed/page.tsx
 'use client';
 
@@ -5,9 +6,9 @@ import { useState } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Database, Loader2, AlertTriangle, CheckCircle, Sprout, GraduationCap } from 'lucide-react';
+import { Database, Loader2, AlertTriangle, CheckCircle, Sprout, GraduationCap, PawPrint } from 'lucide-react';
 import { seedDatabaseAction } from '@/app/actions/seed-database';
-import { seedUrbanAfforestationDataAction, seedEnvironmentalEducationDataAction } from '../actions/seed-actions';
+import { seedUrbanAfforestationDataAction, seedEnvironmentalEducationDataAction, seedAnimalWelfareDataAction } from '../actions/seed-actions';
 
 
 function ResultMessage({ result }: { result: { success: boolean; message: string } | null }) {
@@ -48,6 +49,7 @@ export default function SeedDatabasePage() {
   const [generalResult, setGeneralResult] = useState<{ success: boolean; message: string } | null>(null);
   const [urbanAfforestationResult, setUrbanAfforestationResult] = useState<{ success: boolean; message: string } | null>(null);
   const [environmentalEducationResult, setEnvironmentalEducationResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [animalWelfareResult, setAnimalWelfareResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const handleSeedGeneralData = async () => {
     setLoading('general');
@@ -83,6 +85,19 @@ export default function SeedDatabasePage() {
       setEnvironmentalEducationResult(response);
     } catch (error: any) {
       setEnvironmentalEducationResult({ success: false, message: error.message || 'Um erro desconhecido ocorreu.' });
+    } finally {
+      setLoading(null);
+    }
+  }
+  
+  const handleSeedAnimalWelfare = async () => {
+    setLoading('animal_welfare');
+    setAnimalWelfareResult(null);
+     try {
+      const response = await seedAnimalWelfareDataAction();
+      setAnimalWelfareResult(response);
+    } catch (error: any) {
+      setAnimalWelfareResult({ success: false, message: error.message || 'Um erro desconhecido ocorreu.' });
     } finally {
       setLoading(null);
     }
@@ -146,6 +161,25 @@ export default function SeedDatabasePage() {
                 Adicionar Conteúdo de Educação Amb.
             </Button>
             <ResultMessage result={environmentalEducationResult} />
+            </CardContent>
+        </Card>
+
+         <Card className="shadow-lg">
+            <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+                <PawPrint className="h-6 w-6 text-primary" />
+                <span>Popular Conteúdo (Bem-Estar Animal)</span>
+            </CardTitle>
+            <CardDescription>
+                Clique para inserir o conteúdo inicial para o setor de Bem-Estar Animal.
+            </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+            <Button onClick={handleSeedAnimalWelfare} disabled={loading === 'animal_welfare'} size="lg">
+                {loading === 'animal_welfare' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                Adicionar Conteúdo de Bem-Estar Animal
+            </Button>
+            <ResultMessage result={animalWelfareResult} />
             </CardContent>
         </Card>
       </div>

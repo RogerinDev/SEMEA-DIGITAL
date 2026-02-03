@@ -102,3 +102,52 @@ export async function seedEnvironmentalEducationDataAction(): Promise<{ success:
     };
   }
 }
+
+
+/**
+ * Server Action que insere os dados de conteúdo de Bem-Estar Animal no Firestore.
+ */
+export async function seedAnimalWelfareDataAction(): Promise<{ success: boolean; message: string; }> {
+  console.log('Iniciando o povoamento do conteúdo de Bem-Estar Animal...');
+  const { db } = getFirebaseAdmin();
+
+  const seedData: SectorSettings = {
+    contactInfo: {
+      phone: "(35) 3690-2019 / (35) 3690-2276",
+      address: "Rua Sebastião Guimarães Caldas, s/n, Sagrado Coração II",
+      schedule: "Segunda a Sexta: Das 07h30 às 11h30 e de 13h30 a 17h30.",
+      emails: ["bemestaranimal@varginha.mg.gov.br"],
+    },
+    team: [
+      { id: randomBytes(8).toString('hex'), name: "Gabriela Pelegrini Batista", role: "Supervisora de Serviço de Bem Estar Animal", email: "bemestaranimal@varginha.mg.gov.br" },
+      { id: randomBytes(8).toString('hex'), name: "José Eduardo Mambeli Balieiro", role: "Veterinário", email: "" },
+      { id: randomBytes(8).toString('hex'), name: "Rafaela Belo Aguiar", role: "Assessor de Apoio Estratégico", email: "" },
+      { id: randomBytes(8).toString('hex'), name: "Maria Tereza Dalia Foresti", role: "Assessor de apoio e defesa de bem-estar animal", email: "" },
+      { id: randomBytes(8).toString('hex'), name: "Gisleni Pereira dos Santos", role: "Encarregado da Seção de Controle e Cuidado aos Animais", email: "" },
+      { id: randomBytes(8).toString('hex'), name: "Nabih Alves", role: "Oficial Administrativo", email: "" },
+      { id: randomBytes(8).toString('hex'), name: "Jaqueline Rosa", role: "Oficial Administrativo", email: "" },
+    ],
+    downloads: [],
+    projects: [
+      { id: randomBytes(8).toString('hex'), slug: 'cuidado-saude', title: "Cuidado e Saúde", description: "Oferecemos atendimento veterinário básico e acesso a programas de castração gratuita, garantindo a saúde e prevenindo o aumento de animais abandonados.", active: true },
+      { id: randomBytes(8).toString('hex'), slug: 'adocao-responsavel', title: "Adoção Responsável", description: "Mantemos uma plataforma de adoção para conectar nossos animais resgatados a famílias que possam oferecer segurança, amor e um lar definitivo.", active: true },
+      { id: randomBytes(8).toString('hex'), slug: 'protecao-resgate', title: "Proteção e Resgate", description: "Atendemos a denúncias de maus-tratos e atuamos no resgate de animais em situação de risco, oferecendo-lhes uma segunda chance.", active: true },
+      { id: randomBytes(8).toString('hex'), slug: 'conscientizacao', title: "Conscientização", description: "Promovemos a importância da posse responsável, da vacinação e do cuidado contínuo, educando a comunidade para construir um futuro melhor para os animais.", active: true },
+    ]
+  };
+
+  try {
+    const docRef = db.collection('sector_settings').doc('animal_welfare');
+    await docRef.set(seedData, { merge: true });
+    
+    const successMessage = 'Conteúdo de Bem-Estar Animal inserido no Firestore com sucesso!';
+    console.log(successMessage);
+    return { success: true, message: successMessage };
+  } catch (error: any) {
+    console.error("Erro ao popular conteúdo de Bem-Estar Animal:", error);
+    return { 
+      success: false, 
+      message: "Falha ao popular o banco de dados. Verifique os logs do servidor.",
+    };
+  }
+}

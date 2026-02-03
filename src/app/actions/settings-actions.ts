@@ -4,7 +4,6 @@
 import { getFirebaseAdmin } from '@/lib/firebase/admin';
 import type { SectorSettings } from '@/types';
 import { revalidatePath } from 'next/cache';
-import { randomBytes } from 'crypto';
 
 // --- Urban Afforestation Settings ---
 
@@ -67,15 +66,11 @@ export async function getUrbanAfforestationSettings(): Promise<SectorSettings> {
 }
 
 export async function updateUrbanAfforestationSettings(data: SectorSettings): Promise<{ success: boolean; error?: string }> {
-  const { db, auth } = getFirebaseAdmin();
-  // RBAC logic will be handled by Firestore Rules, but we can double-check here.
-  // This is a simplified check. A real app should verify the user's token.
+  const { db } = getFirebaseAdmin();
   try {
     const docRef = db.collection('sector_settings').doc(URBAN_AFFORESTATION_DOC_NAME);
     await docRef.set(data, { merge: true });
-
     revalidatePath('/info/urban-afforestation', 'layout');
-
     return { success: true };
   } catch (error: any) {
     console.error("Erro ao atualizar configurações de Arborização Urbana:", error);
@@ -132,19 +127,81 @@ export async function getEnvironmentalEducationSettings(): Promise<SectorSetting
 }
 
 export async function updateEnvironmentalEducationSettings(data: SectorSettings): Promise<{ success: boolean; error?: string }> {
-    // RBAC is primarily handled by Firestore rules, this is a server-side safeguard.
-    // In a real scenario, you'd get the user's token from the request.
-    // For now, we trust the client to make authorized calls, protected by Firestore rules.
     const { db } = getFirebaseAdmin();
     try {
         const docRef = db.collection('sector_settings').doc(ENVIRONMENTAL_EDUCATION_DOC_NAME);
         await docRef.set(data, { merge: true });
-
         revalidatePath('/info/education', 'layout');
-
         return { success: true };
     } catch (error: any) {
         console.error("Erro ao atualizar configurações de Educação Ambiental:", error);
+        return { success: false, error: "Não foi possível salvar as configurações. Verifique as permissões." };
+    }
+}
+
+
+// --- Animal Welfare Settings ---
+
+const ANIMAL_WELFARE_DOC_NAME = 'animal_welfare';
+const DEFAULT_ANIMAL_WELFARE_SETTINGS: SectorSettings = {
+    contactInfo: {
+      phone: "(35) 3690-2019 / (35) 3690-2276",
+      address: "Rua Sebastião Guimarães Caldas, s/n, Sagrado Coração II",
+      schedule: "Segunda a Sexta: Das 07h30 às 11h30 e de 13h30 a 17h30.",
+      emails: ["bemestaranimal@varginha.mg.gov.br"],
+    },
+    team: [
+        { id: 'bw-team-1', name: "Gabriela Pelegrini Batista", role: "Supervisora de Serviço de Bem Estar Animal", email: "bemestaranimal@varginha.mg.gov.br" },
+        { id: 'bw-team-2', name: "José Eduardo Mambeli Balieiro", role: "Veterinário", email: "" },
+        { id: 'bw-team-3', name: "Rafaela Belo Aguiar", role: "Assessor de Apoio Estratégico", email: "" },
+        { id: 'bw-team-4', name: "Maria Tereza Dalia Foresti", role: "Assessor de apoio e defesa de bem-estar animal", email: "" },
+        { id: 'bw-team-5', name: "Gisleni Pereira dos Santos", role: "Encarregado da Seção de Controle e Cuidado aos Animais", email: "" },
+        { id: 'bw-team-6', name: "Nabih Alves", role: "Oficial Administrativo", email: "" },
+        { id: 'bw-team-7', name: "Jaqueline Rosa", role: "Oficial Administrativo", email: "" },
+    ],
+    projects: [
+        { id: 'bw-proj-1', slug: 'cuidado-saude', title: "Cuidado e Saúde", description: "Oferecemos atendimento veterinário básico e acesso a programas de castração gratuita, garantindo a saúde e prevenindo o aumento de animais abandonados.", active: true },
+        { id: 'bw-proj-2', slug: 'adocao-responsavel', title: "Adoção Responsável", description: "Mantemos uma plataforma de adoção para conectar nossos animais resgatados a famílias que possam oferecer segurança, amor e um lar definitivo.", active: true },
+        { id: 'bw-proj-3', slug: 'protecao-resgate', title: "Proteção e Resgate", description: "Atendemos a denúncias de maus-tratos e atuamos no resgate de animais em situação de risco, oferecendo-lhes uma segunda chance.", active: true },
+        { id: 'bw-proj-4', slug: 'conscientizacao', title: "Conscientização", description: "Promovemos a importância da posse responsável, da vacinação e do cuidado contínuo, educando a comunidade para construir um futuro melhor para os animais.", active: true },
+    ],
+    downloads: [],
+};
+
+export async function getAnimalWelfareSettings(): Promise<SectorSettings> {
+  try {
+    const { db } = getFirebaseAdmin();
+    const docRef = db.collection('sector_settings').doc(ANIMAL_WELFARE_DOC_NAME);
+    const docSnap = await docRef.get();
+
+    if (docSnap.exists) {
+      const firestoreData = docSnap.data() as Partial<SectorSettings>;
+      return {
+        contactInfo: { ...DEFAULT_ANIMAL_WELFARE_SETTINGS.contactInfo, ...firestoreData.contactInfo },
+        team: firestoreData.team || DEFAULT_ANIMAL_WELFARE_SETTINGS.team,
+        downloads: firestoreData.downloads || DEFAULT_ANIMAL_WELFARE_SETTINGS.downloads,
+        projects: firestoreData.projects || DEFAULT_ANIMAL_WELFARE_SETTINGS.projects,
+      };
+    } else {
+      console.warn(`Documento '${ANIMAL_WELFARE_DOC_NAME}' não encontrado. Retornando dados padrão.`);
+      await docRef.set(DEFAULT_ANIMAL_WELFARE_SETTINGS);
+      return DEFAULT_ANIMAL_WELFARE_SETTINGS;
+    }
+  } catch (error) {
+    console.error("Erro CRÍTICO ao buscar configurações de Bem-Estar Animal:", error);
+    return DEFAULT_ANIMAL_WELFARE_SETTINGS;
+  }
+}
+
+export async function updateAnimalWelfareSettings(data: SectorSettings): Promise<{ success: boolean; error?: string }> {
+    const { db } = getFirebaseAdmin();
+    try {
+        const docRef = db.collection('sector_settings').doc(ANIMAL_WELFARE_DOC_NAME);
+        await docRef.set(data, { merge: true });
+        revalidatePath('/info/animal-welfare', 'layout');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Erro ao atualizar configurações de Bem-Estar Animal:", error);
         return { success: false, error: "Não foi possível salvar as configurações. Verifique as permissões." };
     }
 }
