@@ -10,9 +10,8 @@ import { NewsGrid } from '@/components/news/news-grid';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  // A hook useAuth não pode ser usada em Server Components. A lógica será adaptada.
-  // O botão de "Acessar Serviços" pode simplesmente apontar para /login, e o sistema de rotas cuidará do resto.
-  const latestPosts = await getPosts({ limit: 3 });
+  // Busca apenas os 3 últimos posts ATIVOS.
+  const latestPosts = await getPosts({ limit: 3, activeOnly: true });
   
   const services = [
     {

@@ -37,16 +37,21 @@ function mapPostData(doc: admin.firestore.DocumentSnapshot): Post {
 interface GetPostsParams {
   sector?: Department;
   limit?: number;
+  activeOnly?: boolean; // Novo parâmetro de filtro
 }
 
 /**
  * Busca posts do Firestore, com filtros opcionais.
  */
-export async function getPosts({ sector, limit }: GetPostsParams): Promise<Post[]> {
+export async function getPosts({ sector, limit, activeOnly = false }: GetPostsParams): Promise<Post[]> {
   const { db } = getFirebaseAdmin();
   try {
     let query: admin.firestore.Query = db.collection('posts');
 
+    if (activeOnly) {
+      query = query.where('active', '==', true);
+    }
+    
     if (sector) {
       query = query.where('sector', '==', sector);
     }
@@ -89,7 +94,10 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         const query = db.collection('posts').where('slug', '==', slug).limit(1);
         const snapshot = await query.get();
         if (snapshot.empty) return null;
-        return mapPostData(snapshot.docs[0]);
+        // Adicionalmente, verifica se o post encontrado está ativo.
+        const post = mapPostData(snapshot.docs[0]);
+        if (!post.active) return null;
+        return post;
     } catch (error) {
         console.error("Error fetching post by slug:", error);
         return null;

@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function WasteManagementPage() {
   const settings = await getWasteManagementSettings();
-  const posts = await getPosts({ sector: 'residuos', limit: 3 });
+  const posts = await getPosts({ sector: 'residuos', limit: 3, activeOnly: true });
 
   return (
     <PublicLayout>

@@ -20,7 +20,9 @@ const departmentLabels: Record<Department, string> = {
 };
 
 export default async function AdminPostsPage() {
-  const posts = await getPosts({});
+  // Busca todos os posts (ativos e inativos) para o painel de admin.
+  const posts = await getPosts({ activeOnly: false });
+  console.log('Posts encontrados no painel admin:', posts.length);
 
   return (
     <>

@@ -22,7 +22,7 @@ const projectIcons: { [key: string]: React.ElementType } = {
 
 export default async function EnvironmentalEducationPage() {
   const settings = await getEnvironmentalEducationSettings();
-  const posts = await getPosts({ sector: 'educacao_ambiental', limit: 3 });
+  const posts = await getPosts({ sector: 'educacao_ambiental', limit: 3, activeOnly: true });
 
   const activeProjects = settings.projects.filter(p => p.active);
   const contact = settings.team[0] || {};

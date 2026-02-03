@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AnimalWelfareInfoPage() {
   const settings = await getAnimalWelfareSettings();
-  const posts = await getPosts({ sector: 'bem_estar_animal', limit: 3 });
+  const posts = await getPosts({ sector: 'bem_estar_animal', limit: 3, activeOnly: true });
 
   return (
     <PublicLayout>

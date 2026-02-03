@@ -27,7 +27,7 @@ const projectIcons: { [key: string]: React.ElementType } = {
 
 export default async function UrbanAfforestationPage() {
   const settings = await getUrbanAfforestationSettings();
-  const posts = await getPosts({ sector: 'arborizacao', limit: 3 });
+  const posts = await getPosts({ sector: 'arborizacao', limit: 3, activeOnly: true });
 
   if (!settings) {
     return <div className="container mx-auto py-12 px-4 text-center">Conteúdo de Arborização Urbana não encontrado. Por favor, configure-o no painel de administração.</div>
