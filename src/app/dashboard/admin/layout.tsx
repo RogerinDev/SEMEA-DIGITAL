@@ -1,7 +1,7 @@
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
-import { LayoutDashboard, FileText, AlertTriangle, Users, PawPrint, BarChart, Search, Cog } from 'lucide-react';
+import { LayoutDashboard, FileText, AlertTriangle, Users, PawPrint, BarChart, Search, Cog, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Department } from '@/types';
 
@@ -9,11 +9,12 @@ import type { Department } from '@/types';
 const allAdminNavItems: (NavItem & { requiredDepartment?: Department; superAdminOnly?: boolean })[] = [
   { href: '/dashboard/admin', label: 'Painel Geral', icon: LayoutDashboard, matchExact: true },
   { href: '/dashboard/admin/performance', label: 'Desempenho', icon: BarChart, superAdminOnly: true },
-  { href: '/dashboard/admin/requests', label: 'Gerenciar Solicitações', icon: FileText, requiredDepartment: undefined }, // Visível a todos os admins de setor
-  { href: '/dashboard/admin/incidents', label: 'Gerenciar Denúncias', icon: AlertTriangle, requiredDepartment: undefined }, // Visível a todos os admins de setor
+  { href: '/dashboard/admin/requests', label: 'Gerenciar Solicitações', icon: FileText, requiredDepartment: undefined },
+  { href: '/dashboard/admin/incidents', label: 'Gerenciar Denúncias', icon: AlertTriangle, requiredDepartment: undefined },
   { href: '/dashboard/admin/adoption', label: 'Gerenciar Adoções', icon: PawPrint, requiredDepartment: 'bem_estar_animal' },
   { href: '/dashboard/admin/lost-found', label: 'Moderar Perdidos/Achados', icon: Search, requiredDepartment: 'bem_estar_animal' },
   { href: '/dashboard/admin/urban-afforestation/settings', label: 'Conteúdo Arborização', icon: Cog, requiredDepartment: 'arborizacao'},
+  { href: '/dashboard/admin/education/settings', label: 'Conteúdo Educação Amb.', icon: GraduationCap, requiredDepartment: 'educacao_ambiental'},
   { href: '/dashboard/admin/users', label: 'Gerenciar Usuários', icon: Users, superAdminOnly: true },
 ];
 

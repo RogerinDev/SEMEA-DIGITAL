@@ -63,12 +63,17 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin(); 
     }
 
-    // Regra para Configurações de Setor
+    // Regras para Configurações de Setor
+    match /sector_settings/{document} {
+      allow read: if true;
+    }
+
     match /sector_settings/urban_afforestation {
-        // Permite que todos leiam, para exibir os dados nas páginas públicas.
-        allow read: if true;
-        // Permite escrita apenas para super admins ou admins do setor de arborização.
         allow write: if isAdmin() && (isSuperAdmin() || request.auth.token.department == 'arborizacao');
+    }
+    
+    match /sector_settings/environmental_education {
+        allow write: if isAdmin() && (isSuperAdmin() || request.auth.token.department == 'educacao_ambiental');
     }
   }
 }

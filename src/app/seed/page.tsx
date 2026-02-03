@@ -1,4 +1,3 @@
-
 // Arquivo: src/app/seed/page.tsx
 'use client';
 
@@ -6,9 +5,9 @@ import { useState } from 'react';
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Database, Loader2, AlertTriangle, CheckCircle, Sprout } from 'lucide-react';
+import { Database, Loader2, AlertTriangle, CheckCircle, Sprout, GraduationCap } from 'lucide-react';
 import { seedDatabaseAction } from '@/app/actions/seed-database';
-import { seedUrbanAfforestationDataAction } from '../actions/seed-actions';
+import { seedUrbanAfforestationDataAction, seedEnvironmentalEducationDataAction } from '../actions/seed-actions';
 
 
 function ResultMessage({ result }: { result: { success: boolean; message: string } | null }) {
@@ -47,7 +46,8 @@ function ResultMessage({ result }: { result: { success: boolean; message: string
 export default function SeedDatabasePage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [generalResult, setGeneralResult] = useState<{ success: boolean; message: string } | null>(null);
-  const [contentResult, setContentResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [urbanAfforestationResult, setUrbanAfforestationResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [environmentalEducationResult, setEnvironmentalEducationResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const handleSeedGeneralData = async () => {
     setLoading('general');
@@ -56,26 +56,33 @@ export default function SeedDatabasePage() {
       const response = await seedDatabaseAction();
       setGeneralResult(response);
     } catch (error: any) {
-      setGeneralResult({
-        success: false,
-        message: error.message || 'Um erro desconhecido ocorreu ao chamar a ação.',
-      });
+      setGeneralResult({ success: false, message: error.message || 'Um erro desconhecido ocorreu.' });
     } finally {
       setLoading(null);
     }
   };
 
-  const handleSeedContentData = async () => {
-    setLoading('content');
-    setContentResult(null);
+  const handleSeedUrbanAfforestation = async () => {
+    setLoading('urban_afforestation');
+    setUrbanAfforestationResult(null);
      try {
       const response = await seedUrbanAfforestationDataAction();
-      setContentResult(response);
+      setUrbanAfforestationResult(response);
     } catch (error: any) {
-      setContentResult({
-        success: false,
-        message: error.message || 'Um erro desconhecido ocorreu ao chamar a ação.',
-      });
+      setUrbanAfforestationResult({ success: false, message: error.message || 'Um erro desconhecido ocorreu.' });
+    } finally {
+      setLoading(null);
+    }
+  }
+  
+  const handleSeedEnvironmentalEducation = async () => {
+    setLoading('environmental_education');
+    setEnvironmentalEducationResult(null);
+     try {
+      const response = await seedEnvironmentalEducationDataAction();
+      setEnvironmentalEducationResult(response);
+    } catch (error: any) {
+      setEnvironmentalEducationResult({ success: false, message: error.message || 'Um erro desconhecido ocorreu.' });
     } finally {
       setLoading(null);
     }
@@ -97,14 +104,8 @@ export default function SeedDatabasePage() {
             </CardHeader>
             <CardContent className="text-center">
             <Button onClick={handleSeedGeneralData} disabled={loading === 'general'} size="lg">
-                {loading === 'general' ? (
-                <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Populando...
-                </>
-                ) : (
-                'Adicionar Dados de Exemplo'
-                )}
+                {loading === 'general' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                Adicionar Dados de Exemplo
             </Button>
             <ResultMessage result={generalResult} />
             </CardContent>
@@ -117,26 +118,37 @@ export default function SeedDatabasePage() {
                 <span>Popular Conteúdo (Arborização Urbana)</span>
             </CardTitle>
             <CardDescription>
-                Clique para inserir o conteúdo inicial (projetos, contatos, etc.) para o setor de Arborização Urbana. 
-                Isso é necessário para as páginas dinâmicas funcionarem.
+                Clique para inserir o conteúdo inicial (projetos, contatos, etc.) para o setor de Arborização Urbana.
             </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
-            <Button onClick={handleSeedContentData} disabled={loading === 'content'} size="lg">
-                {loading === 'content' ? (
-                <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Populando...
-                </>
-                ) : (
-                'Adicionar Conteúdo de Arborização'
-                )}
+            <Button onClick={handleSeedUrbanAfforestation} disabled={loading === 'urban_afforestation'} size="lg">
+                {loading === 'urban_afforestation' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                Adicionar Conteúdo de Arborização
             </Button>
-            <ResultMessage result={contentResult} />
+            <ResultMessage result={urbanAfforestationResult} />
+            </CardContent>
+        </Card>
+
+        <Card className="shadow-lg">
+            <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+                <GraduationCap className="h-6 w-6 text-primary" />
+                <span>Popular Conteúdo (Educação Ambiental)</span>
+            </CardTitle>
+            <CardDescription>
+                Clique para inserir o conteúdo inicial para o setor de Educação Ambiental.
+            </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+            <Button onClick={handleSeedEnvironmentalEducation} disabled={loading === 'environmental_education'} size="lg">
+                {loading === 'environmental_education' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                Adicionar Conteúdo de Educação Amb.
+            </Button>
+            <ResultMessage result={environmentalEducationResult} />
             </CardContent>
         </Card>
       </div>
     </div>
   );
 }
-

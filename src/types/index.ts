@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview Arquivo central de definições de tipos (TypeScript) para toda a aplicação.
  * Isso garante consistência e reuso de tipos em diferentes partes do código.
@@ -261,21 +260,40 @@ export interface ThematicLecture {
   description?: string;
 }
 
-// ---- Tipos para a Seção de Arborização Urbana ----
+// ---- Tipos para o Gerenciador de Conteúdo de Setor ----
 
-// Estrutura de um projeto de arborização.
-export interface ArborizationProject {
+export interface SectorProjectSetting {
   id: string;
   slug: string;
   title: string;
-  objective: string;
-  howToParticipate?: string;
-  cta?: { // Call to Action
-    text: string;
-    link: string;
-    type: 'whatsapp' | 'internal' | 'external' | 'info';
+  description: string;
+  active: boolean;
+}
+
+export interface SectorDownloadSetting {
+  id: string;
+  label: string;
+  description: string;
+  url: string;
+}
+
+export interface SectorTeamMemberSetting {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+}
+
+export interface SectorSettings {
+  contactInfo: {
+    phone: string;
+    address: string;
+    schedule: string;
+    emails: string[];
   };
-  detailsPage: boolean; // Se tem uma página de detalhes.
+  team: SectorTeamMemberSetting[];
+  downloads: SectorDownloadSetting[];
+  projects: SectorProjectSetting[];
 }
 
 
@@ -300,45 +318,5 @@ export interface PerformanceData {
   departmentDistribution: { name: string; value: number }[];
 }
 
-
-// ---- Tipos para o Gerenciador de Conteúdo ----
-
-export interface ArborizationProjectSetting {
-  id: string; // Usado para keys do React
-  slug: string;
-  title: string;
-  description: string;
-  active: boolean;
-}
-
-export interface ArborizationDownloadSetting {
-  id: string;
-  label: string;
-  description: string;
-  url: string;
-}
-
-export interface ArborizationTeamMemberSetting {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-}
-
-export interface UrbanAfforestationSettings {
-  contactInfo: {
-    phone: string;
-    address: string;
-    schedule: string;
-    emails: string[];
-  };
-  team: ArborizationTeamMemberSetting[];
-  downloads: ArborizationDownloadSetting[];
-  projects: ArborizationProjectSetting[];
-}
-
-
 // Constante com nota geral da SEMEA.
 export const GENERAL_SEMEA_FOCUS_NOTE = "Além dos projetos específicos, a SEMEA foca em fomentar a destinação adequada de resíduos sólidos, prevenção a queimadas, preparo para emergência climática (proteção de APPs, áreas verdes, arborização urbana) e bem-estar animal.";
-
-    
