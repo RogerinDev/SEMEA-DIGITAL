@@ -17,7 +17,7 @@ const allAdminNavItems: (NavItem & { requiredDepartment?: Department; superAdmin
   { href: '/dashboard/admin/lost-found', label: 'Moderar Perdidos/Achados', icon: Search, requiredDepartment: 'bem_estar_animal' },
   { href: '/dashboard/admin/animal-welfare/settings', label: 'Conteúdo Bem-Estar Animal', icon: Cog, requiredDepartment: 'bem_estar_animal'},
   { href: '/dashboard/admin/urban-afforestation/settings', label: 'Conteúdo Arborização', icon: Cog, requiredDepartment: 'arborizacao'},
-  { href: '/dashboard/admin/education/settings', label: 'Conteúdo Educação Amb.', icon: GraduationCap, requiredDepartment: 'educacao_ambiental'},
+  { href: '/dashboard/admin/education/settings', label: 'Conteúdo Educação Amb.', icon: Cog, requiredDepartment: 'educacao_ambiental'},
   { href: '/dashboard/admin/waste-management/settings', label: 'Conteúdo Gestão Resíduos', icon: Cog, requiredDepartment: 'residuos'},
   { href: '/dashboard/admin/users', label: 'Gerenciar Usuários', icon: Users, superAdminOnly: true },
 ];
