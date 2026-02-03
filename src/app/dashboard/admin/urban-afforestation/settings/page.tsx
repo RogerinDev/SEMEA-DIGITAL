@@ -1,20 +1,17 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { randomBytes } from 'crypto';
 
 import { PageTitle } from '@/components/page-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
@@ -83,15 +80,7 @@ export default function UrbanAfforestationSettingsPage() {
       setLoading(true);
       try {
         const settings = await getUrbanAfforestationSettings();
-        if (settings) {
-          form.reset(settings);
-        } else {
-          toast({
-            title: "Aviso",
-            description: "Nenhuma configuração encontrada. Preencha e salve para criar o conteúdo inicial.",
-            variant: "destructive"
-          });
-        }
+        form.reset(settings);
       } catch (error) {
         toast({
             title: "Erro ao carregar",
@@ -111,7 +100,7 @@ export default function UrbanAfforestationSettingsPage() {
     if (result.success) {
       toast({ title: "Sucesso!", description: "Conteúdo atualizado." });
     } else {
-      toast({ title: "Erro", description: result.error || "Acesso negado ou falha ao salvar.", variant: "destructive" });
+      toast({ title: "Erro ao Salvar", description: result.error || "Acesso negado ou falha ao salvar as configurações.", variant: "destructive" });
     }
     setIsSubmitting(false);
   }
@@ -143,11 +132,10 @@ export default function UrbanAfforestationSettingsPage() {
 
   return (
     <>
-      <PageTitle title="Gerenciar Conteúdo de Arborização Urbana" icon={Cog} />
+      <PageTitle title="Gerenciar Conteúdo de Arborização Urbana" icon={Cog} description="Edite as informações que aparecem nas páginas públicas do setor."/>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           
-          {/* Projetos */}
           <Card>
             <CardHeader>
               <CardTitle>Projetos</CardTitle>
@@ -167,50 +155,52 @@ export default function UrbanAfforestationSettingsPage() {
                     </div>
                 </Card>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => appendProject({ id: randomBytes(8).toString('hex'), slug: '', title: '', description: '', active: true })}><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Projeto</Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendProject({ id: crypto.randomUUID(), slug: '', title: '', description: '', active: true })}><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Projeto</Button>
             </CardContent>
           </Card>
 
-          {/* Downloads */}
           <Card>
-            <CardHeader><CardTitle>Links de Download</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Links de Download</CardTitle><CardDescription>Gerencie os documentos e formulários disponíveis para o público.</CardDescription></CardHeader>
             <CardContent className="space-y-4">
               {downloadFields.map((field, index) => (
                 <Card key={field.id} className="p-4 bg-muted/50">
-                    <FormField control={form.control} name={`downloads.${index}.label`} render={({ field }) => (<FormItem><FormLabel>Rótulo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`downloads.${index}.description`} render={({ field }) => (<FormItem className="mt-4"><FormLabel>Descrição</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                    <FormField control={form.control} name={`downloads.${index}.url`} render={({ field }) => (<FormItem className="mt-4"><FormLabel>URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`downloads.${index}.label`} render={({ field }) => (<FormItem><FormLabel>Rótulo do Link</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`downloads.${index}.description`} render={({ field }) => (<FormItem className="mt-4"><FormLabel>Descrição Breve</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name={`downloads.${index}.url`} render={({ field }) => (<FormItem className="mt-4"><FormLabel>URL Completa</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                     <div className="flex justify-end mt-4">
                         <Button type="button" variant="destructive" size="icon" onClick={() => removeDownload(index)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                 </Card>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={() => appendDownload({ id: randomBytes(8).toString('hex'), label: '', description: '', url: '#' })}><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Link</Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendDownload({ id: crypto.randomUUID(), label: '', description: '', url: '#' })}><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Link</Button>
             </CardContent>
           </Card>
 
-           {/* Equipe e Contato */}
           <Card>
-            <CardHeader><CardTitle>Equipe e Contato</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Equipe e Informações de Contato</CardTitle><CardDescription>Atualize os detalhes de contato e os membros da equipe.</CardDescription></CardHeader>
             <CardContent className="space-y-6">
-                <FormField control={form.control} name="contactInfo.phone" render={({ field }) => (<FormItem><FormLabel>Telefone Principal</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                <FormField control={form.control} name="contactInfo.address" render={({ field }) => (<FormItem><FormLabel>Endereço</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                <FormField control={form.control} name="contactInfo.schedule" render={({ field }) => (<FormItem><FormLabel>Horário de Funcionamento</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                <div className="grid md:grid-cols-2 gap-4">
+                    <FormField control={form.control} name="contactInfo.phone" render={({ field }) => (<FormItem><FormLabel>Telefone Principal</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                    <FormField control={form.control} name="contactInfo.schedule" render={({ field }) => (<FormItem><FormLabel>Horário de Funcionamento</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                </div>
+                <FormField control={form.control} name="contactInfo.address" render={({ field }) => (<FormItem><FormLabel>Endereço Completo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                 <FormField control={form.control} name="contactInfo.emails" render={({ field }) => (<FormItem><FormLabel>E-mails de Contato</FormLabel><FormControl><Input placeholder="Separados por vírgula" {...field} onChange={e => field.onChange(e.target.value.split(',').map(email => email.trim()))} value={Array.isArray(field.value) ? field.value.join(', ') : ''} /></FormControl><FormMessage /></FormItem>)}/>
                 
                 <Separator/>
                 <h3 className="text-lg font-medium">Membros da Equipe</h3>
                 {teamFields.map((field, index) => (
                     <Card key={field.id} className="p-4 bg-muted/50">
-                        <FormField control={form.control} name={`team.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`team.${index}.role`} render={({ field }) => (<FormItem className="mt-4"><FormLabel>Cargo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                        <FormField control={form.control} name={`team.${index}.email`} render={({ field }) => (<FormItem className="mt-4"><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <FormField control={form.control} name={`team.${index}.name`} render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                            <FormField control={form.control} name={`team.${index}.role`} render={({ field }) => (<FormItem><FormLabel>Cargo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                        </div>
+                        <FormField control={form.control} name={`team.${index}.email`} render={({ field }) => (<FormItem className="mt-4"><FormLabel>Email (opcional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                         <div className="flex justify-end mt-4">
                             <Button type="button" variant="destructive" size="icon" onClick={() => removeTeam(index)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                     </Card>
                 ))}
-                <Button type="button" variant="outline" size="sm" onClick={() => appendTeam({ id: randomBytes(8).toString('hex'), name: '', role: '', email: '' })}><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Membro</Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => appendTeam({ id: crypto.randomUUID(), name: '', role: '', email: '' })}><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Membro</Button>
             </CardContent>
           </Card>
 
