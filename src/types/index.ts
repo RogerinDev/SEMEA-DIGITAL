@@ -15,7 +15,7 @@ export interface AppUser extends FirebaseUser {
 }
 
 // Define os departamentos da secretaria.
-export type Department = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental' | 'gabinete';
+export type Department = 'arborizacao' | 'residuos' | 'bem_estar_animal' | 'educacao_ambiental' | 'gabinete' | 'general';
 
 // Define a estrutura para uma entrada no histórico de status.
 export interface StatusHistoryEntry {
@@ -316,6 +316,19 @@ export interface SectorSettings {
   projects: SectorProjectSetting[];
   ecopoints?: Ecopoint[];
   collectionPoints?: CollectionPoint[];
+}
+
+// ---- Tipos para Notícias (Posts) ----
+export interface Post {
+    id: string;
+    slug: string;
+    title: string;
+    content: string;
+    imageUrl: string;
+    videoUrl?: string;
+    sector: Department;
+    date: string; // ISO string date
+    active: boolean;
 }
 
 

@@ -2,7 +2,7 @@
 "use client";
 
 import DashboardLayout, { type NavItem } from '@/components/layouts/dashboard-layout';
-import { LayoutDashboard, FileText, AlertTriangle, Users, PawPrint, BarChart, Search, Cog, GraduationCap, Recycle } from 'lucide-react';
+import { LayoutDashboard, FileText, AlertTriangle, Users, PawPrint, BarChart, Search, Cog, GraduationCap, Recycle, Newspaper } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Department } from '@/types';
 
@@ -12,6 +12,7 @@ const allAdminNavItems: (NavItem & { requiredDepartment?: Department; superAdmin
   { href: '/dashboard/admin/performance', label: 'Desempenho', icon: BarChart, superAdminOnly: true },
   { href: '/dashboard/admin/requests', label: 'Gerenciar Solicitações', icon: FileText, requiredDepartment: undefined },
   { href: '/dashboard/admin/incidents', label: 'Gerenciar Denúncias', icon: AlertTriangle, requiredDepartment: undefined },
+  { href: '/dashboard/admin/posts', label: 'Notícias e Comunicados', icon: Newspaper, requiredDepartment: undefined },
   { href: '/dashboard/admin/adoption', label: 'Gerenciar Adoções', icon: PawPrint, requiredDepartment: 'bem_estar_animal' },
   { href: '/dashboard/admin/lost-found', label: 'Moderar Perdidos/Achados', icon: Search, requiredDepartment: 'bem_estar_animal' },
   { href: '/dashboard/admin/animal-welfare/settings', label: 'Conteúdo Bem-Estar Animal', icon: Cog, requiredDepartment: 'bem_estar_animal'},
