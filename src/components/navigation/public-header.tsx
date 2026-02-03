@@ -24,7 +24,7 @@ const mainNavItems = [
     { href: '/info/urban-afforestation', label: 'Arborização', icon: TreePine },
     { href: '/info/waste-management', label: 'Resíduos', icon: Droplets },
     { href: '/info/education', label: 'Educação Ambiental', icon: GraduationCap },
-    { href: '/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
+    { href: '/info/animal-welfare', label: 'Bem Estar Animal', icon: PawPrint },
 ];
 const servicesNavItem = { href: '/dashboard/citizen', label: 'Serviços', icon: Briefcase };
 

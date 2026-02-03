@@ -13,11 +13,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function AnimalWelfareInfoPage() {
   const settings = await getAnimalWelfareSettings();
+  console.log('DEBUG ANIMAL DATA:', settings);
 
-  const activeProjects = settings.projects.filter(p => p.active);
-  const teamMembers = settings.team;
-  const contactInfo = settings.contactInfo;
-  
   return (
     <>
       <PageTitle
@@ -50,7 +47,7 @@ export default async function AnimalWelfareInfoPage() {
               <CardTitle>Nossos Pilares de Atuação</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {activeProjects.map((pillar) => (
+              {settings.projects.filter(p => p.active).map((pillar) => (
                   <div key={pillar.id} className="flex items-start gap-4">
                       <ShieldCheck className="h-8 w-8 text-primary mt-1 shrink-0"/>
                       <div>
@@ -70,10 +67,10 @@ export default async function AnimalWelfareInfoPage() {
             <CardTitle className="flex items-center"><Building2 className="mr-2 h-5 w-5 text-primary" />Endereço e Funcionamento</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p className="text-muted-foreground"><strong>Endereço:</strong> {contactInfo.address}</p>
+            <p className="text-muted-foreground"><strong>Endereço:</strong> {settings.contactInfo.address}</p>
             <Separator />
             <p className="text-muted-foreground"><strong>Funcionamento do Setor:</strong></p>
-            <p className="ml-4 text-muted-foreground">{contactInfo.schedule}</p>
+            <p className="ml-4 text-muted-foreground">{settings.contactInfo.schedule}</p>
             <Separator />
             <p className="text-muted-foreground"><strong>Atendimento ao Público:</strong></p>
             <p className="ml-4 text-muted-foreground">Segunda a Sexta: Das 08h às 11h e de 13h30 às 16h.</p>
@@ -125,7 +122,7 @@ export default async function AnimalWelfareInfoPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teamMembers.map((member) => (
+            {settings.team.map((member) => (
               <Card key={member.id} className="bg-muted/40">
                 <CardHeader>
                     <div className="flex items-center gap-3 mb-1">
@@ -134,12 +131,12 @@ export default async function AnimalWelfareInfoPage() {
                     </div>
                   <CardDescription className="text-primary font-medium">{member.role}</CardDescription>
                 </CardHeader>
-                {(contactInfo.phone || member.email) && (
+                {(settings.contactInfo.phone || member.email) && (
                 <CardContent className="text-sm space-y-1">
-                    {member.role.toLowerCase().includes('supervisora') && contactInfo.phone && (
+                    {member.role.toLowerCase().includes('supervisora') && settings.contactInfo.phone && (
                         <div className="flex items-center">
                             <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground">{contactInfo.phone}</span>
+                            <span className="text-muted-foreground">{settings.contactInfo.phone}</span>
                         </div>
                     )}
                     {member.email && (
