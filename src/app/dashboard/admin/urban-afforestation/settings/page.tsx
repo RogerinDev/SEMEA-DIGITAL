@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -17,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/contexts/auth-context';
 import { getUrbanAfforestationSettings, updateUrbanAfforestationSettings } from '@/app/actions/settings-actions';
 import type { UrbanAfforestationSettings } from '@/types';
 import { Cog, Loader2, PlusCircle, ShieldAlert, Trash2 } from 'lucide-react';
