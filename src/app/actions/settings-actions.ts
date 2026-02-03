@@ -198,7 +198,7 @@ export async function updateAnimalWelfareSettings(data: SectorSettings): Promise
     try {
         const docRef = db.collection('sector_settings').doc(ANIMAL_WELFARE_DOC_NAME);
         await docRef.set(data, { merge: true });
-        revalidatePath('/info/animal-welfare', 'layout');
+        revalidatePath('/info/animal-welfare');
         return { success: true };
     } catch (error: any) {
         console.error("Erro ao atualizar configurações de Bem-Estar Animal:", error);
