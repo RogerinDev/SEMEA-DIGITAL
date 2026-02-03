@@ -157,6 +157,7 @@ export default async function AnimalWelfareInfoPage() {
           </div>
         </CardContent>
       </Card>
+      <div className="text-xs text-gray-400 p-4">Debug ID: {settings?.contactInfo?.phone}</div>
     </>
   );
 }
