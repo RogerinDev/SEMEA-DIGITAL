@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { getUrbanAfforestationSettings, updateUrbanAfforestationSettings } from '@/app/actions/settings-actions';
 import type { UrbanAfforestationSettings } from '@/types';
 import { Cog, Loader2, PlusCircle, ShieldAlert, Trash2 } from 'lucide-react';
@@ -78,17 +78,26 @@ export default function UrbanAfforestationSettingsPage() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const settings = await getUrbanAfforestationSettings();
-      if (settings) {
-        form.reset(settings);
-      } else {
+      try {
+        const settings = await getUrbanAfforestationSettings();
+        if (settings) {
+          form.reset(settings);
+        } else {
+          toast({
+            title: "Aviso",
+            description: "Nenhuma configuração encontrada. Preencha e salve para criar o conteúdo inicial.",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
         toast({
-          title: "Aviso",
-          description: "Nenhuma configuração encontrada. Preencha e salve para criar o conteúdo inicial.",
-          variant: "destructive"
+            title: "Erro ao carregar",
+            description: "Não foi possível buscar as configurações do servidor.",
+            variant: "destructive"
         });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchData();
   }, [form, toast]);
@@ -99,7 +108,7 @@ export default function UrbanAfforestationSettingsPage() {
     if (result.success) {
       toast({ title: "Sucesso!", description: "Conteúdo atualizado." });
     } else {
-      toast({ title: "Erro", description: result.error, variant: "destructive" });
+      toast({ title: "Erro", description: result.error || "Acesso negado ou falha ao salvar.", variant: "destructive" });
     }
     setIsSubmitting(false);
   }
@@ -107,7 +116,16 @@ export default function UrbanAfforestationSettingsPage() {
   const isAuthorized = currentUser?.role === 'superAdmin' || (currentUser?.role === 'admin' && currentUser?.department === 'arborizacao');
   
   if (loading) {
-    return <Skeleton className="h-96 w-full" />
+    return (
+        <div>
+            <PageTitle title="Gerenciar Conteúdo de Arborização Urbana" icon={Cog} />
+            <div className="space-y-8">
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-64 w-full" />
+            </div>
+        </div>
+    )
   }
 
   if (!isAuthorized) {
@@ -115,7 +133,7 @@ export default function UrbanAfforestationSettingsPage() {
         <div className="flex flex-col items-center justify-center h-full text-center p-8">
             <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
             <h1 className="text-2xl font-bold">Acesso Negado</h1>
-            <p className="text-muted-foreground max-w-md">Você não tem permissão para gerenciar este conteúdo. Esta seção é restrita.</p>
+            <p className="text-muted-foreground max-w-md">Você não tem permissão para gerenciar este conteúdo. Esta seção é restrita aos administradores do setor de Arborização Urbana.</p>
         </div>
     );
   }
