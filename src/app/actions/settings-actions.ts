@@ -48,6 +48,7 @@ export async function getUrbanAfforestationSettings(): Promise<SectorSettings> {
 
     if (docSnap.exists) {
       const firestoreData = docSnap.data() as Partial<SectorSettings>;
+      console.log('Lendo dados de Arborização Urbana: Sucesso');
       return {
         contactInfo: { ...DEFAULT_URBAN_AFFORESTATION_SETTINGS.contactInfo, ...firestoreData.contactInfo },
         team: firestoreData.team || DEFAULT_URBAN_AFFORESTATION_SETTINGS.team,
@@ -55,12 +56,13 @@ export async function getUrbanAfforestationSettings(): Promise<SectorSettings> {
         projects: firestoreData.projects || DEFAULT_URBAN_AFFORESTATION_SETTINGS.projects,
       };
     } else {
-      console.warn(`Documento '${URBAN_AFFORESTATION_DOC_NAME}' não encontrado. Retornando dados padrão.`);
+      console.log('Lendo dados de Arborização Urbana: Fallback (documento não existe)');
       await docRef.set(DEFAULT_URBAN_AFFORESTATION_SETTINGS);
       return DEFAULT_URBAN_AFFORESTATION_SETTINGS;
     }
   } catch (error) {
     console.error("Erro CRÍTICO ao buscar configurações de Arborização Urbana:", error);
+    console.log('Lendo dados de Arborização Urbana: Fallback (devido a erro)');
     return DEFAULT_URBAN_AFFORESTATION_SETTINGS;
   }
 }
@@ -109,6 +111,7 @@ export async function getEnvironmentalEducationSettings(): Promise<SectorSetting
 
     if (docSnap.exists) {
       const firestoreData = docSnap.data() as Partial<SectorSettings>;
+      console.log('Lendo dados de Educação Ambiental: Sucesso');
       return {
         contactInfo: { ...DEFAULT_ENVIRONMENTAL_EDUCATION_SETTINGS.contactInfo, ...firestoreData.contactInfo },
         team: firestoreData.team || DEFAULT_ENVIRONMENTAL_EDUCATION_SETTINGS.team,
@@ -116,12 +119,13 @@ export async function getEnvironmentalEducationSettings(): Promise<SectorSetting
         projects: firestoreData.projects || DEFAULT_ENVIRONMENTAL_EDUCATION_SETTINGS.projects,
       };
     } else {
-      console.warn(`Documento '${ENVIRONMENTAL_EDUCATION_DOC_NAME}' não encontrado. Retornando dados padrão.`);
+      console.log('Lendo dados de Educação Ambiental: Fallback (documento não existe)');
       await docRef.set(DEFAULT_ENVIRONMENTAL_EDUCATION_SETTINGS);
       return DEFAULT_ENVIRONMENTAL_EDUCATION_SETTINGS;
     }
   } catch (error) {
     console.error("Erro CRÍTICO ao buscar configurações de Educação Ambiental:", error);
+    console.log('Lendo dados de Educação Ambiental: Fallback (devido a erro)');
     return DEFAULT_ENVIRONMENTAL_EDUCATION_SETTINGS;
   }
 }
@@ -176,6 +180,7 @@ export async function getAnimalWelfareSettings(): Promise<SectorSettings> {
 
     if (docSnap.exists) {
       const firestoreData = docSnap.data() as Partial<SectorSettings>;
+      console.log('Lendo dados de Bem-Estar Animal: Sucesso');
       return {
         contactInfo: { ...DEFAULT_ANIMAL_WELFARE_SETTINGS.contactInfo, ...firestoreData.contactInfo },
         team: firestoreData.team || DEFAULT_ANIMAL_WELFARE_SETTINGS.team,
@@ -183,12 +188,13 @@ export async function getAnimalWelfareSettings(): Promise<SectorSettings> {
         projects: firestoreData.projects || DEFAULT_ANIMAL_WELFARE_SETTINGS.projects,
       };
     } else {
-      console.warn(`Documento '${ANIMAL_WELFARE_DOC_NAME}' não encontrado. Retornando dados padrão.`);
+      console.log('Lendo dados de Bem-Estar Animal: Fallback (documento não existe)');
       await docRef.set(DEFAULT_ANIMAL_WELFARE_SETTINGS);
       return DEFAULT_ANIMAL_WELFARE_SETTINGS;
     }
   } catch (error) {
     console.error("Erro CRÍTICO ao buscar configurações de Bem-Estar Animal:", error);
+    console.log('Lendo dados de Bem-Estar Animal: Fallback (devido a erro)');
     return DEFAULT_ANIMAL_WELFARE_SETTINGS;
   }
 }

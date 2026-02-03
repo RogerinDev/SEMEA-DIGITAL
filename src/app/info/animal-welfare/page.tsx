@@ -1,5 +1,4 @@
 
-
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import React from 'react';
 import Image from 'next/image';
 import { getAnimalWelfareSettings } from '@/app/actions/settings-actions';
 
+export const dynamic = 'force-dynamic';
 
 export default async function AnimalWelfareInfoPage() {
   const settings = await getAnimalWelfareSettings();
@@ -50,7 +50,7 @@ export default async function AnimalWelfareInfoPage() {
               <CardTitle>Nossos Pilares de Atuação</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {activeProjects.map((pillar, index) => (
+              {activeProjects.map((pillar) => (
                   <div key={pillar.id} className="flex items-start gap-4">
                       <ShieldCheck className="h-8 w-8 text-primary mt-1 shrink-0"/>
                       <div>

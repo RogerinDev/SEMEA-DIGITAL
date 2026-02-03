@@ -8,7 +8,8 @@ import Image from 'next/image';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { getUrbanAfforestationSettings } from '@/app/actions/settings-actions';
-import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 const projectIcons: { [key: string]: React.ElementType } = {
   'plantar': Sprout,
@@ -26,8 +27,6 @@ export default async function UrbanAfforestationPage() {
   const settings = await getUrbanAfforestationSettings();
 
   if (!settings) {
-    // Pode retornar uma mensagem de erro ou um fallback.
-    // notFound() renderizaria a página 404 do Next.js
     return <div className="container mx-auto py-12 px-4 text-center">Conteúdo de Arborização Urbana não encontrado. Por favor, configure-o no painel de administração.</div>
   }
 

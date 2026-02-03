@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { GraduationCap, Lightbulb, Recycle, Sprout, HeartHandshake, Mail, Phone, CalendarIcon } from 'lucide-react';
 import { getEnvironmentalEducationSettings } from '@/app/actions/settings-actions';
+
+export const dynamic = 'force-dynamic';
 
 const projectIcons: { [key: string]: React.ElementType } = {
   'escola-verde': Lightbulb,
