@@ -328,6 +328,9 @@ export interface ArborizationTeamMemberSetting {
 export interface UrbanAfforestationSettings {
   contactInfo: {
     phone: string;
+    address: string;
+    schedule: string;
+    emails: string[];
   };
   team: ArborizationTeamMemberSetting[];
   downloads: ArborizationDownloadSetting[];

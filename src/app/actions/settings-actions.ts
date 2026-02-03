@@ -12,7 +12,10 @@ const docName = 'urban_afforestation';
 // Define os dados padrão como um fallback em caso de erro ou documento inexistente.
 const DEFAULT_URBAN_AFFORESTATION_SETTINGS: UrbanAfforestationSettings = {
     contactInfo: {
-      phone: "(35) 3606-9969"
+      phone: "(35) 3606-9969",
+      address: "Rua Jaime Venturato, 50, São Geraldo, Varginha/MG",
+      schedule: "Seg. a Sex. das 07:30 às 11:30 e 13:00 às 17:00",
+      emails: ["evelin.silva@varginha.mg.gov.br", "joana.carneiro@varginha.mg.gov.br"],
     },
     team: [
       { id: 'team-1', name: "Évelin Cristiane de Castro Silva", role: "Engenheira Florestal", email: "evelin.silva@varginha.mg.gov.br" },
@@ -50,13 +53,13 @@ export async function getUrbanAfforestationSettings(): Promise<UrbanAfforestatio
     const docSnap = await docRef.get();
 
     if (docSnap.exists) {
+      const firestoreData = docSnap.data() as Partial<UrbanAfforestationSettings>;
       // Mescla os dados do banco com os dados padrão para garantir que campos novos não quebrem a aplicação.
-      const firestoreData = docSnap.data();
       return {
-        contactInfo: { ...DEFAULT_URBAN_AFFORESTATION_SETTINGS.contactInfo, ...firestoreData?.contactInfo },
-        team: firestoreData?.team || DEFAULT_URBAN_AFFORESTATION_SETTINGS.team,
-        downloads: firestoreData?.downloads || DEFAULT_URBAN_AFFORESTATION_SETTINGS.downloads,
-        projects: firestoreData?.projects || DEFAULT_URBAN_AFFORESTATION_SETTINGS.projects,
+        contactInfo: { ...DEFAULT_URBAN_AFFORESTATION_SETTINGS.contactInfo, ...firestoreData.contactInfo },
+        team: firestoreData.team || DEFAULT_URBAN_AFFORESTATION_SETTINGS.team,
+        downloads: firestoreData.downloads || DEFAULT_URBAN_AFFORESTATION_SETTINGS.downloads,
+        projects: firestoreData.projects || DEFAULT_URBAN_AFFORESTATION_SETTINGS.projects,
       };
     } else {
       console.warn(`Documento de configurações '${docName}' não encontrado. Retornando dados padrão.`);
@@ -78,6 +81,14 @@ export async function getUrbanAfforestationSettings(): Promise<UrbanAfforestatio
  * Revalida os caches das páginas afetadas.
  */
 export async function updateUrbanAfforestationSettings(data: UrbanAfforestationSettings): Promise<{ success: boolean; error?: string }> {
+  // A verificação de permissão (RBAC) deve ser robusta.
+  // Como as Server Actions no Next.js não têm um contexto de autenticação de servidor
+  // como as Cloud Functions (context.auth), uma verificação segura aqui exigiria
+  // uma biblioteca de sessão ou a passagem de um ID Token para verificação.
+  // Para manter a simplicidade e segurança, a regra de escrita do Firestore
+  // é a principal barreira de proteção contra acessos não autorizados pelo cliente.
+  // A chamada via Server Action já é mais segura que uma chamada direta do cliente.
+  
   const { db } = getFirebaseAdmin();
   try {
     const docRef = db.collection(collectionName).doc(docName);

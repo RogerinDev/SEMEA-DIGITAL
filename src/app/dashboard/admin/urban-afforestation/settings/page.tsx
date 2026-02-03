@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -47,6 +48,9 @@ const teamMemberSchema = z.object({
 const settingsSchema = z.object({
   contactInfo: z.object({
     phone: z.string().min(10, 'Telefone é obrigatório'),
+    address: z.string().min(10, 'Endereço é obrigatório'),
+    schedule: z.string().min(10, 'Horário é obrigatório'),
+    emails: z.array(z.string().email()).optional(),
   }),
   team: z.array(teamMemberSchema),
   downloads: z.array(downloadSchema),
@@ -63,7 +67,7 @@ export default function UrbanAfforestationSettingsPage() {
   const form = useForm<z.infer<typeof settingsSchema>>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      contactInfo: { phone: '' },
+      contactInfo: { phone: '', address: '', schedule: '', emails: [] },
       team: [],
       downloads: [],
       projects: [],
@@ -190,6 +194,10 @@ export default function UrbanAfforestationSettingsPage() {
             <CardHeader><CardTitle>Equipe e Contato</CardTitle></CardHeader>
             <CardContent className="space-y-6">
                 <FormField control={form.control} name="contactInfo.phone" render={({ field }) => (<FormItem><FormLabel>Telefone Principal</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                <FormField control={form.control} name="contactInfo.address" render={({ field }) => (<FormItem><FormLabel>Endereço</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                <FormField control={form.control} name="contactInfo.schedule" render={({ field }) => (<FormItem><FormLabel>Horário de Funcionamento</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                <FormField control={form.control} name="contactInfo.emails" render={({ field }) => (<FormItem><FormLabel>E-mails de Contato</FormLabel><FormControl><Input placeholder="Separados por vírgula" {...field} onChange={e => field.onChange(e.target.value.split(',').map(email => email.trim()))} value={Array.isArray(field.value) ? field.value.join(', ') : ''} /></FormControl><FormMessage /></FormItem>)}/>
+                
                 <Separator/>
                 <h3 className="text-lg font-medium">Membros da Equipe</h3>
                 {teamFields.map((field, index) => (
