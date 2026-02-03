@@ -301,6 +301,40 @@ export interface PerformanceData {
 }
 
 
+// ---- Tipos para o Gerenciador de Conteúdo ----
+
+export interface ArborizationProjectSetting {
+  id: string; // Usado para keys do React
+  slug: string;
+  title: string;
+  description: string;
+  active: boolean;
+}
+
+export interface ArborizationDownloadSetting {
+  id: string;
+  label: string;
+  description: string;
+  url: string;
+}
+
+export interface ArborizationTeamMemberSetting {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+}
+
+export interface UrbanAfforestationSettings {
+  contactInfo: {
+    phone: string;
+  };
+  team: ArborizationTeamMemberSetting[];
+  downloads: ArborizationDownloadSetting[];
+  projects: ArborizationProjectSetting[];
+}
+
+
 // Constante com nota geral da SEMEA.
 export const GENERAL_SEMEA_FOCUS_NOTE = "Além dos projetos específicos, a SEMEA foca em fomentar a destinação adequada de resíduos sólidos, prevenção a queimadas, preparo para emergência climática (proteção de APPs, áreas verdes, arborização urbana) e bem-estar animal.";
 

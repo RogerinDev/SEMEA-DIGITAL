@@ -4,15 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Phone, Mail, User, UserCheck } from 'lucide-react';
 import React from 'react';
+import { getUrbanAfforestationSettings } from '@/app/actions/settings-actions';
 
-const team = [
-  { name: "Évelin Cristiane de Castro Silva", role: "Engenheira Florestal", email: "evelin.silva@varginha.mg.gov.br" },
-  { name: "Joana Junqueira Carneiro", role: "Engenheira Florestal", email: "joana.carneiro@varginha.mg.gov.br" },
-  { name: "Fernando César Costa", role: "Engenheiro Agrônomo", email: "" },
-  { name: "Gevanildo Ferreira", role: "Encarregado de Corte e Poda", email: "" },
-];
+export default async function ArborizationContactPage() {
+  const settings = await getUrbanAfforestationSettings();
 
-export default function ArborizationContactPage() {
+  const team = settings?.team || [];
+  const phone = settings?.contactInfo?.phone || '(35) 3606-9969';
+
   return (
     <>
       <PageTitle
@@ -29,7 +28,7 @@ export default function ArborizationContactPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {team.map((member, index) => (
-              <div key={index} className="flex items-start gap-4">
+              <div key={member.id || index} className="flex items-start gap-4">
                 <div className="bg-primary/10 p-3 rounded-full">
                   {member.role.includes("Encarregado") ? <UserCheck className="h-6 w-6 text-primary" /> : <User className="h-6 w-6 text-primary" />}
                 </div>
@@ -44,6 +43,7 @@ export default function ArborizationContactPage() {
                 </div>
               </div>
             ))}
+             {team.length === 0 && <p className="text-muted-foreground">Informações da equipe não disponíveis.</p>}
           </CardContent>
         </Card>
 
@@ -54,9 +54,9 @@ export default function ArborizationContactPage() {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground mb-2">Telefone para agendamento:</p>
-            <p className="text-3xl font-bold text-primary">(35) 3606-9969</p>
+            <p className="text-3xl font-bold text-primary">{phone}</p>
             <Button asChild className="mt-6">
-              <a href="tel:3536069969">
+              <a href={`tel:${phone.replace(/\D/g, '')}`}>
                 <Phone className="mr-2 h-4 w-4"/>
                 Ligar Agora
               </a>

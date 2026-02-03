@@ -1,3 +1,4 @@
+
 import { PageTitle } from '@/components/page-title';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,8 +7,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
-import { arborizationProjects } from '@/lib/arborization-data';
-
+import { getUrbanAfforestationSettings } from '@/app/actions/settings-actions';
+import { notFound } from 'next/navigation';
 
 const projectIcons: { [key: string]: React.ElementType } = {
   'plantar': Sprout,
@@ -21,7 +22,17 @@ const projectIcons: { [key: string]: React.ElementType } = {
 };
 
 
-export default function UrbanAfforestationPage() {
+export default async function UrbanAfforestationPage() {
+  const settings = await getUrbanAfforestationSettings();
+
+  if (!settings) {
+    // Pode retornar uma mensagem de erro ou um fallback.
+    // notFound() renderizaria a página 404 do Next.js
+    return <div className="container mx-auto py-12 px-4 text-center">Conteúdo de Arborização Urbana não encontrado. Por favor, configure-o no painel de administração.</div>
+  }
+
+  const activeProjects = settings.projects.filter(p => p.active);
+
   const benefits = [
     "Melhora da qualidade do ar",
     "Redução da temperatura ambiente",
@@ -86,7 +97,7 @@ export default function UrbanAfforestationPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-        {arborizationProjects.map((project) => {
+        {activeProjects.map((project) => {
           const Icon = projectIcons[project.slug] || Award;
           return (
             <Card key={project.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -97,22 +108,16 @@ export default function UrbanAfforestationPage() {
                  </div>
               </CardHeader>
               <CardContent className="flex-grow">
-                <p className="text-sm text-muted-foreground line-clamp-4">{project.objective}</p>
+                <p className="text-sm text-muted-foreground line-clamp-4">{project.description}</p>
               </CardContent>
               <CardFooter>
-                {project.detailsPage ? (
-                  <Button asChild className="w-full">
-                    <Link href={`/info/urban-afforestation/projects/${project.slug}`}>
-                      <span className="flex items-center justify-center">
-                        Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
-                      </span>
-                    </Link>
-                  </Button>
-                ) : (
-                    <Button variant="secondary" className="w-full">
-                      Mais informações em breve
-                    </Button>
-                )}
+                <Button asChild className="w-full">
+                  <Link href={`/info/urban-afforestation/projects/${project.slug}`}>
+                    <span className="flex items-center justify-center">
+                      Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
+                    </span>
+                  </Link>
+                </Button>
               </CardFooter>
             </Card>
           )
