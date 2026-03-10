@@ -2,7 +2,7 @@
 
 > Plataforma online de serviços, informações e portal de comunicação da Secretaria Municipal de Meio Ambiente de Varginha - MG. 
 
-Este projeto foi desenvolvido como **Trabalho de Conclusão de Curso (TCC)**, com o objetivo de modernizar, centralizar e democratizar o acesso à informação ambiental para os cidadãos, além de fornecer um painel de gestão eficiente para os servidores públicos.
+Este projeto foi desenvolvido como um **Projeto de Extensão** pelo **CEFET-MG Campus Varginha**, vinculado ao curso de **Sistemas de Informação**. O objetivo é modernizar, centralizar e democratizar o acesso à informação ambiental para os cidadãos, além de fornecer um painel de gestão eficiente para os servidores públicos.
 
 ---
 
@@ -47,4 +47,56 @@ O projeto foi construído com uma stack moderna e de alta performance:
 
 1. **Clone o repositório:**
 ```bash
-git clone [https://github.com/RogerinDev/SEMEA-DIGITAL.git](https://github.com/RogerinDev/SEMEA-DIGITAL.git)
+git clone https://github.com/RogerinDev/SEMEA-DIGITAL.git
+```
+
+2. **Acesse a pasta do projeto:**
+
+```bash
+cd SEMEA-DIGITAL
+```
+
+3. **Instale as dependências:**
+
+```bash
+npm install
+```
+
+4. **Configure as variáveis de ambiente:**
+Crie um arquivo `.env.local` na raiz do projeto com as suas credenciais do Firebase:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=sua_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=seu_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=seu_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=seu_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=seu_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=seu_app_id
+```
+
+5. **Inicie o servidor de desenvolvimento:**
+
+```bash
+npm run dev
+```
+
+O aplicativo estará disponível em `http://localhost:3000`.
+
+---
+
+## 👨‍💻 Equipe e Instituição
+
+**Bolsista / Desenvolvedor:**
+
+* [Rogério](https://github.com/RogerinDev)
+
+**Orientadores:**
+
+* Prof. Eduardo Gomes Carvalho
+* Prof. Lázaro Eduardo da Silva
+
+**Instituição:**
+
+* **CEFET-MG Campus Varginha**
+* Curso de **Sistemas de Informação**
+* Projeto de Extensão: *SmartAmbiente: Plataforma Digital para Gestão Ambiental Integrada*
