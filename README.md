@@ -5,11 +5,8 @@
 > 
 > O desenvolvimento foi um sucesso técnico: o sistema ficou totalmente funcional e pronto para uso logo no primeiro mês de trabalho. Embora não tenha entrado em produção na Secretaria do Meio Ambiente de Varginha — esbarrando em barreiras burocráticas e na resistência institucional à modernização de velhos hábitos —, arquitetar essa solução de ponta a ponta foi uma experiência transformadora e o alicerce prático da minha evolução como engenheiro de software.
 
-> Plataforma online de serviços, informações e portal de comunicação da Secretaria Municipal de Meio Ambiente de Varginha - MG.
-
-> Plataforma online de serviços, informações e portal de comunicação da Secretaria Municipal de Meio Ambiente de Varginha - MG. 
-
 Este projeto foi desenvolvido como um **Projeto de Extensão** pelo **CEFET-MG Campus Varginha**, vinculado ao curso de **Sistemas de Informação**. O objetivo é modernizar, centralizar e democratizar o acesso à informação ambiental para os cidadãos, além de fornecer um painel de gestão eficiente para os servidores públicos.
+> Plataforma online de serviços, informações e portal de comunicação da Secretaria Municipal de Meio Ambiente de Varginha - MG. 
 
 ---
 
