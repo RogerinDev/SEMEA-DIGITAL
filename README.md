@@ -1,5 +1,12 @@
 # 🍃 SEMEA Digital - Varginha/MG
 
+> **⚠️ Nota do Desenvolvedor**
+> Este projeto marca meu primeiro contato prático com desenvolvimento Web e design responsivo, realizado durante meu 3º período da faculdade, quando minha base de conhecimento se resumia a C e Python. Para viabilizar a entrega de um sistema completo, toda a base de código foi desenvolvida 100% em conjunto com a IA do antigo Firebase Studio. Por conta dessa abordagem, o histórico de *commits* do repositório reflete as conversas e os prompts utilizados com a ferramenta, gerando mensagens atípicas. 
+> 
+> O desenvolvimento foi um sucesso técnico: o sistema ficou totalmente funcional e pronto para uso logo no primeiro mês de trabalho. Embora não tenha entrado em produção na Secretaria do Meio Ambiente de Varginha — esbarrando em barreiras burocráticas e na resistência institucional à modernização de velhos hábitos —, arquitetar essa solução de ponta a ponta foi uma experiência transformadora e o alicerce prático da minha evolução como engenheiro de software.
+
+> Plataforma online de serviços, informações e portal de comunicação da Secretaria Municipal de Meio Ambiente de Varginha - MG.
+
 > Plataforma online de serviços, informações e portal de comunicação da Secretaria Municipal de Meio Ambiente de Varginha - MG. 
 
 Este projeto foi desenvolvido como um **Projeto de Extensão** pelo **CEFET-MG Campus Varginha**, vinculado ao curso de **Sistemas de Informação**. O objetivo é modernizar, centralizar e democratizar o acesso à informação ambiental para os cidadãos, além de fornecer um painel de gestão eficiente para os servidores públicos.
@@ -88,7 +95,7 @@ O aplicativo estará disponível em `http://localhost:3000`.
 
 **Bolsista / Desenvolvedor:**
 
-* [Rogério](https://github.com/RogerinDev)
+* [Rogerio](https://github.com/RogerinDev)
 
 **Orientadores:**
 
